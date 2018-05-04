@@ -1,0 +1,74 @@
+<html>
+    <head>
+        <title>Room</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link type="text/css" rel="stylesheet" href="/css/materialize.min.css"  media="screen,projection"/>
+        <script type="text/javascript" src="/script/other/prettify.js"></script>
+        <script type="text/javascript" src="/script/other/loadAndFilter.js"></script>
+        <script type="text/javascript" src="/script/other/jquery.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script type="text/javascript" src="/script/api/easyrtc.js"></script>
+        <script type="text/javascript" src="/script/room/room.js"></script>
+        <script type="text/javascript" src="/script/api/labs/desktop_capture_iframe_version.js"></script>
+        <script type="text/javascript" src="/script/api/labs/easyrtc_recorder.js"></script>
+        <script type="text/javascript" src="/script/streem.js"></script>
+        <link rel="stylesheet" href="/css/start/style.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
+    </head>  
+    <body onload="initApp();" >
+        <div id="container">
+            <div id="main">
+                    <ul class = "collapsible" data-collapsible = "expandable">
+                            <li>
+                                    <div class = "collapsible-header">
+                                       <i class = "material-icons">place</i>Remote media streams</div>
+                                    <div class = "collapsible-body">
+                                         <strong>Connected users:</strong>
+                                         <div id="otherClients"></div>
+                                         <div autoplay="autoplay" id="remoteVideos"></div>   
+                                    </div>
+                            </li>
+                            <li>
+                               <div class = "collapsible-header">
+                                  <i class = "material-icons">filter_drama</i>Chat</div>
+                                <div class = "collapsible-body">
+                                    <h6><div id="iam">Not connected yet</div></h6>
+                                    <div id="receiveMessageArea">
+                                        <blockquote>
+                                            Received Messages: 
+                                            <div id="conversation"></div>
+                                        </blockquote>  
+                                    </div>
+                                    <div class="input-field col s6">
+                                        <i class="material-icons prefix">mode_edit</i>
+                                        <input placeholder="Enter your message here" id="sendMessageText" type="text" class="validate">
+                                        <label for="sendMessageText"></label>
+                                    </div> 
+                                    <div id="rooms"></div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class = "collapsible-header">
+                                  <i class = "material-icons">whatshot</i>Local media streams
+                                </div>
+                                <div class = "collapsible-body">      
+                                    <div id="videoSrcBlk"></div>  
+                                    <div autoplay="autoplay" id="localVideos"></div> 
+                                </div>
+                            </li>
+                    </ul>
+                    <!-- download links for videos: self:<a id="selfDownloadLink"></a> -->
+            </div>	
+        </div>
+    </body>
+    <script type="text/javascript">
+        function colapps(){
+            var elem = document.querySelector('.collapsible.expandable');
+             var instance = M.Collapsible.init(elem, {
+             accordion: false
+             });
+        }
+        </script>
+</html>

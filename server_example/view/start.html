@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+    <head>
+		<meta charset="utf-8">
+        <title>Start</title>
+        <script type="text/javascript" src="/script/other/prettify.js"></script>
+        <script type="text/javascript" src="/script/other/loadAndFilter.js"></script>
+        <script type="text/javascript" src="/script/other/jquery.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script type="text/javascript" src="/script/api/easyrtc.js"></script>
+        <script type="text/javascript" src="/script/start/start.js"></script>
+		<link rel="stylesheet" href="/css/start/style.css">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+    </head>
+    <body onload="initApp();">
+        <div id="join">
+			<div id="join-form">
+				  <form class="col s12">
+						<div class="input-field col s12">
+							<label for="name-input">
+								<span class="fa fa-user user-icon" aria-hidden="true"></span>Nick
+							</label>
+							<input type="text" id="userNameField" >
+						</div>	
+						<div class="input-field col s12">
+							<p>
+								<input type="checkbox" id="roomBox"  onclick="showMe(this, 'roomName')" />
+								<label for="roomBox">Connect to created room?</label>
+							</p>
+							<br />
+							<div  id="roomName" type="text" style="display:block; display:none;">
+								<div class="input-field col s12">
+									<label for="roomNameField">
+										<span aria-hidden="true"></span>Room name
+									</label>
+									<input type="text" id="roomNameField" >
+								</div>
+							</div>
+						</div>
+					</form>
+					<div class="input-field col s12">
+						<button class="waves-effect waves-light btn btn-success" id="connectButton" onclick="connect();">Connect</button>
+					</div>
+			</div>
+		</div>
+		<script type="text/javascript">
+			function showMe (box, divId) {
+				if (box.checked) {
+					var vis = "block";
+					$(box).val(true);
+				}
+				else {
+					var vis = "none";
+					$(box).val(false);
+				}
+				document.getElementById(divId).style.display = vis;
+			}
+			</script>
+    </body>
+</html>
