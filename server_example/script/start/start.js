@@ -9,6 +9,7 @@ function initApp() {
 
 function connect() {
     easyrtc.connect("easyrtc.instantMessaging", loginSuccess, loginFailure);
+    disconnect();
 }
 
 function disconnect() {

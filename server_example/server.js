@@ -1,29 +1,96 @@
 // Load required modules
-var http    = require("http");              // http server core module
-var express = require("express");           // web framework external module
-var serveStatic = require('serve-static');  // serve static files
-var socketIo = require("socket.io");        // web socket external module
-var easyrtc = require("../");               // EasyRTC external module
-// Set process name
+var http    = require("http");         
+var express = require("express");          
+var serveStatic = require('serve-static');  
+var socketIo = require("socket.io");      
+var easyrtc = require("../");
+var nodeMaria = require('node-mariadb');
+var mysql = require('mysql');           
+//var mongoose = require("mongoose")
+var bodyParser = require("body-parser");
 process.title = "node-easyrtc";
-// Setup and configure Express http server. 
 var app = express();
 app.use(express.static(__dirname));
 app.use(express.static(__dirname + '/view'));
 app.use(express.static(__dirname + '/script'));
+//var conString = "mongodb://localhost/mylearning"
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+function BD() {
+var connection = mysql.createConnection({
+    host: "learnweb.l3s.uni-hannover.de",
+    port: 3306,
+    user: "pairsearch",
+    password: "Ywe9EOH9lxk6dIWk",
+    database :"pairsearch"
+  });
+     return connection;
+};
+app.post("/room/:roomId", async (req, res) => {
+    var objBD = BD();
 
-app.get('/room/:roomId', function (req, res) {
-    res.sendFile(__dirname + "/view/room.html");
+    // var post = {
+    //     name: req.body.name,
+    //     room_id: req.body.roomId,
+    //     socket_id: rtcId,
+    //     text: "some text"
+    // };
+    console.log(req.body.name);
+    objBD.query("INSERT INTO  `chat_logs` (  `chatlog_id` ,  `name` ,  `text` ,  `room_id` ,  `socket_id` ,  `timestamp` ) VALUES (NULL ,'"+req.body.name+"', '"+req.body.chat+"', '"+req.body.roomId+"',  '"+req.body.rtcId+"', CURRENT_TIMESTAMP)", function(error) {
+        if (error) {
+            console.log(error.message);
+        } else {
+            console.log('success');    
+        }
+    });
 });
+//   con.connect(function(err) {
+//     if (err) throw err;
+//     var sql = "INSERT INTO `pairsearch`.`chat_logs` (`chatlog_id`, `name`, `text`, `room_id`, `socket_id`, `timestamp`) VALUES (NULL, 'name', 'text', 'room id', 'socket id', CURRENT_TIMESTAMP);";
+//     con.query(sql, function (err, result) {
+//       if (err) throw err;
+//       console.log(result.affectedRows + " record(s) updated");
+//     });
+//   });
 
-app.get('/room/:roomId/client', function (req, res) {  
-    res.sendFile(__dirname + "/view/client.html");
-});
+
 
 app.get('/', function (req, res) {   
      res.sendFile(__dirname + "/view/start.html");
 });
 
+app.get('/room/:roomId', function (req, res) {
+    res.sendFile(__dirname + "/view/room.html");
+});
+
+
+
+// mongoose.Promise = Promise
+
+// var Chats = mongoose.model("Chats", {
+//     rtcId: String,
+//     roomId: String,
+//     name: String,
+//     chat: String
+// })
+
+// mongoose.connect(conString, { useMongoClient: true }, (err) => {
+//     console.log("Database connection", err)
+// })
+
+
+// app.post("/room/:roomId", async (req, res) => {
+//     try {
+//         var chat = new Chats(req.body)
+//         await chat.save()
+//         res.sendStatus(200)
+//         //Emit the event
+//         socketIo.emit("chat", req.body)
+//     } catch (error) {
+//         res.sendStatus(500)
+//         console.error(error)
+//     }
+// })
 
 var webServer = http.createServer(app);
 // Start Socket.io so it attaches itself to Express server

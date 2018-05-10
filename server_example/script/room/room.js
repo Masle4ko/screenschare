@@ -4,13 +4,13 @@ var waitingForRoomList = true;
 var isConnected = false;
 var haveSelfVideo = false;
 var otherEasyrtcid = null;
-
+var easyRTCid = "";
+//var numScreens = 0;
 
 function initApp() {
     selfEasyrtcid= checkCookie("selfEasyrtcid");
     connect();
 }
-
 function addToConversation(who, msgType, content, targeting) {
     // Escape html special characters, then add linefeeds.
     if( !content) {
@@ -50,7 +50,7 @@ function setCredential(event, value) {
 
 function addRoom(roomName, parmString, userAdded) {
     if (!roomName) {
-        roomName = "sent";
+        roomName = checkCookie("selfEasyrtcid");
     }
     var roomid = genRoomDivName(roomName);
     if (document.getElementById(roomid)) {
@@ -141,7 +141,11 @@ function roomEntryListener(entered, roomName) {
 function peerListener(who, msgType, content, targeting) {
     addToConversation(who, msgType, content, targeting);
 }
-
+function randomInteger(min, max) {
+    var rand = min - 0.5 + Math.random() * (max - min + 1)
+    rand = Math.round(rand);
+    return rand;
+  }
 function connect() {
     easyrtc.setRoomOccupantListener(convertListToButtons);
     easyrtc.setPeerListener(peerListener);
@@ -158,30 +162,50 @@ function connect() {
         easyrtc.getVideoSourceList(function(videoSrcList) {
         for (var i = 0; i < videoSrcList.length; i++) {
             var videoEle = videoSrcList[i];
+           // if(videoSrcList[i].label && videoSrcList[i].label.length > 0)
+            //var videoLabel=videoSrcList[i].label
             var videoLabel = (videoSrcList[i].label && videoSrcList[i].label.length > 0) ?
                     (videoSrcList[i].label) : ("src_" + i);
             addSrcButton(videoLabel, videoSrcList[i].deviceId);
         }
     });
     var screenShareButton = createLabelledButton("Desktop capture/share");
-    var numScreens = 0;
+    var numScreens=0;
+    
+        screenShareButton.onclick = function() {
+            numScreens++;
+            var streamName = "screen"+randomInteger(4, 99);
+            //var streamName = easyrtc.idToName(easyrtcid);
+            easyrtc.initDesktopStream(
+                    function(stream) {
+                        createLocalVideo(stream, streamName);
+                        if (otherEasyrtcid) {
+                            easyrtc.addStreamToCall(otherEasyrtcid, streamName);
+                        }
+                    },
+                    function(errCode, errText) {
+                        easyrtc.showError(errCode, errText);
+                    },
+                    streamName);
+        };
+    //screenShareButton.onclick =  startMyscreen();
+};
 
-    screenShareButton.onclick = function() {
-        numScreens++;
-        var streamName = "screen" + numScreens;
-        easyrtc.initDesktopStream(
-                function(stream) {
-                    createLocalVideo(stream, streamName);
-                    if (otherEasyrtcid) {
-                        easyrtc.addStreamToCall(otherEasyrtcid, streamName);
-                    }
-                },
-                function(errCode, errText) {
-                    easyrtc.showError(errCode, errText);
-                },
-                streamName);
-    };
-}
+function startMyscreen() {
+    numScreens++;
+    var streamName = easyrtc.idToName(easyrtcid);
+    easyrtc.initDesktopStream(
+            function(stream) {
+                createLocalVideo(stream, streamName);
+                if (otherEasyrtcid) {
+                    easyrtc.addStreamToCall(otherEasyrtcid, streamName);
+                }
+            },
+            function(errCode, errText) {
+                easyrtc.showError(errCode, errText);
+            },
+            streamName);
+};
 
 function disconnect() {
     easyrtc.disconnect();
@@ -234,6 +258,7 @@ function sendMessage(destTargetId, destRoom) {
     if (text.replace(/\s/g, "").length === 0) { // Don't send just whitespace
         return;
     }
+    setCookie('lastMessage',text);
     var dest;
     var destGroup = getGroupId();
     if (destRoom || destGroup) {
@@ -272,14 +297,16 @@ function sendMessage(destTargetId, destRoom) {
 
 
 function loginSuccess(easyrtcid) {
-    document.getElementById("iam").innerHTML = "I am "+ checkCookie("username")+easyrtcid;
+  //  document.getElementById("iam").innerHTML =checkCookie("username");
   //  refreshRoomList();
     isConnected = true;
+    easyRTCid = easyrtcid;    
     document.getElementById("main").className = "connected";
     addRoom(null, null, true);
     enable('otherClients');
     updatePresence();
     convertListToButtons(selfEasyrtcid, easyrtc.occupants);
+   // startMyscreen();
 }
 
 

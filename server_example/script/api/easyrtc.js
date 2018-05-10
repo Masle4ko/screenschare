@@ -30,38 +30,38 @@
     ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
     POSSIBILITY OF SUCH DAMAGE.
 */
-// (function (root, factory) {
-//     if (typeof define === 'function' && define.amd) {
-//         //RequireJS (AMD) build system
-//         define('easyrtc_lang',factory);
-//     } else if (typeof module === 'object' && module.exports) {
-//         //CommonJS build system
-//         module.exports = factory();
-//     } else {
-//         root.easyrtc_lang = factory();
-//   }
-// }
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        //RequireJS (AMD) build system
+        define('easyrtc_lang',factory);
+    } else if (typeof module === 'object' && module.exports) {
+        //CommonJS build system
+        module.exports = factory();
+    } else {
+        root.easyrtc_lang = factory();
+  }
+}
 
-// (this, function (undefined) {
+(this, function (undefined) {
 
-//   "use strict";
+  "use strict";
 
-// return {
-//   "unableToEnterRoom":"Unable to enter room {0} because {1}" ,
-//   "resolutionWarning": "Requested video size of {0}x{1} but got size of {2}x{3}",
-//   "badUserName": "Illegal username {0}",
-//   "localMediaError": "Error getting local media stream: {0}",
-//   "miscSignalError": "Miscellaneous error from signalling server. It may be ignorable.",
-//   "noServer": "Unable to reach the EasyRTC signalling server.",
-//   "badsocket": "Socket.io connect event fired with bad websocket.",
-//   "icf": "Internal communications failure",
-//   "statsNotSupported":"call statistics not supported by this browser, try Chrome.",
-//    "noWebrtcSupport":"Your browser doesn't appear to support WebRTC.",
-//    "gumFailed":"Failed to get access to local media. Error code was {0}.",
-//    "requireAudioOrVideo":"At least one of audio and video must be provided"   
-// };
+return {
+  "unableToEnterRoom":"Unable to enter room {0} because {1}" ,
+  "resolutionWarning": "Requested video size of {0}x{1} but got size of {2}x{3}",
+  "badUserName": "Illegal username {0}",
+  "localMediaError": "Error getting local media stream: {0}",
+  "miscSignalError": "Miscellaneous error from signalling server. It may be ignorable.",
+  "noServer": "Unable to reach the EasyRTC signalling server.",
+  "badsocket": "Socket.io connect event fired with bad websocket.",
+  "icf": "Internal communications failure",
+  "statsNotSupported":"call statistics not supported by this browser, try Chrome.",
+   "noWebrtcSupport":"Your browser doesn't appear to support WebRTC.",
+   "gumFailed":"Failed to get access to local media. Error code was {0}.",
+   "requireAudioOrVideo":"At least one of audio and video must be provided"   
+};
 
-// }));
+}));
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define('webrtc-adapter',[],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.adapter = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
  /* eslint-env node */
 

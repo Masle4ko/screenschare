@@ -128,7 +128,7 @@ function convertListToButtons(roomName, occupants) {
                 performCall(easyrtcid);
             };
         }(easyrtcid);
-
+      //  button.onclick = performCall(easyrtcid);
         var label = document.createTextNode("Call " + easyrtc.idToName(easyrtcid));
         button.appendChild(label);
         otherClientDiv.appendChild(button);
@@ -190,7 +190,13 @@ easyrtc.setAcceptChecker(function(easyrtcid, callback) {
     }
     callback(true, easyrtc.getLocalMediaIds());
 });
-
+// easyrtc.setAcceptChecker(function(easyrtcid, responsefn) {
+//     function myCallFailureCB(errorCode, errorText) {
+//     console.log("call failed ", easyrtcid, errorcode, errorText);
+//     }
+//     responsefn(true, myOutgoingMediaStreams, myCallFailureCB);
+//     document.getElementById("connectbutton_" + easyrtcid).style.visibility = "hidden";
+//     });
 
 function create( name, attributes ) {
     var el = document.createElement( name );
