@@ -121,7 +121,6 @@ function convertListToButtons(roomName, occupants) {
     clearConnectList();
     var otherClientDiv = document.getElementById('otherClients');
     for (var easyrtcid in occupants) {
-       // performCall(easyrtcid);
         var button = document.createElement('a');
         button.setAttribute("class","waves-effect waves-light btn-small");
         button.onclick = function(easyrtcid) {
@@ -129,9 +128,7 @@ function convertListToButtons(roomName, occupants) {
                 performCall(easyrtcid);
             };
         }(easyrtcid);
-      //  button.onclick = performCall(easyrtcid);
         var label = document.createTextNode("Call " + easyrtc.idToName(easyrtcid));
-        //performCall(easyrtcid);
         button.appendChild(label);
         otherClientDiv.appendChild(button);
         var z = easyrtcid;

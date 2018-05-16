@@ -169,11 +169,8 @@ function connect() {
             addSrcButton(videoLabel, videoSrcList[i].deviceId);
         }
     });
-    var screenShareButton = createLabelledButton("Desktop capture/share");
-    var numScreens=0;
-    
+    var screenShareButton = createLabelledButton("Desktop capture/share"); 
         screenShareButton.onclick = function() {
-            numScreens++;
             var streamName = "screen"+randomInteger(4, 99);
             //var streamName = easyrtc.idToName(easyrtcid);
             easyrtc.initDesktopStream(
@@ -188,12 +185,9 @@ function connect() {
                     },
                     streamName);
         };
-    //screenShareButton.onclick =  startMyscreen();
 };
 
 function startMyscreen(id) {
-
-    //numScreens++;
     var streamName = "screen"+randomInteger(4, 99);
     easyrtc.initDesktopStream(
             function(stream) {
