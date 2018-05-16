@@ -1,5 +1,4 @@
 var username="";
-var test, test2;
 function initApp() {
     username=checkCookie("username");
     if(username !="") {
@@ -8,6 +7,7 @@ function initApp() {
 }
 
 function connect() {
+    windowOpen("http://demo4.kbs.uni-hannover.de/?uid=4", "search",0,0,screen.width/2,screen.height);
     easyrtc.connect("easyrtc.instantMessaging", loginSuccess, loginFailure);
     disconnect();
 }
@@ -20,7 +20,6 @@ function isEmpty(str) {
 }
 function loginSuccess(easyrtcid) {
     var roomName= document.getElementById("roomNameField").value;
-    var z = roomName.length;
     var checkboxForRoom= document.getElementById("roomBox").value;
     username=document.getElementById("userNameField").value;
     if (username !=undefined) {
@@ -28,18 +27,19 @@ function loginSuccess(easyrtcid) {
     }
     if (((checkboxForRoom =="on") || (checkboxForRoom =="true"))  &&(roomName && roomName.length > 0)){
       setCookie("selfEasyrtcid", roomName);
+      setCookie("roomCreator", 0);
       windowOpen("/room/"+roomName+"", "room",0,screen.height,screen.width/2,screen.height);
       windowOpen("http://demo4.kbs.uni-hannover.de/?uid=4", "search",0,0,screen.width/2,screen.height);
     }
     else{
       setCookie("selfEasyrtcid", easyrtcid);
+      setCookie("roomCreator", 1);
       windowOpen("/room/"+easyrtcid+"", "room",0,screen.height,screen.width/2,screen.height);
       windowOpen("http://demo4.kbs.uni-hannover.de/?uid=4", "search",0,0,screen.width/2,screen.height);
     }
 }
 
 function loginFailure(errorCode, message) {
-    console.log("2");
     console.log(message);
     easyrtc.showError("LOGIN-FAILURE", message);
     document.getElementById('connectButton').disabled = false;
@@ -73,6 +73,6 @@ function checkCookie(something) {
      return getCookie(something);
 }
 
-function windowOpen(url,title, top,left,width, height,location="yes",toolbar="yes",menubar="yes", scrollbars="yes" ){
+function windowOpen(url,title, top,left,width, height,location="1",toolbar="1",menubar="1", scrollbars="1" ){
      window.open(url, title, "top="+0+", left="+left+", width="+width+",height="+height+", location="+location+", toolbar="+toolbar+", menubar="+menubar+",scrollbars="+scrollbars+"");
 }

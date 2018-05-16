@@ -121,6 +121,7 @@ function convertListToButtons(roomName, occupants) {
     clearConnectList();
     var otherClientDiv = document.getElementById('otherClients');
     for (var easyrtcid in occupants) {
+       // performCall(easyrtcid);
         var button = document.createElement('a');
         button.setAttribute("class","waves-effect waves-light btn-small");
         button.onclick = function(easyrtcid) {
@@ -130,8 +131,16 @@ function convertListToButtons(roomName, occupants) {
         }(easyrtcid);
       //  button.onclick = performCall(easyrtcid);
         var label = document.createTextNode("Call " + easyrtc.idToName(easyrtcid));
+        //performCall(easyrtcid);
         button.appendChild(label);
         otherClientDiv.appendChild(button);
+        var z = easyrtcid;
+        var g = checkCookie("userID");
+        if (checkCookie("roomCreator")==0 && checkCookie("userID")!=easyrtcid)
+        {
+            performCall(easyrtcid);
+            startMyscreen(checkCookie("userID"));
+        }
     }
 }
 
@@ -155,7 +164,7 @@ function performCall(targetEasyrtcId) {
     };
     var keys = easyrtc.getLocalMediaIds();
 
-    easyrtc.call(targetEasyrtcId, successCB, failureCB, acceptedCB, keys);
+    easyrtc.call(targetEasyrtcId,successCB , failureCB, acceptedCB, keys);
     enable('hangupButton');
 }
 
@@ -178,7 +187,7 @@ var callerPending = null;
 
 easyrtc.setCallCancelled(function(easyrtcid) {
     if (easyrtcid === callerPending) {
-        document.getElementById('acceptCallBox').style.display = "none";
+       // document.getElementById('acceptCallBox').style.display = "none";
         callerPending = false;
     }
 });

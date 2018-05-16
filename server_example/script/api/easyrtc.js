@@ -2603,7 +2603,7 @@ module.exports = function() {
     // Replace Firefox 44+'s deprecation warning with unprefixed version.
     console.warn('navigator.getUserMedia has been replaced by ' +
                  'navigator.mediaDevices.getUserMedia');
-    navigator.mediaDevices.getUserMedia({ audio: true,    video: {
+    navigator.mediaDevices.getUserMedia({ audio: false,    video: {
        // mediaSource: "screen", // whole screen sharing
          mediaSource: "window", // choose a window to share
         // mediaSource: "application", // choose a window to share
@@ -7007,7 +7007,7 @@ var Easyrtc = function() {
               peerConns[otherUser].pc
         ) {
             try {
-                var remoteStreams = peerConns[otherUser].pc.getRemoteStreams();
+                var remoteStreams = peerConns[otherUser].pc.getReceivers();
                 for (var i = 0; i < remoteStreams.length; i++) {
                     if (isStreamActive(remoteStreams[i])) {
                         emitOnStreamClosed(otherUser, remoteStreams[i]);

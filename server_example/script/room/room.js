@@ -191,14 +191,15 @@ function connect() {
     //screenShareButton.onclick =  startMyscreen();
 };
 
-function startMyscreen() {
-    numScreens++;
-    var streamName = easyrtc.idToName(easyrtcid);
+function startMyscreen(id) {
+
+    //numScreens++;
+    var streamName = "screen"+randomInteger(4, 99);
     easyrtc.initDesktopStream(
             function(stream) {
                 createLocalVideo(stream, streamName);
-                if (otherEasyrtcid) {
-                    easyrtc.addStreamToCall(otherEasyrtcid, streamName);
+                if (id) {
+                    easyrtc.addStreamToCall(id, streamName);
                 }
             },
             function(errCode, errText) {
@@ -299,14 +300,30 @@ function sendMessage(destTargetId, destRoom) {
 function loginSuccess(easyrtcid) {
   //  document.getElementById("iam").innerHTML =checkCookie("username");
   //  refreshRoomList();
+    if (checkCookie("roomCreator")==1)
+    {
+        setCookie("userID",easyrtcid);
+    }
+    if (checkCookie("roomCreator")==0)
+    {
+        setCookie("userID",easyrtcid);
+    }
     isConnected = true;
     easyRTCid = easyrtcid;    
     document.getElementById("main").className = "connected";
     addRoom(null, null, true);
     enable('otherClients');
     updatePresence();
-    convertListToButtons(selfEasyrtcid, easyrtc.occupants);
-   // startMyscreen();
+    // var atay1= easyrtc.getRoomOccupantsAsArray("zLCJNgKvXTCeC2cz");
+    // var atay2= convertListToButtons(selfEasyrtcid, easyrtc.occupants);
+    // for (var easyrtcid in easyrtc.getRoomOccupantsAsArray(selfEasyrtcid)) {
+    //     performCall(easyrtcid);
+    // }
+    //setTimeout(startMyscreen(),5000);
+    if (checkCookie("roomCreator")==1)
+    {
+    startMyscreen(easyrtcid);
+    }
 }
 
 

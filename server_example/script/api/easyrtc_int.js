@@ -4226,7 +4226,7 @@ var Easyrtc = function() {
               peerConns[otherUser].pc
         ) {
             try {
-                var remoteStreams = peerConns[otherUser].pc.getRemoteStreams();
+                var remoteStreams = peerConns[otherUser].pc.getReceivers();
                 for (var i = 0; i < remoteStreams.length; i++) {
                     if (isStreamActive(remoteStreams[i])) {
                         emitOnStreamClosed(otherUser, remoteStreams[i]);

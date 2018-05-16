@@ -30,7 +30,8 @@
                                     <div class = "collapsible-body">
                                          <strong>Connected users:</strong>
                                          <div id="otherClients"></div>
-                                         <div autoplay="autoplay" id="remoteVideos"></div>   
+                                         <div autoplay="autoplay" id="remoteVideos"> 
+                                        </div>   
                                     </div>
                             </li>
                             <li>
@@ -75,9 +76,13 @@
              accordion: false
              });
         }
+    </script>
+        <script type="text/javascript">
+            function open(){
+                window.open("https://google.com","foo","width=800, height=780,toolbar=1");
+            }
         </script>
-    
-<script>
+    <script>
         $("#rooms").click(() => {
             var chatMessage = {
                 rtcId:easyRTCid,  roomId:checkCookie("selfEasyrtcid"),  name: checkCookie("username"), chat:checkCookie("lastMessage")
@@ -87,5 +92,5 @@
     function postChat(chat) {
         $.post("/room/:roomId", chat)
     };
-</script>
+    </script>
 </html>
