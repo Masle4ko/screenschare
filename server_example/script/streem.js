@@ -26,7 +26,8 @@
 var selfEasyrtcid = "";
 var haveSelfVideo = false;
 var otherEasyrtcid = null;
-
+var calls = [];
+var streamNames = [];
 
 function disable(domId) {
     console.log("about to try disabling " + domId);
@@ -79,7 +80,7 @@ function createLocalVideo(stream, streamName) {
     var closeButton = createLabelledButton("close");
     closeButton.onclick = function() {
         easyrtc.closeLocalStream(streamName);
-       // endRecording();
+       //endRecording();
         labelBlock.parentNode.parentNode.removeChild(labelBlock.parentNode);
     }
     labelBlock.appendChild(closeButton);
@@ -103,10 +104,10 @@ function addSrcButton(buttonLabel, videoId) {
 }
 
 
-function hangup() {
-    easyrtc.hangupAll();
-    disable('hangupButton');
-}
+// function hangup() {
+//     easyrtc.hangupAll();
+//     disable('hangupButton');
+// }
 
 
 function clearConnectList() {
@@ -121,24 +122,22 @@ function convertListToButtons(roomName, occupants) {
     clearConnectList();
     var otherClientDiv = document.getElementById('otherClients');
     for (var easyrtcid in occupants) {
-        var button = document.createElement('a');
-        button.setAttribute("class","waves-effect waves-light btn-small");
-        button.onclick = function(easyrtcid) {
-            return function() {
-                performCall(easyrtcid);
-            };
-        }(easyrtcid);
-        var label = document.createTextNode("Call " + easyrtc.idToName(easyrtcid));
-        button.appendChild(label);
-        otherClientDiv.appendChild(button);
-        var z = easyrtcid;
-        var g = checkCookie("userID");
-        if (checkCookie("roomCreator")==0 && checkCookie("userID")!=easyrtcid)
-        {
+        // var button = document.createElement('a');
+        // button.setAttribute("class","waves-effect waves-light btn-small");
+        // button.onclick = function(easyrtcid) {
+        //     return function() {
+        //         performCall(easyrtcid);
+        //     };
+        // }(easyrtcid);
+        // var label = document.createTextNode("Call " + easyrtc.idToName(easyrtcid));
+        // button.appendChild(label);
+        // otherClientDiv.appendChild(button);
+        if (calls.indexOf(easyrtcid)==-1){
             performCall(easyrtcid);
-            startMyscreen(checkCookie("userID"));
+            calls.push(easyrtcid);
         }
     }
+
 }
 
 
@@ -154,7 +153,7 @@ function performCall(targetEasyrtcId) {
     };
 
     var successCB = function() {
-        enable('hangupButton');
+      //  enable('hangupButton');
     };
     var failureCB = function() {
         enable('otherClients');
@@ -162,19 +161,24 @@ function performCall(targetEasyrtcId) {
     var keys = easyrtc.getLocalMediaIds();
 
     easyrtc.call(targetEasyrtcId,successCB , failureCB, acceptedCB, keys);
-    enable('hangupButton');
+  //  enable('hangupButton');
 }
 
 
 easyrtc.setStreamAcceptor(function(easyrtcid, stream, streamName) {
+    document.getElementById("progress").style.display="none";
+    //streamNames.splice(streamNames.indexOf("remoteBlock" + easyrtcid + streamName), 1);
     var labelBlock = addMediaStreamToDiv("remoteVideos", stream, streamName, false);
     labelBlock.parentNode.id = "remoteBlock" + easyrtcid + streamName;
+    streamNames.push("remoteBlock" + easyrtcid + streamName);
 
 });
 
 
 
 easyrtc.setOnStreamClosed(function(easyrtcid, stream, streamName) {
+   // calls.splice(calls.indexOf(easyrtcid), 1);
+    document.getElementById("progress").style.display="block";
     var item = document.getElementById("remoteBlock" + easyrtcid + streamName);
     item.parentNode.removeChild(item);
 });
@@ -192,7 +196,7 @@ easyrtc.setCallCancelled(function(easyrtcid) {
 easyrtc.setAcceptChecker(function(easyrtcid, callback) {
     otherEasyrtcid = easyrtcid;
     if (easyrtc.getConnectionCount() > 0) {
-        easyrtc.hangupAll();
+        //easyrtc.hangupAll();
     }
     callback(true, easyrtc.getLocalMediaIds());
 });

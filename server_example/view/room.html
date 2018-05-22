@@ -28,10 +28,11 @@
                                     <div class = "collapsible-header">
                                        <i class = "material-icons">place</i>Remote media streams</div>
                                     <div class = "collapsible-body">
-                                         <strong>Connected users:</strong>
-                                         <div id="otherClients"></div>
-                                         <div autoplay="autoplay" id="remoteVideos"> 
-                                        </div>   
+                                        <div class="progress" id="progress">
+                                                <div class="indeterminate"></div>
+                                        </div>
+                                        <div id="otherClients"></div>
+                                        <div autoplay="autoplay" id="remoteVideos"> </div>   
                                     </div>
                             </li>
                             <li>
@@ -59,8 +60,9 @@
                                 <div class = "collapsible-header">
                                   <i class = "material-icons">whatshot</i>Local media streams
                                 </div>
-                                <div class = "collapsible-body">      
-                                    <div id="videoSrcBlk"></div>  
+                                <div class = "collapsible-body">   
+                                    <!-- <button id="hangupButton" onclick="hangup()">Hangup</button>    -->
+                                    <div id="videoSrcBlk"> <div id="otherClients"></div></div>  
                                     <div autoplay="autoplay" id="localVideos"></div> 
                                 </div>
                             </li>
@@ -75,13 +77,8 @@
              var instance = M.Collapsible.init(elem, {
              accordion: false
              });
-        }
+        };
     </script>
-        <script type="text/javascript">
-            function open(){
-                window.open("https://google.com","foo","width=800, height=780,toolbar=1");
-            }
-        </script>
     <script>
         $("#rooms").click(() => {
             var chatMessage = {

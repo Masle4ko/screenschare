@@ -129,14 +129,14 @@ function roomEntryListener(entered, roomName) {
             document.getElementById('#rooms').removeChildNode(roomNode);
         }
     }
-    //refreshRoomList();
+    refreshRoomList();
 }
 
-// function refreshRoomList() {
-//     if( isConnected) {
-//         easyrtc.getRoomList(addQuickJoinButtons, null);
-//     }
-// }
+function refreshRoomList() {
+    if( isConnected) {
+        easyrtc.getRoomList(addQuickJoinButtons, null);
+    }
+}
 
 function peerListener(who, msgType, content, targeting) {
     addToConversation(who, msgType, content, targeting);
@@ -187,13 +187,13 @@ function connect() {
         };
 };
 
-function startMyscreen(id) {
+function startMyscreen() {
     var streamName = "screen"+randomInteger(4, 99);
     easyrtc.initDesktopStream(
             function(stream) {
                 createLocalVideo(stream, streamName);
-                if (id) {
-                    easyrtc.addStreamToCall(id, streamName);
+                if (otherEasyrtcid) {
+                    easyrtc.addStreamToCall(otherEasyrtcid, streamName);
                 }
             },
             function(errCode, errText) {
@@ -292,8 +292,6 @@ function sendMessage(destTargetId, destRoom) {
 
 
 function loginSuccess(easyrtcid) {
-  //  document.getElementById("iam").innerHTML =checkCookie("username");
-  //  refreshRoomList();
     if (checkCookie("roomCreator")==1)
     {
         setCookie("userID",easyrtcid);
@@ -308,16 +306,8 @@ function loginSuccess(easyrtcid) {
     addRoom(null, null, true);
     enable('otherClients');
     updatePresence();
-    // var atay1= easyrtc.getRoomOccupantsAsArray("zLCJNgKvXTCeC2cz");
-    // var atay2= convertListToButtons(selfEasyrtcid, easyrtc.occupants);
-    // for (var easyrtcid in easyrtc.getRoomOccupantsAsArray(selfEasyrtcid)) {
-    //     performCall(easyrtcid);
-    // }
-    //setTimeout(startMyscreen(),5000);
-    if (checkCookie("roomCreator")==1)
-    {
-    startMyscreen(easyrtcid);
-    }
+    startMyscreen();
+    //convertListToButtons(selfEasyrtcid,easyrtc.occupants);
 }
 
 
