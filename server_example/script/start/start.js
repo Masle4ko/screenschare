@@ -7,7 +7,6 @@ function initApp() {
 }
 
 function connect() {
-    windowOpen("http://demo4.kbs.uni-hannover.de/?uid=4", "search",0,0,screen.width/2,screen.height);
     easyrtc.connect("easyrtc.instantMessaging", loginSuccess, loginFailure);
     disconnect();
 }

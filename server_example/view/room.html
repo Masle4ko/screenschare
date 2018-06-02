@@ -62,13 +62,11 @@
                                   <i class = "material-icons">whatshot</i>Local media streams
                                 </div>
                                 <div class = "collapsible-body">   
-                                    <!-- <button id="hangupButton" onclick="hangup()">Hangup</button>    -->
                                     <div id="videoSrcBlk"> <div id="otherClients"></div></div>  
-                                    <div autoplay="autoplay" id="localVideos"></div> 
+                                    <div autoplay="autoplay" id="localVideos"></div>
                                 </div>
                             </li>
                     </ul>
-                    download links for videos: self:<a id="selfDownloadLink"></a>
             </div>	
         </div>
     </body>
@@ -88,7 +86,12 @@
             postChat(chatMessage)
         });
     function postChat(chat) {
-        $.post("/room/:roomId", chat)
+        $.post("/room/:roomId/saveMessage", chat)
     };
+    </script>
+    <script>
+        $(document).ready(function(){
+          $('.slider').slider();
+        });
     </script>
 </html>

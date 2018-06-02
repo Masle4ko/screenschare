@@ -1,7 +1,7 @@
 var http    = require("http");       
-url = require('url'),
-path = require('path'),
-fs = require('fs');
+var url = require('url');
+var path = require('path');
+var fs = require('fs');
 var uploadDir = __dirname;  
 var express = require("express");          
 var serveStatic = require('serve-static');  
@@ -12,8 +12,6 @@ var mysql = require('mysql');
 var mime = require('mime');
 var formidable = require('formidable');
 var util = require('util');         
-//var mongoose = require("mongoose")
-//var conString = "mongodb://localhost/mylearning"
 var bodyParser = require("body-parser");
 process.title = "node-easyrtc";
 var app = express();
@@ -34,51 +32,18 @@ var connection = mysql.createConnection({
     });
     return connection;
 };
-// app.post("/room/:roomId", async (req, res) => {
-//     var objBD = BD();
-//     console.log(req.body.name);
-//     objBD.query("INSERT INTO  `chat_logs` (  `chatlog_id` ,  `name` ,  `text` ,  `room_id` ,  `socket_id` ,  `timestamp` ) VALUES (NULL ,'"+req.body.name+"', '"+req.body.chat+"', '"+req.body.roomId+"',  '"+req.body.rtcId+"', CURRENT_TIMESTAMP)", function(error) {
-//         if (error) {
-//             console.log(error.message);
-//         } else {
-//             console.log('success');    
-//         }
-//     });
-// });
 app.get('/', function (req, res) {   
      res.sendFile(__dirname + "/view/start.html"); 
 });
 app.get('/room/:roomId', function (req, res) {
     res.sendFile(__dirname + "/view/room.html");
 });
-// mongoose.Promise = Promise
-// var Chats = mongoose.model("Chats", {
-//     rtcId: String,
-//     roomId: String,
-//     name: String,
-//     chat: String
-// })
-// mongoose.connect(conString, { useMongoClient: true }, (err) => {
-//     console.log("Database connection", err)
-// })
-// app.post("/room/:roomId", async (req, res) => {
-//     try {
-//         var chat = new Chats(req.body)
-//         await chat.save()
-//         res.sendStatus(200)
-//         //Emit the event
-//         socketIo.emit("chat", req.body)
-//     } catch (error) {
-//         res.sendStatus(500)
-//         console.error(error)
-//     }
-// })
+
 var webServer = http.createServer(app);
 // Start Socket.io so it attaches itself to Express server
 var socketServer = socketIo.listen(webServer, {"log level":1});
 easyrtc.setOption("logLevel", "debug");
 easyrtc.setOption("roomDefaultEnable", false); 
-//easyrtc.setOption("cookieEnabled", true);
 // Overriding the default easyrtcAuth listener, only so we can directly access its callback
 easyrtc.events.on("easyrtcAuth", function(socket,  easyrtcid, msg, socketCallback, callback) {
     easyrtc.events.defaultListeners.easyrtcAuth(socket, easyrtcid, msg, socketCallback, function(err, connectionObj){
@@ -111,15 +76,30 @@ webServer.listen(8000, function () {
     console.log('listening on http://localhost:8000');
 });
 
-app.post("/room/:roomId/action1", function (request, response) {
-    
+app.post("/room/:roomId/saveMessage", async (req, res) => {
+    var objBD = BD();
+    console.log(req.body.name);
+    objBD.query("INSERT INTO  `chat_logs` (  `chatlog_id` ,  `name` ,  `text` ,  `room_id` ,  `socket_id` ,  `timestamp` ) VALUES (NULL ,'"+req.body.name+"', '"+req.body.chat+"', '"+req.body.roomId+"',  '"+req.body.rtcId+"', CURRENT_TIMESTAMP)", function(error) {
+        if (error) {
+            console.log(error.message);
+        } else {
+            console.log('success');    
+        }
+    });
 });
+// app.post("/room/:roomId/saveMessage", function (request, response) {
+//     var objBD = BD();
+//     console.log(req.body.name);
+//     objBD.query("INSERT INTO  `chat_logs` (  `chatlog_id` ,  `name` ,  `text` ,  `room_id` ,  `socket_id` ,  `timestamp` ) VALUES (NULL ,'"+req.body.name+"', '"+req.body.chat+"', '"+req.body.roomId+"',  '"+req.body.rtcId+"', CURRENT_TIMESTAMP)", function(error) {
+//         if (error) {
+//             console.log(error.message);
+//         } else {
+//             console.log('success');    
+//         }
+//     });
+// });
 
-app.post("/room/:roomId/action2", function (request, response) {
-    
-});
-
-app.post("/room/:roomId", function (request, response)  {
+app.post("/room/:roomId/saveRecord", function (request, response) {
     var form = new formidable.IncomingForm();
     var dir = !!process.platform.match(/^win/) ? '\\uploads\\' : '/uploads/';
     form.uploadDir = __dirname + '/uploads';
@@ -131,10 +111,10 @@ app.post("/room/:roomId", function (request, response)  {
     form.parse(request, function(err, fields, files) {
         var file = util.inspect(files);
 
-       // response.writeHead(200, getHeaders('Content-Type', 'application/json'));
+    //response.writeHead(200, getHeaders('Content-Type', 'application/json'));
 
         var fileName = file.split('path:')[1].split('\',')[0].split(dir)[1].toString().replace(/\\/g, '').replace(/\//g, '');
-        var fileURL = 'http://' + 'localhost' + ':' + 8000 + '/uploads/' + fileName;
+        var fileURL =  __dirname+ '/uploads/' + fileName;
 
        console.log('fileURL: ', fileURL);
         response.write(JSON.stringify({
@@ -143,3 +123,4 @@ app.post("/room/:roomId", function (request, response)  {
         response.end();
     });
 });
+

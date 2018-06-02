@@ -50,8 +50,7 @@ function createLabelledButton(buttonLabel) {
 }
 
 
-function addMediaStreamToDiv(divId, stream, streamName, isLocal)
-{
+function addMediaStreamToDiv(divId, stream, streamName, isLocal){       
     var container = document.createElement("div");
     container.style.marginBottom = "10px";
     var formattedName = streamName.replace("(", "<br>").replace(")", "");
@@ -66,9 +65,9 @@ function addMediaStreamToDiv(divId, stream, streamName, isLocal)
     video.muted = isLocal;
     video.style.verticalAlign = "middle";
     container.appendChild(video);
-    document.getElementById(divId).appendChild(container);
+    document.getElementById(divId).appendChild(container); 
     video.autoplay = true;
-    easyrtc.setVideoObjectSrc(video, stream);
+    easyrtc.setVideoObjectSrc(video, stream);  
     return labelBlock;
 }
 
@@ -115,16 +114,6 @@ function convertListToButtons(roomName, occupants) {
     clearConnectList();
     var otherClientDiv = document.getElementById('otherClients');
     for (var easyrtcid in occupants) {
-        // var button = document.createElement('a');
-        // button.setAttribute("class","waves-effect waves-light btn-small");
-        // button.onclick = function(easyrtcid) {
-        //     return function() {
-        //         performCall(easyrtcid);
-        //     };
-        // }(easyrtcid);
-        // var label = document.createTextNode("Call " + easyrtc.idToName(easyrtcid));
-        // button.appendChild(label);
-        // otherClientDiv.appendChild(button);
         if (calls.indexOf(easyrtcid)==-1){
             performCall(easyrtcid);
             calls.push(easyrtcid);
@@ -144,17 +133,13 @@ function performCall(targetEasyrtcId) {
             otherEasyrtcid = targetEasyrtcId;
         }
     };
-
     var successCB = function() {
-      //  enable('hangupButton');
     };
     var failureCB = function() {
         enable('otherClients');
     };
     var keys = easyrtc.getLocalMediaIds();
-
     easyrtc.call(targetEasyrtcId,successCB , failureCB, acceptedCB, keys);
-  //  enable('hangupButton');
 }
 
 
@@ -181,7 +166,6 @@ var callerPending = null;
 
 easyrtc.setCallCancelled(function(easyrtcid) {
     if (easyrtcid === callerPending) {
-       // document.getElementById('acceptCallBox').style.display = "none";
         callerPending = false;
     }
 });
@@ -193,54 +177,9 @@ easyrtc.setAcceptChecker(function(easyrtcid, callback) {
     }
     callback(true, easyrtc.getLocalMediaIds());
 });
-easyrtc.setAcceptChecker(function(easyrtcid, responsefn) {
-    function myCallFailureCB(errorCode, errorText) {
-    console.log("call failed ", easyrtcid, errorcode, errorText);
-    }
-    responsefn(true, myOutgoingMediaStreams, myCallFailureCB);
-    document.getElementById("connectbutton_" + easyrtcid).style.visibility = "hidden";
-    });
 
-function create( name, attributes ) {
-    var el = document.createElement( name );
-    if ( typeof attributes == 'object' ) {
-    for ( var i in attributes ) {
-    el.setAttribute( i, attributes[i] );
-    
-    if ( i.toLowerCase() == 'class' ) {
-    el.className = attributes[i]; // for IE compatibility
-    
-    } else if ( i.toLowerCase() == 'style' ) {
-    el.style.cssText = attributes[i]; // for IE compatibility
-    }
-    }
-    }
-    for ( var i = 2;i < arguments.length; i++ ) {
-    var val = arguments[i];
-    if ( typeof val == 'string' ) { val = document.createTextNode( val ) };
-    el.appendChild( val );
-    }
-    return el;
-    }
 
-//OLD RECORDING PART
-////////////////////////////////
-// var selfRecorder = null;
-// function startRecording(stream) {
-//     var selfLink = document.getElementById("selfDownloadLink");
-//     selfLink.innerText = "";
-
-//     selfRecorder = easyrtc.recordToFile(stream, 
-//                selfLink, "selfVideo");
-// }
-
-// function endRecording() {
-//     if( selfRecorder ) {
-//        selfRecorder.stop();
-//     }
-// }
-
-//NEW RECORDING PART
+//RECORDING PART
 ////////////////////////////////
 // fetching DOM references
 var recorder;
@@ -253,7 +192,7 @@ function postFiles() {
     var file = new File([blob], fileName, {
         type: 'video/webm'
     });
-    xhr("/room/:roomId", file, function(responseText) {
+    xhr("/room/:roomId/saveRecord", file, function(responseText) {
         var fileURL = JSON.parse(responseText).fileURL;
 
         console.info('fileURL', fileURL);
@@ -294,9 +233,7 @@ function captureUserMedia(success_callback) {
     var session = {
         audio: true,
         video: {
-            // mediaSource: "screen", // whole screen sharing
-                mediaSource: "window", // choose a window to share
-            // mediaSource: "application", // choose a window to share
+                mediaSource: "window",
             width: {max: '1920'},
             height: {max: '1080'},
             frameRate: {max: '10'}
@@ -314,7 +251,6 @@ function captureUserMedia(success_callback) {
         });     
         recorder.startRecording();
 };
-
 
 function endRecord() {
     recorder.stopRecording(postFiles);
