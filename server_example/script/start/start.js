@@ -28,13 +28,11 @@ function loginSuccess(easyrtcid) {
       setCookie("selfEasyrtcid", roomName);
       setCookie("roomCreator", 0);
       windowOpen("/room/"+roomName+"", "room",0,screen.height,screen.width/2,screen.height);
-      windowOpen("http://demo4.kbs.uni-hannover.de/?uid=4", "search",0,0,screen.width/2,screen.height);
     }
     else{
       setCookie("selfEasyrtcid", easyrtcid);
       setCookie("roomCreator", 1);
       windowOpen("/room/"+easyrtcid+"", "room",0,screen.height,screen.width/2,screen.height);
-      windowOpen("http://demo4.kbs.uni-hannover.de/?uid=4", "search",0,0,screen.width/2,screen.height);
     }
 }
 

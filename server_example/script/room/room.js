@@ -4,16 +4,17 @@ var waitingForRoomList = true;
 var isConnected = false;
 var haveSelfVideo = false;
 var otherEasyrtcid = null;
-var easyRTCid = "";
+var nickName;
 //var numScreens = 0;
 
 function initApp() {
-    selfEasyrtcid= checkCookie("selfEasyrtcid");
+    // windowOpen("http://demo4.kbs.uni-hannover.de/?uid=4", "search",0,0,screen.width/2,screen.height);
+    selfEasyrtcid = checkCookie("selfEasyrtcid");
     connect();
 }
 function addToConversation(who, msgType, content, targeting) {
     // Escape html special characters, then add linefeeds.
-    if( !content) {
+    if (!content) {
         content = "**no body**";
     }
     content = content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -31,7 +32,7 @@ function addToConversation(who, msgType, content, targeting) {
         }
     }
     document.getElementById('conversation').innerHTML +=
-            "<b>" + who + " sent " + targetingStr + ":</b>&nbsp;" + content + "<br />";
+        "<b>" + who + ":</b>&nbsp;" + content + "<br />";
 }
 
 function genRoomDivName(roomName) {
@@ -58,13 +59,13 @@ function addRoom(roomName, parmString, userAdded) {
     }
     function addRoomButton() {
         var roomButtonHolder = document.getElementById('rooms');
-        var roomdiv = document.createElement("a");
-        roomdiv.setAttribute("class","waves-effect waves-light btn-small");
+        var roomdiv = document.createElement("div");
+        //roomdiv.setAttribute("class","waves-effect waves-light btn btn-success");
         roomdiv.id = roomid;
         roomdiv.className = "roomDiv";
-        var roomButton = document.createElement("a");
-        roomButton.setAttribute("class","waves-effect waves-light btn-small");
-        roomButton.onclick = function() {
+        var roomButton = document.createElement("button");
+        roomButton.setAttribute("class", "waves-effect waves-light btn btn-success");
+        roomButton.onclick = function () {
             sendMessage(null, roomName);
         };
         var roomLabel = (document.createTextNode(roomName));
@@ -72,11 +73,11 @@ function addRoom(roomName, parmString, userAdded) {
         roomdiv.appendChild(roomButton);
         roomButtonHolder.appendChild(roomdiv);
         var roomOccupants = document.createElement("a");
-        roomOccupants.setAttribute("class","waves-effect waves-light btn-small");
+        roomOccupants.setAttribute("class", "waves-effect waves-light btn btn-success");
         roomOccupants.id = genRoomOccupantName(roomName);
         roomOccupants.className = "roomOccupants";
         roomdiv.appendChild(roomOccupants);
-       // $(roomdiv).append(" -<a href=\"javascript:\leaveRoom('" + roomName + "')\">leave</a>");
+        //$(roomdiv).append(" -<a href=\"javascript:\leaveRoom('" + roomName + "')\">leave</a>");
     }
     var roomParms = null;
     if (parmString && parmString !== "") {
@@ -99,12 +100,12 @@ function addRoom(roomName, parmString, userAdded) {
         console.log("calling joinRoom(" + roomName + ") because it was a user action ");
 
         easyrtc.joinRoom(roomName, roomParms,
-                function() {
-                   /* we'll geta room entry event for the room we were actually added to */
-                },
-                function(errorCode, errorText, roomName) {
-                    easyrtc.showError(errorCode, errorText + ": room name was(" + roomName + ")");
-                });
+            function () {
+                /* we'll geta room entry event for the room we were actually added to */
+            },
+            function (errorCode, errorText, roomName) {
+                easyrtc.showError(errorCode, errorText + ": room name was(" + roomName + ")");
+            });
     }
 }
 
@@ -133,7 +134,7 @@ function roomEntryListener(entered, roomName) {
 }
 
 function refreshRoomList() {
-    if( isConnected) {
+    if (isConnected) {
         easyrtc.getRoomList(addQuickJoinButtons, null);
     }
 }
@@ -145,61 +146,61 @@ function randomInteger(min, max) {
     var rand = min - 0.5 + Math.random() * (max - min + 1)
     rand = Math.round(rand);
     return rand;
-  }
+}
 function connect() {
     easyrtc.setRoomOccupantListener(convertListToButtons);
     easyrtc.setPeerListener(peerListener);
     easyrtc.setRoomEntryListener(roomEntryListener);
     // easyrtc.setUsername("Maslo"); 
     // easyrtc.idtoname=selfEasyrtcid;
-    easyrtc.setDisconnectListener(function() {
+    easyrtc.setDisconnectListener(function () {
         jQuery('#rooms').empty();
         document.getElementById("main").className = "notconnected";
         console.log("disconnect listener fired");
     });
     updatePresence();
-     easyrtc.connect("easyrtc.instantMessaging", loginSuccess, loginFailure);
-        easyrtc.getVideoSourceList(function(videoSrcList) {
+    easyrtc.connect("easyrtc.instantMessaging", loginSuccess, loginFailure);
+    easyrtc.getVideoSourceList(function (videoSrcList) {
         for (var i = 0; i < videoSrcList.length; i++) {
             var videoEle = videoSrcList[i];
-           // if(videoSrcList[i].label && videoSrcList[i].label.length > 0)
+            // if(videoSrcList[i].label && videoSrcList[i].label.length > 0)
             //var videoLabel=videoSrcList[i].label
             var videoLabel = (videoSrcList[i].label && videoSrcList[i].label.length > 0) ?
-                    (videoSrcList[i].label) : ("src_" + i);
+                (videoSrcList[i].label) : ("src_" + i);
             addSrcButton(videoLabel, videoSrcList[i].deviceId);
         }
     });
-    var screenShareButton = createLabelledButton("Desktop capture/share"); 
-        screenShareButton.onclick = function() {
-            var streamName = "screen"+randomInteger(4, 99);
-            //var streamName = easyrtc.idToName(easyrtcid);
-            easyrtc.initDesktopStream(
-                    function(stream) {
-                        createLocalVideo(stream, streamName);
-                        if (otherEasyrtcid) {
-                            easyrtc.addStreamToCall(otherEasyrtcid, streamName);
-                        }
-                    },
-                    function(errCode, errText) {
-                        easyrtc.showError(errCode, errText);
-                    },
-                    streamName);
-        };
-};
-
-function startMyscreen() {
-    var streamName = "screen"+randomInteger(4, 99);
-    easyrtc.initDesktopStream(
-            function(stream) {
+    var screenShareButton = createLabelledButton("Desktop capture/share");
+    screenShareButton.onclick = function () {
+        var streamName = "screen" + randomInteger(4, 99);
+        //var streamName = easyrtc.idToName(easyrtcid);
+        easyrtc.initDesktopStream(
+            function (stream) {
                 createLocalVideo(stream, streamName);
                 if (otherEasyrtcid) {
                     easyrtc.addStreamToCall(otherEasyrtcid, streamName);
                 }
             },
-            function(errCode, errText) {
+            function (errCode, errText) {
                 easyrtc.showError(errCode, errText);
             },
             streamName);
+    };
+};
+
+function startMyscreen() {
+    var streamName = "screen" + randomInteger(4, 99);
+    easyrtc.initDesktopStream(
+        function (stream) {
+            createLocalVideo(stream, streamName);
+            if (otherEasyrtcid) {
+                easyrtc.addStreamToCall(otherEasyrtcid, streamName);
+            }
+        },
+        function (errCode, errText) {
+            easyrtc.showError(errCode, errText);
+        },
+        streamName);
 };
 
 function disconnect() {
@@ -221,8 +222,8 @@ function occupantListener(roomName, occupants, isPrimary) {
     }
     for (var easyrtcid in occupants) {
         var button = document.createElement("button");
-        button.onclick = (function(roomname, easyrtcid) {
-            return function() {
+        button.onclick = (function (roomname, easyrtcid) {
+            return function () {
                 sendMessage(easyrtcid, roomName);
             };
         })(roomName, easyrtcid);
@@ -241,11 +242,11 @@ function occupantListener(roomName, occupants, isPrimary) {
         button.appendChild(label);
         roomDiv.appendChild(button);
     }
-   // refreshRoomList();
+    // refreshRoomList();
 }
 
 function getGroupId() {
-        return null;
+    return null;
 }
 
 function sendMessage(destTargetId, destRoom) {
@@ -253,7 +254,7 @@ function sendMessage(destTargetId, destRoom) {
     if (text.replace(/\s/g, "").length === 0) { // Don't send just whitespace
         return;
     }
-    setCookie('lastMessage',text);
+    setCookie('lastMessage', text);
     var dest;
     var destGroup = getGroupId();
     if (destRoom || destGroup) {
@@ -276,15 +277,15 @@ function sendMessage(destTargetId, destRoom) {
         return;
     }
 
-    if( text === "empty") {
-         easyrtc.sendPeerMessage(dest, "message");
+    if (text === "empty") {
+        easyrtc.sendPeerMessage(dest, "message");
     }
     else {
-    easyrtc.sendDataWS(dest, "message", text, function(reply) {
-        if (reply.msgType === "error") {
-            easyrtc.showError(reply.msgData.errorCode, reply.msgData.errorText);
-        }
-    });
+        easyrtc.sendDataWS(dest, "message", text, function (reply) {
+            if (reply.msgType === "error") {
+                easyrtc.showError(reply.msgData.errorCode, reply.msgData.errorText);
+            }
+        });
     }
     addToConversation("Me", "message", text);
     document.getElementById('sendMessageText').value = "";
@@ -292,16 +293,13 @@ function sendMessage(destTargetId, destRoom) {
 
 
 function loginSuccess(easyrtcid) {
-    if (checkCookie("roomCreator")==1)
-    {
-        setCookie("userID",easyrtcid);
+    if (checkCookie("roomCreator") == 1) {
+        setCookie("userID", easyrtcid);
     }
-    if (checkCookie("roomCreator")==0)
-    {
-        setCookie("userID",easyrtcid);
+    if (checkCookie("roomCreator") == 0) {
+        setCookie("userID", easyrtcid);
     }
     isConnected = true;
-    easyRTCid = easyrtcid;    
     document.getElementById("main").className = "connected";
     addRoom(null, null, true);
     enable('otherClients');
@@ -330,15 +328,14 @@ function updatePresenceStatus(value) {
     updatePresence();
 }
 
-function updatePresence()
-{
+function updatePresence() {
     easyrtc.updatePresence(currentShowState, currentShowText);
 }
 
 
-function setCookie(cname,cvalue) {
+function setCookie(cname, cvalue) {
     var d = new Date();
-    d.setTime(d.getTime() + (60*60*1000));
+    d.setTime(d.getTime() + (60 * 60 * 1000));
     var expires = "expires=" + d.toGMTString();
     document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 }
@@ -347,7 +344,7 @@ function getCookie(cname) {
     var name = cname + "=";
     var decodedCookie = decodeURIComponent(document.cookie);
     var ca = decodedCookie.split(';');
-    for(var i = 0; i < ca.length; i++) {
+    for (var i = 0; i < ca.length; i++) {
         var c = ca[i];
         while (c.charAt(0) == ' ') {
             c = c.substring(1);
@@ -360,10 +357,9 @@ function getCookie(cname) {
 }
 
 function checkCookie(something) {
-     return getCookie(something);  
+    return getCookie(something);
 }
 
-function windowOpen(something){
-    var newWin = window.open("http://localhost:8000/room/"+something+"/client", "client", "top=0, left="+screen.height+", width="+screen.width/2+",height="+ screen.height+", location=yes, toolbar=yes, menubar=yes, scrollbars=yes");
+function windowOpen(url, title, top, left, width, height, location = "1", toolbar = "1", menubar = "1", scrollbars = "1") {
+    window.open(url, title, "top=" + 0 + ", left=" + left + ", width=" + width + ",height=" + height + ", location=" + location + ", toolbar=" + toolbar + ", menubar=" + menubar + ",scrollbars=" + scrollbars + "");
 }
-
