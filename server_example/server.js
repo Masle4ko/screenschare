@@ -1,5 +1,5 @@
-//var http = require("http");
-var https = require("https");
+var http = require("http");
+//var https = require("https");
 var url = require('url');
 var path = require('path');
 var fs = require('fs');
@@ -47,10 +47,11 @@ app.get('/room/:roomId', function (req, res) {
     res.sendFile(__dirname + "/view/room.html");
 });
 
-var webServer = https.createServer( {
-    key: fs.readFileSync(__dirname+'/cert/client-key.pem'),
-    cert: fs.readFileSync(__dirname+'/cert/client-cert.pem')
-},app).listen(8000);
+// var webServer = https.createServer( {
+//     key: fs.readFileSync(__dirname+'/cert/client-key.pem'),
+//     cert: fs.readFileSync(__dirname+'/cert/client-cert.pem')
+// },app).listen(8000);
+var webServer = http.createServer(app).listen(8000);
 easyrtc.setOption("roomDefaultEnable", false);
 // Start Socket.io so it attaches itself to Express server
 var socketServer = socketIo.listen(webServer, { "log level": 1 });
