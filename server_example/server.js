@@ -50,7 +50,7 @@ app.get('/room/:roomId', function (req, res) {
 var webServer = https.createServer( {
     key: fs.readFileSync(__dirname+'/cert/client-key.pem'),
     cert: fs.readFileSync(__dirname+'/cert/client-cert.pem')
-},app).listen(443);
+},app).listen(8000);
 easyrtc.setOption("roomDefaultEnable", false);
 // Start Socket.io so it attaches itself to Express server
 var socketServer = socketIo.listen(webServer, { "log level": 1 });
