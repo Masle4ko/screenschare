@@ -48,21 +48,16 @@ function createLabelledButton(buttonLabel) {
     document.getElementById("videoSrcBlk").appendChild(button);
     return button;
 }
-function randomInteger(min, max) {
-    var rand = min - 0.5 + Math.random() * (max - min + 1)
-    rand = Math.round(rand);
-    return rand;
-}
+
 function addMediaStreamToDiv(divId, stream, streamName, isLocal) {
     var container = document.createElement("div");
-    container.setAttribute("class", "carousel-item white white-text");
-    container.setAttribute("href", "#" + randomInteger(4, 99) + "");
+    container.setAttribute("class", "carousel-item red white-text");
     container.style.marginBottom = "10px";
     container.style.display = "block";
     var formattedName = streamName.replace("(", "<br>").replace(")", "");
     var labelBlock = document.createElement("div");
     labelBlock.style.width = "250px";
-    labelBlock.style.cssFloat = "left";
+    //labelBlock.style.cssFloat = "left";
     labelBlock.innerHTML = "<pre>" + formattedName + "</pre><br>";
     container.appendChild(labelBlock);
     var video = document.createElement("video");
@@ -72,63 +67,23 @@ function addMediaStreamToDiv(divId, stream, streamName, isLocal) {
     video.style.verticalAlign = "middle";
     container.appendChild(video);
     document.getElementById(divId).appendChild(container);
-    var slider = $('#' + divId + '');
-    slider.carousel();
-    if (slider.hasClass('initialized')) {
-        slider.removeClass('initialized')
-    }
-    slider.carousel();
+    initializeCarousel(divId);
+    if (divId == "remoteVideos")
+        document.getElementById("remoteVideos").style.height = "500px";
     video.autoplay = true;
     easyrtc.setVideoObjectSrc(video, stream);
     return labelBlock;
 }
 
-//carousel old
-// function addMediaStreamToDiv(divId, stream, streamName, isLocal){    
-//     var container0 = document.createElement("a");
-//     container0.className="carousel-item";
-//     container0.style.height="400";
-//     container0.style.width="400";
-//     container0.style.display="block";
-//     var container = document.createElement("div");
-//     var formattedName = streamName.replace("(", "").replace(")", "");
-//     var labelBlock = document.createElement("div");
-//     labelBlock.innerHTML = "<pre>" + formattedName + "</pre>";
-//     container0.appendChild(labelBlock);
-//     var video = document.createElement("video");
-//      video.width =400;
-//      video.height = 300;
-//     video.muted = isLocal;
-//     video.style.verticalAlign = "middle";
-//     video.style.marginBottom = "10px";
-//     container0.appendChild(video);
-//     container0.appendChild(container);
-//     document.getElementById(divId).appendChild(container0); 
-//     var slider = $('.carousel');
-//     slider.carousel();
-//        if (slider.hasClass('initialized')){
-//            slider.removeClass('initialized')
-//     }
-//     slider.carousel();
-//     video.autoplay = true;
-//     easyrtc.setVideoObjectSrc(video, stream);  
-//     return labelBlock;
-// }
-
 function createLocalVideo(stream, streamName) {
     var labelBlock = addMediaStreamToDiv("localVideos", stream, streamName, true);
-    document.getElementById("localVideos").style.height = "600px";
-   // startRecord(stream, streamName);
+    document.getElementById("localVideos").style.height = "500px";
+    // startRecord(stream, streamName);
     var closeButton = createLabelledButton("close");
     closeButton.onclick = function () {
         easyrtc.closeLocalStream(streamName);
         //endRecord(streamName);
-        var slider = $('#localVideos');
-        slider.carousel();
-        if (slider.hasClass('initialized')) {
-            slider.removeClass('initialized')
-        }
-        slider.carousel();
+        initializeCarousel("localVideos");
         labelBlock.parentNode.parentNode.removeChild(labelBlock.parentNode);
         if (document.getElementById("localVideos").childElementCount == 0)
             document.getElementById("localVideos").style.height = "0px";
@@ -196,17 +151,11 @@ function performCall(targetEasyrtcId) {
 
 
 easyrtc.setStreamAcceptor(function (easyrtcid, stream, streamName) {
-    if (document.getElementById("remoteBlock" + easyrtcid + streamName) == null) {
+    if (document.getElementById("remoteBlock" + easyrtcid + streamName) == null && streamName !="default") {
         document.getElementById("progress").style.display = "none";
-        document.getElementById("remoteVideos").style.height = "600px";
+        document.getElementById("remoteVideos").style.height = "500px";
         var labelBlock = addMediaStreamToDiv("remoteVideos", stream, streamName, false);
         labelBlock.parentNode.id = "remoteBlock" + easyrtcid + streamName;
-        var slider = $('#remoteVideos');
-        slider.carousel();
-        if (slider.hasClass('initialized')) {
-            slider.removeClass('initialized')
-        }
-        slider.carousel();
     }
 });
 
@@ -241,6 +190,15 @@ easyrtc.setAcceptChecker(function (easyrtcid, callback) {
     callback(true, easyrtc.getLocalMediaIds());
 });
 
+
+function initializeCarousel(divId) {
+    var slider = $('#' + divId + '');
+    slider.carousel({ full_width: true });
+    if (slider.hasClass('initialized')) {
+        slider.removeClass('initialized')
+    }
+    slider.carousel({ full_width: true });
+}
 
 // //RECORDING PART
 // ////////////////////////////////

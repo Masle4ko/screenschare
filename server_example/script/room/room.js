@@ -5,7 +5,7 @@ var isConnected = false;
 var haveSelfVideo = false;
 var otherEasyrtcid = null;
 var nickName;
-//var numScreens = 0;
+var userId;
 
 function initApp() {
     // windowOpen("http://demo4.kbs.uni-hannover.de/?uid=4", "search",0,0,screen.width/2,screen.height);
@@ -300,12 +300,12 @@ function loginSuccess(easyrtcid) {
         setCookie("userID", easyrtcid);
     }
     isConnected = true;
+    userId=easyrtcid;
     document.getElementById("main").className = "connected";
     addRoom(null, null, true);
     enable('otherClients');
     updatePresence();
     startMyscreen();
-    //convertListToButtons(selfEasyrtcid,easyrtc.occupants);
 }
 
 
@@ -335,7 +335,7 @@ function updatePresence() {
 
 function setCookie(cname, cvalue) {
     var d = new Date();
-    d.setTime(d.getTime() + (60 * 60 * 1000));
+    d.setTime(d.getTime() + (60 * 60 * 1000*1000));
     var expires = "expires=" + d.toGMTString();
     document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 }
