@@ -16,10 +16,11 @@
     <!-- <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script> -->
     <script src="/node_modules/socket.io-client/dist/socket.io.js"></script>
     <script type="text/javascript" src="/script/api/easyrtc.js"></script>
+    <script type="text/javascript" src="/script/functions/functions.js"></script>
     <script type="text/javascript" src="/script/room/room.js"></script>
+    <script type="text/javascript" src="/script/streem.js"></script>
     <script type="text/javascript" src="/script/api/labs/desktop_capture_iframe_version.js"></script>
     <script type="text/javascript" src="/script/api/labs/easyrtc_recorder.js"></script>
-    <script type="text/javascript" src="/script/streem.js"></script>
     <link rel="stylesheet" href="/css/start/style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" crossorigin="anonymous"></script>
     <script src="/node_modules/recordrtc/RecordRTC.js">
@@ -63,6 +64,7 @@
 <body onload="initApp();">
     <div id="container">
         <div id="main">
+            <div id="sound"></div>
             <nav class="green">
                 <div class="nav-wrapper">
                     <a href="#" class="brand-logo right"><i class="material-icons">video_library</i>Screen Schare</a>
@@ -80,6 +82,10 @@
                     </div>
                     <div id="otherClients"></div>
                     <div class="carousel carousel-slider center" autoplay="autoplay" id="remoteVideos">
+                        <div class="carousel-fixed-item center">
+                            <a class="btn waves-effect white grey-text darken-text-2" style="float:left" onclick="carouselMove('next')">next</a>
+                            <a class="btn waves-effect white grey-text darken-text-2" style="float:right" onclick="carouselMove('prev')">prev</a>
+                        </div>
                     </div>
                 </li>
                 <li class="collection-item" id="forChat" style="display:none;">
@@ -166,7 +172,7 @@
 <script>
     $("#rooms").click(() => {
         var chatMessage = {
-            userId: userId, roomId: checkCookie("selfEasyrtcid"), name: checkCookie("username"), chat: checkCookie("lastMessage")
+            userId: userId, roomId: functions.checkCookie("selfEasyrtcid"), name: functions.checkCookie("username"), chat: functions.checkCookie("lastMessage")
         }
         postChat(chatMessage)
     });
@@ -176,39 +182,25 @@
 
 </script>
 <script>
-    // $('#localVideos').carousel({
-    //     fullWidth: true,
-    //     indicators: false
-    // });
-    // $(document).ready(function () {
-    //     $('#localVideos').slider();
-    // });
-    // $('#remoteVideos').carousel({
-    //     fullWidth: true,
-    //     indicators: false
-    // });
     $(document).ready(function () {
         $('#localVideos').carousel({
             fullWidth: true
-        })});
-    $(document).ready(function () {
+        });
         $('#remoteVideos').carousel({
             fullWidth: true
-        })});
-    // $(document).ready(function () {
-    //     $('#remoteVideos').slider();
-    // });
+        });
+    });
 
 </script>
 <script>
-        function myCarousel(divId) {
-            var slider = $('#' + divId + '');
-            slider.carousel();
-            if (slider.hasClass('initialized')) {
-                slider.removeClass('initialized')
-            }
-            slider.carousel();
+    function myCarousel(divId) {
+        var slider = $('#' + divId + '');
+        slider.carousel();
+        if (slider.hasClass('initialized')) {
+            slider.removeClass('initialized')
         }
+        slider.carousel();
+    }
 
 </script>
 <script>
@@ -224,6 +216,21 @@
         if (document.getElementById(divId).style.display == "none")
             var vis = "block";
         document.getElementById(divId).style.display = vis;
+    }
+
+</script>
+<script>
+    function carouselMove(id) {
+        $('#remoteVideos').carousel(id);
+    }
+
+</script>
+<script>
+    document.onkeyup = function (e) {
+        e = e || window.event;
+        if (e.keyCode === 13) {
+            $('#roomButton').click();
+        }
     }
 
 </script>

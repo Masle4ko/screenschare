@@ -25,9 +25,11 @@
 //
 var selfEasyrtcid = "";
 var haveSelfVideo = false;
+var startScreen = true;
 var otherEasyrtcid = null;
 var calls = [];
 var streamNames = [];
+var needCall=true;
 
 function disable(domId) {
     console.log("about to try disabling " + domId);
@@ -50,26 +52,33 @@ function createLabelledButton(buttonLabel) {
 }
 
 function addMediaStreamToDiv(divId, stream, streamName, isLocal) {
+
     var container = document.createElement("div");
-    container.setAttribute("class", "carousel-item red white-text");
-    container.style.marginBottom = "10px";
+    container.setAttribute("class", "carousel-item gray white-text");
     container.style.display = "block";
     var formattedName = streamName.replace("(", "<br>").replace(")", "");
     var labelBlock = document.createElement("div");
-    labelBlock.style.width = "250px";
-    //labelBlock.style.cssFloat = "left";
-    labelBlock.innerHTML = "<pre>" + formattedName + "</pre><br>";
+    labelBlock.style.width = "100px";
+    labelBlock.innerHTML = formattedName;
     container.appendChild(labelBlock);
+    if (divId == "remoteVideos")
+        labelBlock.style.width = "0px";
     var video = document.createElement("video");
-    video.width = 640;
-    video.height = 480;
+    video.setAttribute("class", "responsive-video");
+    video.type = "video/webm";
+    video.controls = true;
+    video.style.width = screen.width - 100;
+    video.style.height = (screen.height / 2) - 100;
     video.muted = isLocal;
+    video.style.marginBottom = "10px";
     video.style.verticalAlign = "middle";
     container.appendChild(video);
     document.getElementById(divId).appendChild(container);
     initializeCarousel(divId);
-    if (divId == "remoteVideos")
-        document.getElementById("remoteVideos").style.height = "500px";
+    if (divId == "remoteVideos") {
+        document.getElementById("remoteVideos").style.height = video.style.height + 25;
+        document.getElementById("remoteVideos").style.width = video.style.width + 25;
+    }
     video.autoplay = true;
     easyrtc.setVideoObjectSrc(video, stream);
     return labelBlock;
@@ -119,11 +128,21 @@ function clearConnectList() {
 
 function convertListToButtons(roomName, occupants) {
     clearConnectList();
+    easyrtc.setAutoInitUserMedia(false);
     var otherClientDiv = document.getElementById('otherClients');
     for (var easyrtcid in occupants) {
-        if (calls.indexOf(easyrtcid) == -1) {
             performCall(easyrtcid);
-            calls.push(easyrtcid);
+            console.log(occupants);
+            console.log(easyrtc.getConnectionCount());
+            if(needCall){
+            if(functions.checkCookie("roomCreator")=="true"){
+                playSound();
+                startMyscreen();
+            }
+            else{
+                startMyscreen();
+            }
+            needCall=false;
         }
     }
 
@@ -151,9 +170,9 @@ function performCall(targetEasyrtcId) {
 
 
 easyrtc.setStreamAcceptor(function (easyrtcid, stream, streamName) {
-    if (document.getElementById("remoteBlock" + easyrtcid + streamName) == null && streamName !="default") {
+    if (document.getElementById("remoteBlock" + easyrtcid + streamName) == null && streamName != "default") {
         document.getElementById("progress").style.display = "none";
-        document.getElementById("remoteVideos").style.height = "500px";
+        document.getElementById("remoteVideos").style.height = ""+((screen.height / 2)-75)+"px";
         var labelBlock = addMediaStreamToDiv("remoteVideos", stream, streamName, false);
         labelBlock.parentNode.id = "remoteBlock" + easyrtcid + streamName;
     }
@@ -167,7 +186,7 @@ easyrtc.setOnStreamClosed(function (easyrtcid, stream, streamName) {
         item = document.getElementById("remoteBlock" + easyrtcid + streamName);
         item.parentNode.removeChild(item);
     }
-    if (document.getElementById("remoteVideos").childElementCount == 0) {
+    if (document.getElementById("remoteVideos").childElementCount == 1) {
         document.getElementById("progress").style.display = "block";
         document.getElementById("remoteVideos").style.height = "0px";
     }
@@ -187,9 +206,10 @@ easyrtc.setAcceptChecker(function (easyrtcid, callback) {
     if (easyrtc.getConnectionCount() > 0) {
         //easyrtc.hangupAll();
     }
+    //callback(true);
     callback(true, easyrtc.getLocalMediaIds());
 });
-
+easyrtc.setAutoInitUserMedia(false);
 
 function initializeCarousel(divId) {
     var slider = $('#' + divId + '');
@@ -199,6 +219,26 @@ function initializeCarousel(divId) {
     }
     slider.carousel({ full_width: true });
 }
+
+function playSound() {
+    var snd = '<audio autoplay=true> <source src="/audio/ping.mp3"</audio>';
+    $('body').append(snd);
+}
+
+function startMyscreen() {
+    var streamName = "screen" + randomInteger(4, 99);
+    easyrtc.initDesktopStream(
+        function (stream) {
+            createLocalVideo(stream, streamName);
+            if (otherEasyrtcid) {
+                easyrtc.addStreamToCall(otherEasyrtcid, streamName);
+            }
+        },
+        function (errCode, errText) {
+            easyrtc.showError(errCode, errText);
+        },
+        streamName);
+};
 
 // //RECORDING PART
 // ////////////////////////////////
