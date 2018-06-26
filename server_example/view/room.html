@@ -22,6 +22,7 @@
     <script type="text/javascript" src="/script/api/labs/desktop_capture_iframe_version.js"></script>
     <script type="text/javascript" src="/script/api/labs/easyrtc_recorder.js"></script>
     <link rel="stylesheet" href="/css/start/style.css">
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" crossorigin="anonymous"></script>
     <script src="/node_modules/recordrtc/RecordRTC.js">
 
@@ -67,16 +68,23 @@
             <div id="sound"></div>
             <nav class="green">
                 <div class="nav-wrapper">
-                    <a href="#" class="brand-logo right"><i class="material-icons">video_library</i>Screen Schare</a>
+                    <a href="#" class="brand-logo right">
+                        <i class="material-icons">video_library</i>Screen Schare</a>
                     <ul id="nav-mobile" class="left">
-                        <li><a onclick="showMe('forRemoteVideos')">Remote Videos</a></li>
-                        <li><a onclick="showMe('forChat')">Chat</a></li>
-                        <li><a onclick="showMe('forLocalVideos')">Local Videos</a></li>
+                        <li>
+                            <a onclick="showMe('forRemoteVideos')">Remote Videos</a>
+                        </li>
+                        <li>
+                            <a onclick="showMe('forChat')">Chat</a>
+                        </li>
+                        <li>
+                            <a onclick="showMe('forLocalVideos')">Local Videos</a>
+                        </li>
                     </ul>
                 </div>
             </nav>
             <ul class="collection with-header">
-                <li class="collection-item" id="forRemoteVideos" style="display:none;">
+                <li class="collection-item" id="forRemoteVideos" style="display:block;">
                     <div class="progress" id="progress">
                         <div class="indeterminate"></div>
                     </div>
@@ -87,88 +95,35 @@
                             <a class="btn waves-effect white grey-text darken-text-2" style="float:right" onclick="carouselMove('prev')">prev</a>
                         </div>
                     </div>
-                </li>
-                <li class="collection-item" id="forChat" style="display:none;">
-                    <div class="jumbotron">
-                        <div id="receiveMessageArea">
-                            <p class="flow-text">
-                                <div id="conversation">
-                            </p>
-                            </div>
-                            <div class="input-field col s6">
-                                <i class="material-icons prefix">mode_edit</i>
-                                <input placeholder="Enter your message here" id="sendMessageText" type="text" class="validate">
-                                <label for="sendMessageText"></label>
-                            </div>
-                            <div id="rooms"></div>
-                        </div>
-                </li>
-                <li class="collection-item" id="forLocalVideos" style="display:none;">
-                    <div id="videoSrcBlk">
-                        <div id="otherClients"></div>
-                    </div>
-                    <br>
-                    <div class="carousel carousel-slider center" autoplay="autoplay" id="localVideos">
-                    </div>
-                </li>
-            </ul>
-            <!-- <ul class="collapsible" data-collapsible="expandable">
-                <li>
-                    <div class="collapsible-header">
-                        <i class="material-icons">place</i>Remote media streams</div>
-                    <div class="collapsible-body">
-                        <div class="progress" id="progress">
-                            <div class="indeterminate"></div>
-                        </div>
-                        <div id="otherClients"></div>
-                        <div class="carousel carousel-slider center" autoplay="autoplay" id="remoteVideos" style="height:500">
-                        </div>
-                    </div>
-                </li>
-                <li>
-                    <div class="collapsible-header">
-                        <i class="material-icons">filter_drama</i>Chat</div>
-                    <div class="collapsible-body">
-                        <div class="jumbotron">
-                            <div id="receiveMessageArea">
-                                <blockquote>
-                                    <div id="conversation"></div>
-                                </blockquote>
-                            </div>
-                            <div class="input-field col s6">
-                                <i class="material-icons prefix">mode_edit</i>
-                                <input placeholder="Enter your message here" id="sendMessageText" type="text" class="validate">
-                                <label for="sendMessageText"></label>
-                            </div>
-                            <div id="rooms"></div>
-                        </div>
-                    </div>
-                </li>
-                <li>
-                    <div class="collapsible-header">
-                        <i class="material-icons">whatshot</i>Local media streams
-                    </div>
-                    <div class="collapsible-body">
-                        <div id="videoSrcBlk">
-                            <div id="otherClients"></div>
-                        </div>
-                        <div class="carousel carousel-slider center" autoplay="autoplay" id="localVideos" style="height:500">
-                        </div>
-                    </div>
-                </li>
-            </ul> -->
-            </div>
         </div>
+        </li>
+        <li class="collection-item" id="forChat" style="display:block;">
+            <div class="jumbotron">
+                <div id="receiveMessageArea">
+                    <p class="flow-text">
+                        <div id="conversation">
+                    </p>
+                    </div>
+                    <div class="input-field col s6">
+                        <i class="material-icons prefix">mode_edit</i>
+                        <input placeholder="Enter your message here" id="sendMessageText" type="text" class="validate">
+                        <label for="sendMessageText"></label>
+                    </div>
+                    <div id="rooms"></div>
+                </div>
+        </li>
+        <li class="collection-item" id="forLocalVideos" style="display:none;">
+            <div id="videoSrcBlk">
+                <div id="otherClients"></div>
+            </div>
+            <br>
+            <div class="carousel carousel-slider center" autoplay="autoplay" id="localVideos">
+            </div>
+        </li>
+        </ul>
+        </div>
+    </div>
 </body>
-<script type="text/javascript">
-    function colapps() {
-        var elem = document.querySelector('.collapsible.expandable');
-        var instance = M.Collapsible.init(elem, {
-            accordion: false
-        });
-    };
-
-</script>
 <script>
     $("#rooms").click(() => {
         var chatMessage = {
@@ -184,27 +139,13 @@
 <script>
     $(document).ready(function () {
         $('#localVideos').carousel({
-            fullWidth: true
+            fullWidth: true,
+            duration: 50
         });
         $('#remoteVideos').carousel({
-            fullWidth: true
+            fullWidth: true,
+            duration: 50
         });
-    });
-
-</script>
-<script>
-    function myCarousel(divId) {
-        var slider = $('#' + divId + '');
-        slider.carousel();
-        if (slider.hasClass('initialized')) {
-            slider.removeClass('initialized')
-        }
-        slider.carousel();
-    }
-
-</script>
-<script>
-    $(document).ready(function () {
         $('.sidenav').sidenav();
     });
 
@@ -221,9 +162,11 @@
 </script>
 <script>
     function carouselMove(id) {
+        // $('#remoteVideos').preventDefault();
+        // $('#remoteVideos').stopPropagation();
         $('#remoteVideos').carousel(id);
-    }
 
+    }
 </script>
 <script>
     document.onkeyup = function (e) {

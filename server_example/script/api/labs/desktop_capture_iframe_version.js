@@ -58,6 +58,7 @@
         
         
         if (!!navigator.mozGetUserMedia) {
+            console.log(navigator.mozGetUserMedia);
             easyrtc._presetMediaConstraints = {
                 video: {
                     mozMediaSource: 'window',
@@ -76,7 +77,6 @@
 
         var cb = function(event) {
             if (!event.data) return;
-
             if (event.data.chromeMediaSourceId) {
                 window.removeEventListener("message", cb);
                 if (event.data.chromeMediaSourceId === 'PermissionDeniedError') {

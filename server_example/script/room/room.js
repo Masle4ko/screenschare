@@ -120,26 +120,6 @@ function leaveRoom(roomName) {
     roomButtonHolder.removeChild(entry);
 }
 
-function roomEntryListener(entered, roomName) {
-    if (entered) { // entered a room
-        console.log("saw add of room " + roomName);
-        addRoom(roomName, null, false);
-    }
-    else {
-        var roomNode = document.getElementById(genRoomDivName(roomName));
-        if (roomNode) {
-            document.getElementById('#rooms').removeChildNode(roomNode);
-        }
-    }
-    refreshRoomList();
-}
-
-function refreshRoomList() {
-    if (isConnected) {
-        easyrtc.getRoomList(addQuickJoinButtons, null);
-    }
-}
-
 function peerListener(who, msgType, content, targeting) {
     addToConversation(who, msgType, content, targeting);
 }
@@ -149,32 +129,10 @@ function randomInteger(min, max) {
     return rand;
 }
 function connect() {
-    //easyrtc.setRoomEntryListener(roomEntryListener);
-    easyrtc.setRoomEntryListener(function (entry, roomName) {
-        needToCallOtherUsers = true;
-    });
-    easyrtc.setRoomOccupantListener(convertListToButtons);
-    //easyrtc.setRoomOccupantListener(occupantListener);
-    // easyrtc.setRoomOccupantListener(function (roomName, userList) {
-    //     var easyrtcid;
-    //     if (needToCallOtherUsers) {
-    //         for (easyrtcid in userList) {
-    //             easyrtc.call(
-    //                 easyrtcid,
-    //                 function success(otherCaller, mediaType) {
-    //                     console.log('success: ', otherCaller, mediaType);
-    //                 },
-    //                 function failure(errorCode, errorMessage) {
-    //                     console.log('failure: ', errorCode, errorMessage);
-    //                 }
-    //             );
-    //         }
-    //         needToCallOtherUsers = false;
-    //     }
-    // });
+    easyrtc.enableDataChannels(true);
+    easyrtc.setRoomEntryListener();
+    easyrtc.setRoomOccupantListener(RoomOccupantListener);
     easyrtc.setPeerListener(peerListener);
-    // easyrtc.setUsername("Maslo"); 
-    // easyrtc.idtoname=selfEasyrtcid;
     easyrtc.setDisconnectListener(function () {
         jQuery('#rooms').empty();
         document.getElementById("main").className = "notconnected";
@@ -195,7 +153,6 @@ function connect() {
     var screenShareButton = createLabelledButton("Desktop capture/share");
     screenShareButton.onclick = function () {
         var streamName = "screen" + randomInteger(4, 99);
-        //var streamName = easyrtc.idToName(easyrtcid);
         easyrtc.initDesktopStream(
             function (stream) {
                 createLocalVideo(stream, streamName);
@@ -209,17 +166,6 @@ function connect() {
             streamName);
     };
 };
-
-function disconnect() {
-    easyrtc.disconnect();
-}
-
-function occupantListener(roomName, occupants, isPrimary) {
-    for (var easyrtcid in occupants) {
-        performCall(easyrtcid);
-    }
-    refreshRoomList();
-}
 
 function getGroupId() {
     return null;
@@ -281,6 +227,13 @@ function loginSuccess(easyrtcid) {
     }
     enable('otherClients');
     updatePresence();
+    swal({
+        title: "Hello!",
+        text: "Please wait until the second user connects.",
+        icon: "info",
+        buttons: false,
+        dangerMode: false,
+      })
 }
 
 
@@ -311,17 +264,3 @@ function windowOpen(url, title, top, left, width, height, location = "1", toolba
     window.open(url, title, "top=" + 0 + ", left=" + left + ", width=" + width + ",height=" + height + ", location=" + location + ", toolbar=" + toolbar + ", menubar=" + menubar + ",scrollbars=" + scrollbars + "");
 }
 
-function startMyscreen() {
-    var streamName = "screen" + randomInteger(4, 99);
-    easyrtc.initDesktopStream(
-        function (stream) {
-            createLocalVideo(stream, streamName);
-            if (otherEasyrtcid) {
-                easyrtc.addStreamToCall(otherEasyrtcid, streamName);
-            }
-        },
-        function (errCode, errText) {
-            easyrtc.showError(errCode, errText);
-        },
-        streamName);
-};

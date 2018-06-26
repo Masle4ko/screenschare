@@ -23,14 +23,8 @@
 //ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //POSSIBILITY OF SUCH DAMAGE.
 //
-var selfEasyrtcid = "";
-var haveSelfVideo = false;
-var startScreen = true;
 var otherEasyrtcid = null;
-var calls = [];
-var streamNames = [];
-var needCall=true;
-
+var needCall = true;
 function disable(domId) {
     console.log("about to try disabling " + domId);
     document.getElementById(domId).disabled = "disabled";
@@ -52,7 +46,6 @@ function createLabelledButton(buttonLabel) {
 }
 
 function addMediaStreamToDiv(divId, stream, streamName, isLocal) {
-
     var container = document.createElement("div");
     container.setAttribute("class", "carousel-item gray white-text");
     container.style.display = "block";
@@ -117,32 +110,23 @@ function addSrcButton(buttonLabel, videoId) {
     };
 }
 
-
-function clearConnectList() {
-    var otherClientDiv = document.getElementById('otherClients');
-    while (otherClientDiv.hasChildNodes()) {
-        otherClientDiv.removeChild(otherClientDiv.lastChild);
-    }
-}
-
-
-function convertListToButtons(roomName, occupants) {
-    clearConnectList();
+function RoomOccupantListener(roomName, occupants) {
     easyrtc.setAutoInitUserMedia(false);
-    var otherClientDiv = document.getElementById('otherClients');
     for (var easyrtcid in occupants) {
-            performCall(easyrtcid);
-            console.log(occupants);
-            console.log(easyrtc.getConnectionCount());
-            if(needCall){
-            if(functions.checkCookie("roomCreator")=="true"){
-                playSound();
+        //easyrtc.call(easyrtcid);
+        performCall(easyrtcid);
+        if (needCall) {
+            if (functions.checkCookie("roomCreator") == "true") {
+                //playSound();
+                swalActiviation();
                 startMyscreen();
             }
-            else{
+            else {
+                swalActiviation();
                 startMyscreen();
+
             }
-            needCall=false;
+            needCall = false;
         }
     }
 
@@ -153,7 +137,6 @@ function performCall(targetEasyrtcId) {
     var acceptedCB = function (accepted, easyrtcid) {
         if (!accepted) {
             easyrtc.showError("CALL-REJECTED", "Sorry, your call to " + easyrtc.idToName(easyrtcid) + " was rejected");
-            enable('otherClients');
         }
         else {
             otherEasyrtcid = targetEasyrtcId;
@@ -162,7 +145,6 @@ function performCall(targetEasyrtcId) {
     var successCB = function () {
     };
     var failureCB = function () {
-        enable('otherClients');
     };
     var keys = easyrtc.getLocalMediaIds();
     easyrtc.call(targetEasyrtcId, successCB, failureCB, acceptedCB, keys);
@@ -172,13 +154,11 @@ function performCall(targetEasyrtcId) {
 easyrtc.setStreamAcceptor(function (easyrtcid, stream, streamName) {
     if (document.getElementById("remoteBlock" + easyrtcid + streamName) == null && streamName != "default") {
         document.getElementById("progress").style.display = "none";
-        document.getElementById("remoteVideos").style.height = ""+((screen.height / 2)-75)+"px";
+        document.getElementById("remoteVideos").style.height = "" + ((screen.height / 2) - 75) + "px";
         var labelBlock = addMediaStreamToDiv("remoteVideos", stream, streamName, false);
         labelBlock.parentNode.id = "remoteBlock" + easyrtcid + streamName;
     }
 });
-
-
 
 easyrtc.setOnStreamClosed(function (easyrtcid, stream, streamName) {
     var item;
@@ -202,22 +182,16 @@ easyrtc.setCallCancelled(function (easyrtcid) {
 });
 
 easyrtc.setAcceptChecker(function (easyrtcid, callback) {
-    otherEasyrtcid = easyrtcid;
-    if (easyrtc.getConnectionCount() > 0) {
-        //easyrtc.hangupAll();
-    }
-    //callback(true);
     callback(true, easyrtc.getLocalMediaIds());
 });
-easyrtc.setAutoInitUserMedia(false);
 
 function initializeCarousel(divId) {
     var slider = $('#' + divId + '');
-    slider.carousel({ full_width: true });
+    slider.carousel({ full_width: true, duration: 10 });
     if (slider.hasClass('initialized')) {
         slider.removeClass('initialized')
     }
-    slider.carousel({ full_width: true });
+    slider.carousel({ full_width: true, duration: 10 });
 }
 
 function playSound() {
@@ -230,6 +204,7 @@ function startMyscreen() {
     easyrtc.initDesktopStream(
         function (stream) {
             createLocalVideo(stream, streamName);
+            swal("Success!", "Stream run successfully.", "success");
             if (otherEasyrtcid) {
                 easyrtc.addStreamToCall(otherEasyrtcid, streamName);
             }
@@ -239,6 +214,16 @@ function startMyscreen() {
         },
         streamName);
 };
+
+function swalActiviation() {
+    swal({
+        title: "Connection successful",
+        text: "Please choose "+'"search"'+"page in the dialog window",
+        icon: "info",
+        buttons: false,
+        dangerMode: false,
+      })
+}
 
 // //RECORDING PART
 // ////////////////////////////////

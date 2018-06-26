@@ -40,6 +40,19 @@ function db() {
 app.get('/', function (req, res) {
     res.sendFile(__dirname + "/view/start.html");
 });
+app.get('/lobby', function (req, res) {
+    res.sendFile(__dirname + "/view/lobby.html");
+});
+app.post("/lobby/roomLog", async (req, res) => {
+    var objBD = db();
+    objBD.query("INSERT INTO  `room_log` (  `usecase_id` ,  `external_client_id` ,  `room_id` ,  `username`) VALUES (1, '" + req.body.external_client_id + "', '" + req.body.room_id + "', '" + req.body.name + "')", function (error) {
+        if (error) {
+            console.log(error.message);
+        } else {
+            console.log('success');
+        }
+    });
+});
 app.get('/room/:roomId', function (req, res) {
     res.sendFile(__dirname + "/view/room.html");
 });
@@ -79,7 +92,6 @@ var rtc = easyrtc.listen(app, socketServer, function (err, rtcRef) {
 
 app.post("/room/:roomId/saveMessage", async (req, res) => {
     var objBD = db();
-    console.log(req.body.name);
     objBD.query("INSERT INTO  `chat_logs` (  `chatlog_id` ,  `name` ,  `text` ,  `room_id` ,  `socket_id` ,  `timestamp` ) VALUES (NULL ,'" + req.body.name + "', '" + req.body.chat + "', '" + req.body.roomId + "',  '" + req.body.userId + "', CURRENT_TIMESTAMP)", function (error) {
         if (error) {
             console.log(error.message);
