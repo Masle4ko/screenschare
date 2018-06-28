@@ -15,8 +15,6 @@ function initApp() {
         //event.preventDefault();
         endRecord();
       };
-    // window.onbeforeunload = endRecord();
-    // window.onunload = endRecord();
 }
 
 function addToConversation(who, msgType, content, targeting) {
@@ -235,13 +233,12 @@ function loginSuccess(easyrtcid) {
     }
     enable('otherClients');
     updatePresence();
-    // swal({
-    //     title: "Hello!",
-    //     text: "Please wait until the second user connects.",
-    //     icon: "info",
-    //     buttons: false,
-    //     dangerMode: false,
-    //   })
+     swal({
+        title: "Wait until the second user connects.",
+        icon: "info",
+        buttons: false,
+        dangerMode: false,
+      })
 }
 
 
