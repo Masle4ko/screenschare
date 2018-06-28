@@ -8,7 +8,7 @@ var nickName;
 var userId;
 var needToCallOtherUsers;
 function initApp() {
-    //windowOpen("http://demo4.kbs.uni-hannover.de/?uid=4", "search", 0, 0, screen.width / 2, screen.height);
+    windowOpen("http://demo4.kbs.uni-hannover.de/?uid=4", "search", 0, 0, screen.width / 2, screen.height);
     selfEasyrtcid = functions.checkCookie("selfEasyrtcid");
     connect();
     window.onbeforeunload = function(event) {
