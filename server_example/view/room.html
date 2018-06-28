@@ -69,7 +69,7 @@
             <nav class="green">
                 <div class="nav-wrapper">
                     <a href="#" class="brand-logo right">
-                        <i class="material-icons">video_library</i>Screen Schare</a>
+                        <i class="material-icons">video_library</i>Screenschare</a>
                     <ul id="nav-mobile" class="left">
                         <li>
                             <a onclick="showMe('forRemoteVideos')">Remote Videos</a>
@@ -90,39 +90,38 @@
                     </div>
                     <div id="otherClients"></div>
                     <div class="carousel carousel-slider center" autoplay="autoplay" id="remoteVideos">
-                        <div class="carousel-fixed-item center">
-                            <a class="btn waves-effect white grey-text darken-text-2" style="float:left" onclick="carouselMove('next')">next</a>
-                            <a class="btn waves-effect white grey-text darken-text-2" style="float:right" onclick="carouselMove('prev')">prev</a>
+                        <div class="carousel-fixed-item center" style="display:none;" id="remoteVideosControlButtons">
+                            <a class="btn waves-effect white grey-text darken-text-2" style="float:left" id="nextBtn" onclick="carouselMove('next')">next</a>
+                            <a class="btn waves-effect white grey-text darken-text-2" style="float:right" id="prevBtn" onclick="carouselMove('prev')">prev</a>
                         </div>
                     </div>
-        </div>
-        </li>
-        <li class="collection-item" id="forChat" style="display:block;">
-            <div class="jumbotron">
-                <div id="receiveMessageArea">
-                    <p class="flow-text">
-                        <div id="conversation">
-                    </p>
+                </li>
+                <li class="collection-item" id="forChat" style="display:block;">
+                    <div class="jumbotron">
+                        <div id="receiveMessageArea">
+                            <p class="flow-text">
+                                <div id="conversation">
+                            </p>
+                            </div>
+                            <div class="input-field col s6">
+                                <i class="material-icons prefix">mode_edit</i>
+                                <input placeholder="Enter your message here" id="sendMessageText" type="text" class="validate">
+                                <label for="sendMessageText"></label>
+                            </div>
+                            <div id="rooms"></div>
+                        </div>
+                </li>
+                <li class="collection-item" id="forLocalVideos" style="display:none;">
+                    <div id="videoSrcBlk">
+                        <div id="otherClients"></div>
                     </div>
-                    <div class="input-field col s6">
-                        <i class="material-icons prefix">mode_edit</i>
-                        <input placeholder="Enter your message here" id="sendMessageText" type="text" class="validate">
-                        <label for="sendMessageText"></label>
+                    <br>
+                    <div class="carousel carousel-slider center" autoplay="autoplay" id="localVideos">
                     </div>
-                    <div id="rooms"></div>
-                </div>
-        </li>
-        <li class="collection-item" id="forLocalVideos" style="display:none;">
-            <div id="videoSrcBlk">
-                <div id="otherClients"></div>
+                </li>
+            </ul>
             </div>
-            <br>
-            <div class="carousel carousel-slider center" autoplay="autoplay" id="localVideos">
-            </div>
-        </li>
-        </ul>
         </div>
-    </div>
 </body>
 <script>
     $("#rooms").click(() => {
@@ -135,22 +134,17 @@
         $.post("/room/:roomId/saveMessage", chat)
     };
 
-</script>
-<script>
     $(document).ready(function () {
         $('#localVideos').carousel({
             fullWidth: true,
-            duration: 50
+            indicators: false
         });
         $('#remoteVideos').carousel({
             fullWidth: true,
-            duration: 50
+            indicators: false
         });
         $('.sidenav').sidenav();
     });
-
-</script>
-<script type="text/javascript">
     function showMe(divId) {
         if (document.getElementById(divId).style.display == "block")
             var vis = "none";
@@ -159,20 +153,20 @@
         document.getElementById(divId).style.display = vis;
     }
 
-</script>
-<script>
+    //    $('.movePrevCarousel').click(function (e) {
+    //     e.preventDefault();
+    //     e.stopPropagation();
+    //     $('#remoteVideos').carousel('prev');
+    // });
     function carouselMove(id) {
-        // $('#remoteVideos').preventDefault();
-        // $('#remoteVideos').stopPropagation();
         $('#remoteVideos').carousel(id);
 
     }
-</script>
-<script>
     document.onkeyup = function (e) {
         e = e || window.event;
         if (e.keyCode === 13) {
-            $('#roomButton').click();
+            var pathname = window.location.pathname.split('/')[2];
+            $('#' + pathname + '').click();
         }
     }
 

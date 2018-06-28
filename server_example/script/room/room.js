@@ -8,10 +8,17 @@ var nickName;
 var userId;
 var needToCallOtherUsers;
 function initApp() {
-    // windowOpen("http://demo4.kbs.uni-hannover.de/?uid=4", "search",0,0,screen.width/2,screen.height);
+    //windowOpen("http://demo4.kbs.uni-hannover.de/?uid=4", "search", 0, 0, screen.width / 2, screen.height);
     selfEasyrtcid = functions.checkCookie("selfEasyrtcid");
     connect();
+    window.onbeforeunload = function(event) {
+        //event.preventDefault();
+        endRecord();
+      };
+    // window.onbeforeunload = endRecord();
+    // window.onunload = endRecord();
 }
+
 function addToConversation(who, msgType, content, targeting) {
     // Escape html special characters, then add linefeeds.
     if (!content) {
@@ -51,7 +58,8 @@ function setCredential(event, value) {
 
 function addRoom(roomName, parmString, userAdded) {
     if (!roomName) {
-        roomName = functions.checkCookie("selfEasyrtcid");
+        roomName = "send";
+        var roomId = functions.checkCookie("selfEasyrtcid");
     }
     var roomid = genRoomDivName(roomName);
     if (document.getElementById(roomid)) {
@@ -64,10 +72,10 @@ function addRoom(roomName, parmString, userAdded) {
         roomdiv.id = roomid;
         roomdiv.className = "roomDiv";
         var roomButton = document.createElement("button");
-        roomButton.id = "roomButton";
+        roomButton.id = functions.checkCookie("selfEasyrtcid");
         roomButton.setAttribute("class", "waves-effect waves-light btn btn-success");
         roomButton.onclick = function () {
-            sendMessage(null, roomName);
+            sendMessage(null, roomButton.id);
         };
         var roomLabel = (document.createTextNode(roomName));
         roomButton.appendChild(roomLabel);
@@ -100,7 +108,7 @@ function addRoom(roomName, parmString, userAdded) {
     if (userAdded) {
         console.log("calling joinRoom(" + roomName + ") because it was a user action ");
         addRoomButton();
-        easyrtc.joinRoom(roomName, roomParms,
+        easyrtc.joinRoom(roomId, roomParms,
             function () {
                 /* we'll geta room entry event for the room we were actually added to */
             },
@@ -227,13 +235,13 @@ function loginSuccess(easyrtcid) {
     }
     enable('otherClients');
     updatePresence();
-    swal({
-        title: "Hello!",
-        text: "Please wait until the second user connects.",
-        icon: "info",
-        buttons: false,
-        dangerMode: false,
-      })
+    // swal({
+    //     title: "Hello!",
+    //     text: "Please wait until the second user connects.",
+    //     icon: "info",
+    //     buttons: false,
+    //     dangerMode: false,
+    //   })
 }
 
 
