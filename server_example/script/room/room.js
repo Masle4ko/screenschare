@@ -13,7 +13,7 @@ function initApp() {
     connect();
     window.onbeforeunload = function(event) {
         //event.preventDefault();
-        endRecord();
+        localRecorder.stopRecording(postFiles);
       };
 }
 

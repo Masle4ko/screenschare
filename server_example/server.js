@@ -111,23 +111,26 @@ app.post("/room/:roomId/saveMessage", async (req, res) => {
 //         }
 //     });
 // });
+var zero = 0;
 app.post("/room/:roomId/saveRecord", function (request, response) {
     var form = new formidable.IncomingForm();
     var dir = !!process.platform.match(/^win/) ? '\\uploads\\' : '/uploads/';
     form.uploadDir = __dirname + '/uploads';
     form.keepExtensions = true;
-    form.maxFieldsSize = 10 * 1024 * 1024;
+    form.maxFieldsSize = 10 * 1024 * 1024 * 1024;
+    form.maxFileSiz = 2000 * 1024 * 1024;
     form.maxFields = 1000;
     form.multiples = false;
 
     form.parse(request, function (err, fields, files) {
         var file = util.inspect(files);
-        var fileName = file.split('path:')[1].split('\',')[0].split(dir)[1].toString().replace(/\\/g, '').replace(/\//g, '');
+        file.name="test";
+        // var fileName = file.split('path:')[1].split('\',')[0].split(dir)[1].toString().replace(/\\/g, '').replace(/\//g, '');
+        var fileName = "test";
         var fileURL = __dirname + '/uploads/' + fileName;
-        console.log(files);
-        //console.log('fileURL: ', fileURL);
         response.write(JSON.stringify({
-            fileURL: fileURL
+            fileURL: fileURL,
+            fileName: fileName
         }));
         response.end();
     });

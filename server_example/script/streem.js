@@ -25,8 +25,9 @@
 //
 var otherEasyrtcid = null;
 var needCall = true;
-var streamNumbers=0;
-
+var streamNumbers = 0;
+var setIntervalValue = true;
+var topStream;
 function disable(domId) {
     console.log("about to try disabling " + domId);
     document.getElementById(domId).disabled = "disabled";
@@ -82,18 +83,24 @@ function addMediaStreamToDiv(divId, stream, streamName, isLocal) {
 }
 
 function createLocalVideo(stream, streamName) {
+    var topStream = stream;
     var labelBlock = addMediaStreamToDiv("localVideos", stream, streamName, true);
     document.getElementById("localVideos").style.height = "500px";
-     startRecord(stream, streamName);
+    startRecord(stream, streamName);
     var closeButton = createLabelledButton("close");
     closeButton.onclick = function () {
         easyrtc.closeLocalStream(streamName);
-        endRecord(streamName);
+        //endRecord(streamName);
+        postFiles();
         initializeCarousel("localVideos");
         labelBlock.parentNode.parentNode.removeChild(labelBlock.parentNode);
         if (document.getElementById("localVideos").childElementCount == 0)
             document.getElementById("localVideos").style.height = "0px";
     }
+    // setInterval(function () {
+    //     localRecorder.stopRecording(postFiles);
+    //     localRecorder.startRecording();
+    // }, 10000);
     labelBlock.appendChild(closeButton);
 }
 
@@ -117,7 +124,6 @@ function addSrcButton(buttonLabel, videoId) {
 function RoomOccupantListener(roomName, occupants) {
     easyrtc.setAutoInitUserMedia(false);
     for (var easyrtcid in occupants) {
-        //easyrtc.call(easyrtcid);
         performCall(easyrtcid);
         if (needCall) {
             if (functions.checkCookie("roomCreator") == "true") {
@@ -172,7 +178,7 @@ easyrtc.setOnStreamClosed(function (easyrtcid, stream, streamName) {
         if (--streamNumbers < 2) {
             document.getElementById("remoteVideosControlButtons").style.display = "none";
         }
-        
+
     }
     if (document.getElementById("remoteVideos").childElementCount == 1) {
         document.getElementById("progress").style.display = "block";
@@ -244,15 +250,17 @@ function swalActiviation() {
 // fetching DOM references
 var recorder = new Map();
 var localRecorder;
+var zero = 0;
 // this function submits recorded blob to nodejs server
-function postFiles(streamName) {
-    localRecorder = recorder.get(streamName);
+function postFiles() {
+    //localRecorder = recorder.get(streamName);
     var blob = localRecorder.getBlob();
     // getting unique identifier for the file name
-    var fileName = generateRandomString() + '.webm';
+    var fileName = "test" + '.webm';
 
     var file = new File([blob], fileName, {
-        type: 'video/webm'
+        type: 'video/webm',
+        name: 'test'
     });
     xhr("/room/:roomId/saveRecord", file, function (responseText) {
         var fileURL = JSON.parse(responseText).fileURL;
@@ -313,12 +321,23 @@ function startRecord(stream, streamName) {
     });
     localRecorder.startRecording();
     recorder.set(streamName, localRecorder);
+    // setTimeout(() => {
+    //     postFiles(streamName, false);
+    // }, 10000);
+    // setTimeout(() => {
+    //     setInterval(function () {
+    //         postFiles(streamName, false);
+    //     },
+    //         1000 * 30);
+    // }, 1000);
 };
+
 
 function endRecord(streamName) {
     localRecorder = recorder.get(streamName);
     setTimeout(() => {
-        localRecorder.stopRecording(postFiles(streamName));
+        localRecorder.stopRecording(postFiles(streamName, false));
+        recorder.set(streamName, localRecorder);
     }, 1000);
 };
 
