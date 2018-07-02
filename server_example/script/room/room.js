@@ -7,6 +7,7 @@ var otherEasyrtcid = null;
 var nickName;
 var userId;
 var needToCallOtherUsers;
+var otherusername;
 function initApp() {
     windowOpen("http://demo4.kbs.uni-hannover.de/?uid=" + functions.checkCookie("uid") + "", "search", 0, 0, screen.width / 2, screen.height);
     selfEasyrtcid = functions.checkCookie("selfEasyrtcid");
@@ -19,9 +20,10 @@ function initApp() {
 
 function addToConversation(who, msgType, content, targeting) {
     // Escape html special characters, then add linefeeds.
-    if (msgType === 'uid') {
-        console.log(content.uid);
-        functions.setCookie('otheruserid', content.uid);
+    if (msgType === 'otherusername') {
+        //console.log(content.username);
+        otherusername = content.username;
+        functions.setCookie("otherusername", content.username);
     }
     if (!content) {
         content = "**no body**";
@@ -40,6 +42,8 @@ function addToConversation(who, msgType, content, targeting) {
             targetingStr += " group=" + targeting.targetGroup;
         }
     }
+    if (who != "Me")
+        who = otherusername;
     document.getElementById('conversation').innerHTML +=
         "<b>" + who + ":</b>&nbsp;" + content + "<br />";
 }
