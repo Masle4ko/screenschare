@@ -131,10 +131,14 @@ function RoomOccupantListener(roomName, occupants) {
         if (needCall) {
             if (functions.checkCookie("roomCreator") == "true") {
                 playSound();
-                startMyscreen();
+                setTimeout(() => {
+                    startMyscreen();
+                }, 500);
             }
             else {
-                startMyscreen();
+                setTimeout(() => {
+                    startMyscreen();
+                }, 500);
 
             }
             needCall = false;
@@ -222,7 +226,6 @@ function playSound() {
 
 function startMyscreen() {
     var streamName = "screen" + randomInteger(4, 99);
-    //console.log(otherusername);
     swal({
         title: 'You have successfully been connected to user username='+functions.getCookie("otherusername")+'',
         text: 'Please select the window "WebSearch - Mozilla Firefox" from the drop down menu and allow to share it.',
