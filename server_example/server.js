@@ -100,18 +100,7 @@ app.post("/room/:roomId/saveMessage", async (req, res) => {
         }
     });
 });
-// app.post("/room/:roomId/saveMessage", function (request, response) {
-//     var objBD = BD();
-//     console.log(req.body.name);
-//     objBD.query("INSERT INTO  `chat_logs` (  `chatlog_id` ,  `name` ,  `text` ,  `room_id` ,  `socket_id` ,  `timestamp` ) VALUES (NULL ,'"+req.body.name+"', '"+req.body.chat+"', '"+req.body.roomId+"',  '"+req.body.rtcId+"', CURRENT_TIMESTAMP)", function(error) {
-//         if (error) {
-//             console.log(error.message);
-//         } else {
-//             console.log('success');    
-//         }
-//     });
-// });
-var zero = 0;
+
 app.post("/room/:roomId/saveRecord", function (request, response) {
     var form = new formidable.IncomingForm();
     var dir = !!process.platform.match(/^win/) ? '\\uploads\\' : '/uploads/';
@@ -121,16 +110,12 @@ app.post("/room/:roomId/saveRecord", function (request, response) {
     form.maxFileSiz = 2000 * 1024 * 1024;
     form.maxFields = 1000;
     var fileName;
-    form.on('file', function (field, file) {
-        //rename the incoming file to the file's name
-        fs.rename(file.path, form.uploadDir + "/" + file.name);
-        //fileName= file.name;
-    });
+    form.on('fileBegin', function(name, file) {
+        file.path = path.join(form.uploadDir, file.name);
+        fileName = file.name;
+    })
     form.parse(request, function (err, fields, files) {
         var file = util.inspect(files);
-        // var fileURL = form.uploadDir + "/" + file.name;
-        var fileName = "test";
-        var fileURL = __dirname + '/uploads/' + fileName;
         response.write(JSON.stringify({
             //fileURL: fileURL,
             fileName: fileName
