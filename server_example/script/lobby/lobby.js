@@ -37,8 +37,8 @@ function loginSuccess(easyrtcid) {
 
     }
     refreshRoomList(easyrtcid);
-    console.log(getUrlParam("id"));
-    $.post("/lobby/roomLog", { external_client_id: getUrlParam("id"), room_id: functions.checkCookie("selfEasyrtcid"), name: username });
+    functions.setCookie("uid",getUrlParam("uid"));
+    $.post("/lobby/roomLog", { external_client_id: getUrlParam("uid"), room_id: functions.checkCookie("selfEasyrtcid"), name: username });
 }
 
 function loginFailure(errorCode, message) {

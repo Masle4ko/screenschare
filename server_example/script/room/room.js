@@ -8,17 +8,21 @@ var nickName;
 var userId;
 var needToCallOtherUsers;
 function initApp() {
-    windowOpen("http://demo4.kbs.uni-hannover.de/?uid=4", "search", 0, 0, screen.width / 2, screen.height);
+    windowOpen("http://demo4.kbs.uni-hannover.de/?uid=" + functions.checkCookie("uid") + "", "search", 0, 0, screen.width / 2, screen.height);
     selfEasyrtcid = functions.checkCookie("selfEasyrtcid");
     connect();
-    window.onbeforeunload = function(event) {
+    window.onbeforeunload = function (event) {
         //event.preventDefault();
         localRecorder.stopRecording(postFiles);
-      };
+    };
 }
 
 function addToConversation(who, msgType, content, targeting) {
     // Escape html special characters, then add linefeeds.
+    if (msgType === 'uid') {
+        console.log(content.uid);
+        functions.setCookie('otheruserid', content.uid);
+    }
     if (!content) {
         content = "**no body**";
     }
@@ -233,12 +237,12 @@ function loginSuccess(easyrtcid) {
     }
     enable('otherClients');
     updatePresence();
-     swal({
-        title: "Wait until the second user connects.",
-        icon: "info",
-        buttons: false,
-        dangerMode: false,
-      })
+    //  swal({
+    //     title: "Wait until the second user connects.",
+    //     icon: "info ",
+    //     buttons: false,
+    //     dangerMode: false,
+    //   })
 }
 
 

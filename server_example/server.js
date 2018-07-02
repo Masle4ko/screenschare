@@ -120,16 +120,17 @@ app.post("/room/:roomId/saveRecord", function (request, response) {
     form.maxFieldsSize = 10 * 1024 * 1024 * 1024;
     form.maxFileSiz = 2000 * 1024 * 1024;
     form.maxFields = 1000;
-    form.multiples = false;
-
+    var fileName;
+    form.on('file', function(field, file) {
+        //rename the incoming file to the file's name
+            fs.rename(file.path, form.uploadDir + "/" + file.name);
+            fileName= file.name;
+    });
     form.parse(request, function (err, fields, files) {
         var file = util.inspect(files);
-        file.name="test";
-        // var fileName = file.split('path:')[1].split('\',')[0].split(dir)[1].toString().replace(/\\/g, '').replace(/\//g, '');
-        var fileName = "test";
-        var fileURL = __dirname + '/uploads/' + fileName;
+        // var fileURL = form.uploadDir + "/" + file.name;
         response.write(JSON.stringify({
-            fileURL: fileURL,
+            //fileURL: fileURL,
             fileName: fileName
         }));
         response.end();

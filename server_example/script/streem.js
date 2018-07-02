@@ -83,27 +83,25 @@ function addMediaStreamToDiv(divId, stream, streamName, isLocal) {
 }
 
 function createLocalVideo(stream, streamName) {
-    var topStream = stream;
     var labelBlock = addMediaStreamToDiv("localVideos", stream, streamName, true);
     document.getElementById("localVideos").style.height = "500px";
     startRecord(stream, streamName);
     var closeButton = createLabelledButton("close");
     closeButton.onclick = function () {
         easyrtc.closeLocalStream(streamName);
-        //endRecord(streamName);
-        postFiles();
+        clearInterval(recordInterval);
+        localRecorder.stopRecording(postFiles);
         initializeCarousel("localVideos");
         labelBlock.parentNode.parentNode.removeChild(labelBlock.parentNode);
         if (document.getElementById("localVideos").childElementCount == 0)
             document.getElementById("localVideos").style.height = "0px";
     }
-    // setInterval(function () {
-    //     localRecorder.stopRecording(postFiles);
-    //     localRecorder.startRecording();
-    // }, 10000);
+    var recordInterval =  setInterval(function () {
+        localRecorder.stopRecording(postFiles);
+        localRecorder.startRecording();
+    }, 10000);
     labelBlock.appendChild(closeButton);
 }
-
 function addSrcButton(buttonLabel, videoId) {
     var button = createLabelledButton(buttonLabel);
     button.onclick = function () {
@@ -124,15 +122,18 @@ function addSrcButton(buttonLabel, videoId) {
 function RoomOccupantListener(roomName, occupants) {
     easyrtc.setAutoInitUserMedia(false);
     for (var easyrtcid in occupants) {
+        easyrtc.sendDataWS(easyrtcid, 'uid', { uid: functions.checkCookie("uid") }, function (ackMesg) {
+            if (ackMesg.msgType === 'error') {
+                console.log(ackMesg.msgData.errorText);
+            }
+        });
         performCall(easyrtcid);
         if (needCall) {
             if (functions.checkCookie("roomCreator") == "true") {
                 playSound();
-                swalActiviation();
                 startMyscreen();
             }
             else {
-                swalActiviation();
                 startMyscreen();
 
             }
@@ -215,16 +216,25 @@ function initializeCarousel(divId) {
 }
 
 function playSound() {
-    var snd = '<audio autoplay=true> <source src="/audio/ping.mp3"</audio>';
+    var snd = '<audio autoplay=true> <source src="/materals/ping.mp3"</audio>';
     $('body').append(snd);
 }
 
 function startMyscreen() {
     var streamName = "screen" + randomInteger(4, 99);
+    swal({
+        title: 'You have successfully been connected to user uid='+functions.checkCookie("otheruserid")+'',
+        text: 'Please select the window "WebSearch - Mozilla Firefox" from the drop down menu and allow to share it.',
+        imageUrl: '/materals/arrow.gif',
+        imageWidth: 130,
+        imageHeight: 125,
+        imageAlt: 'Custom image',
+        animation: false
+    })
     easyrtc.initDesktopStream(
         function (stream) {
             createLocalVideo(stream, streamName);
-            swal("Success!", "Stream run successfully.", "success");
+            swal.close();
             if (otherEasyrtcid) {
                 easyrtc.addStreamToCall(otherEasyrtcid, streamName);
             }
@@ -235,39 +245,25 @@ function startMyscreen() {
         streamName);
 };
 
-function swalActiviation() {
-    swal({
-        title: "Connection successful",
-        text: "Please choose " + '"search"' + "page in the dialog window",
-        icon: "info",
-        buttons: false,
-        dangerMode: false,
-    })
-}
-
 //RECORDING PART FOR MULTI SCREENS
 ////////////////////////////////
 // fetching DOM references
 var recorder = new Map();
 var localRecorder;
-var zero = 0;
 // this function submits recorded blob to nodejs server
 function postFiles() {
-    //localRecorder = recorder.get(streamName);
     var blob = localRecorder.getBlob();
-    // getting unique identifier for the file name
-    var fileName = "test" + '.webm';
-
+    var fileName = "uid=" + functions.checkCookie("uid") + "--time=" + new Date().toLocaleString().split(":").join(".") + '.webm';
     var file = new File([blob], fileName, {
         type: 'video/webm',
-        name: 'test'
+        name: fileName
     });
     xhr("/room/:roomId/saveRecord", file, function (responseText) {
-        var fileURL = JSON.parse(responseText).fileURL;
+        var fileName = JSON.parse(responseText).fileName;
 
-        console.info('fileURL', fileURL);
+        console.info('fileName', fileName);
     });
-    if (mediaStream) mediaStream.stop();
+    //if (mediaStream) mediaStream.stop();
 }
 
 // XHR2/FormData
@@ -285,97 +281,6 @@ function xhr(url, data, callback) {
     request.send(formData);
 }
 
-// generating random string
-function generateRandomString() {
-    if (window.crypto) {
-        var a = window.crypto.getRandomValues(new Uint32Array(3)),
-            token = '';
-        for (var i = 0, l = a.length; i < l; i++) token += a[i].toString(36);
-        return token;
-    } else {
-        return (Math.random() * new Date().getTime()).toString(36).replace(/\./g, '');
-    }
-}
-
-var mediaStream = null;
-// reusable getUserMedia
-function captureUserMedia(success_callback) {
-    var session = {
-        audio: true,
-        video: {
-            mediaSource: "window",
-            width: { max: '1920' },
-            height: { max: '1080' },
-            frameRate: { max: '10' }
-        }
-    };
-    navigator.getUserMedia(session, success_callback, function (error) {
-        console.error(error);
-    });
-}
-
-// UI events handling
-function startRecord(stream, streamName) {
-    localRecorder = RecordRTC(stream, {
-        type: 'video'
-    });
-    localRecorder.startRecording();
-    recorder.set(streamName, localRecorder);
-    // setTimeout(() => {
-    //     postFiles(streamName, false);
-    // }, 10000);
-    // setTimeout(() => {
-    //     setInterval(function () {
-    //         postFiles(streamName, false);
-    //     },
-    //         1000 * 30);
-    // }, 1000);
-};
-
-
-function endRecord(streamName) {
-    localRecorder = recorder.get(streamName);
-    setTimeout(() => {
-        localRecorder.stopRecording(postFiles(streamName, false));
-        recorder.set(streamName, localRecorder);
-    }, 1000);
-};
-
-
-// //RECORD PART FOR ONE SCREEN
-// var recorder;
-// // this function submits recorded blob to nodejs server
-// function postFiles() {
-//     var blob = recorder.getBlob();
-//     // getting unique identifier for the file name
-//     var fileName = generateRandomString() + '.webm';
-
-//     var file = new File([blob], fileName, {
-//         type: 'video/webm'
-//     });
-//     xhr("/room/:roomId/saveRecord", file, function(responseText) {
-//         var fileURL = JSON.parse(responseText).fileURL;
-
-//         console.info('fileURL', fileURL);
-//     });
-//     if(mediaStream) mediaStream.stop();
-// }
-
-// // XHR2/FormData
-// function xhr(url, data, callback) {
-//     var request = new XMLHttpRequest();
-//     request.onreadystatechange = function() {
-//         if (request.readyState == 4 && request.status == 200) {
-//             callback(request.responseText);
-//         }
-//     };
-//     request.open('POST', url);
-
-//     var formData = new FormData();
-//     formData.append('file', data);
-//     request.send(formData);
-// }
-
 // // generating random string
 // function generateRandomString() {
 //     if (window.crypto) {
@@ -384,7 +289,7 @@ function endRecord(streamName) {
 //         for (var i = 0, l = a.length; i < l; i++) token += a[i].toString(36);
 //         return token;
 //     } else {
-//         return (Math.random() * new Date().getTime()).toString(36).replace( /\./g , '');
+//         return (Math.random() * new Date().getTime()).toString(36).replace(/\./g, '');
 //     }
 // }
 
@@ -394,25 +299,32 @@ function endRecord(streamName) {
 //     var session = {
 //         audio: true,
 //         video: {
-//                 mediaSource: "window",
-//             width: {max: '1920'},
-//             height: {max: '1080'},
-//             frameRate: {max: '10'}
-//             }
-//     }; 
-//     navigator.getUserMedia(session, success_callback, function(error) {
+//             mediaSource: "window",
+//             width: { max: '1920' },
+//             height: { max: '1080' },
+//             frameRate: { max: '10' }
+//         }
+//     };
+//     navigator.getUserMedia(session, success_callback, function (error) {
 //         console.error(error);
 //     });
 // }
 
-// // UI events handling
-//  function startRecord(stream) {  
-//         recorder = RecordRTC(stream, {
-//             type: 'video'
-//         });     
-//         recorder.startRecording();
-// };
+// UI events handling
+function startRecord(stream, streamName) {
+    localRecorder = RecordRTC(stream, {
+        type: 'video'
+    });
+    localRecorder.startRecording();
+    recorder.set(streamName, localRecorder);
+};
 
-// function endRecord() {
-//     recorder.stopRecording(postFiles);
-// };
+
+function endRecord() {
+    //localRecorder = recorder.get(streamName);
+    setTimeout(() => {
+        localRecorder.stopRecording(postFiles);
+        //recorder.set(streamName, localRecorder);
+    }, 1000);
+};
+
