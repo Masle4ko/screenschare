@@ -12,10 +12,10 @@ function initApp() {
     windowOpen("http://demo4.kbs.uni-hannover.de/?uid=" + functions.checkCookie("uid") + "", "search", 0, 0, screen.width / 2, screen.height);
     selfEasyrtcid = functions.checkCookie("selfEasyrtcid");
     connect();
-    window.onbeforeunload = function (event) {
-        //event.preventDefault();
-        localRecorder.stopRecording(postFiles);
-    };
+    // window.onbeforeunload = function (event) {
+    //     //event.preventDefault();
+    //     localRecorder.stopRecording(postFiles);
+    // };
 }
 
 function addToConversation(who, msgType, content, targeting) {
