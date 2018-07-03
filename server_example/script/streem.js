@@ -51,6 +51,9 @@ function createLabelledButton(buttonLabel) {
 function addMediaStreamToDiv(divId, stream, streamName, isLocal) {
     var container = document.createElement("div");
     container.setAttribute("class", "carousel-item gray white-text");
+    // container.style.resize="vertical";
+    // container.style.border="1px solid";
+    // container.style.overflow="auto";
     container.style.display = "block";
     var formattedName = streamName.replace("(", "<br>").replace(")", "");
     var labelBlock = document.createElement("div");
@@ -227,14 +230,14 @@ function playSound() {
 function startMyscreen() {
     var streamName = "screen" + randomInteger(4, 99);
     swal({
-        title: 'You have successfully been connected to user username='+functions.getCookie("otherusername")+'',
-        text: 'Please select the window "WebSearch - Mozilla Firefox" from the drop down menu and allow to share it.',
+        title: 'You have successfully been connected to user '+functions.getCookie("otherusername")+'',
+        html: '<div style="+"font-family: Arial, Helvetica, sans-serif;">Please select the window "WebSearch - Mozilla Firefox" from the drop down menu and allow to share it.</div>',
         imageUrl: '/materals/arrow.gif',
         imageWidth: 130,
         imageHeight: 125,
         imageAlt: 'Custom image',
         animation: false
-    })
+    });
     easyrtc.initDesktopStream(
         function (stream) {
             createLocalVideo(stream, streamName);
