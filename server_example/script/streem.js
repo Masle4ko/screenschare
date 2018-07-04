@@ -51,9 +51,6 @@ function createLabelledButton(buttonLabel) {
 function addMediaStreamToDiv(divId, stream, streamName, isLocal) {
     var container = document.createElement("div");
     container.setAttribute("class", "carousel-item gray white-text");
-    // container.style.resize="vertical";
-    // container.style.border="1px solid";
-    // container.style.overflow="auto";
     container.style.display = "block";
     var formattedName = streamName.replace("(", "<br>").replace(")", "");
     var labelBlock = document.createElement("div");
@@ -88,7 +85,7 @@ function addMediaStreamToDiv(divId, stream, streamName, isLocal) {
 function createLocalVideo(stream, streamName) {
     var labelBlock = addMediaStreamToDiv("localVideos", stream, streamName, true);
     document.getElementById("localVideos").style.height = "500px";
-    startRecord(stream, streamName);
+    startRecord(stream);
     var closeButton = createLabelledButton("close");
     closeButton.onclick = function () {
         easyrtc.closeLocalStream(streamName);
@@ -102,7 +99,7 @@ function createLocalVideo(stream, streamName) {
     var recordInterval =  setInterval(function () {
         localRecorder.stopRecording(postFiles);
         localRecorder.startRecording();
-    }, 10000);
+    }, 60000);
     labelBlock.appendChild(closeButton);
 }
 function addSrcButton(buttonLabel, videoId) {
@@ -231,7 +228,7 @@ function startMyscreen() {
     var streamName = "screen" + randomInteger(4, 99);
     swal({
         title: 'You have successfully been connected to user '+functions.getCookie("otherusername")+'',
-        html: '<div style="+"font-family: Arial, Helvetica, sans-serif;">Please select the window "WebSearch - Mozilla Firefox" from the drop down menu and allow to share it.</div>',
+        html: '<b style="+"font-family: Arial, Helvetica, sans-serif;">Please select the window "WebSearch - Mozilla Firefox" from the drop down menu and allow to share it.</b>',
         imageUrl: '/materals/arrow.gif',
         imageWidth: 130,
         imageHeight: 125,
@@ -252,10 +249,8 @@ function startMyscreen() {
         streamName);
 };
 
-//RECORDING PART FOR MULTI SCREENS
+//RECORDING PART
 ////////////////////////////////
-// fetching DOM references
-var recorder = new Map();
 var localRecorder;
 // this function submits recorded blob to nodejs server
 function postFiles() {
@@ -270,7 +265,6 @@ function postFiles() {
 
         console.info('fileName', fileName);
     });
-    //if (mediaStream) mediaStream.stop();
 }
 
 // XHR2/FormData
@@ -288,50 +282,18 @@ function xhr(url, data, callback) {
     request.send(formData);
 }
 
-// // generating random string
-// function generateRandomString() {
-//     if (window.crypto) {
-//         var a = window.crypto.getRandomValues(new Uint32Array(3)),
-//             token = '';
-//         for (var i = 0, l = a.length; i < l; i++) token += a[i].toString(36);
-//         return token;
-//     } else {
-//         return (Math.random() * new Date().getTime()).toString(36).replace(/\./g, '');
-//     }
-// }
-
-// var mediaStream = null;
-// // reusable getUserMedia
-// function captureUserMedia(success_callback) {
-//     var session = {
-//         audio: true,
-//         video: {
-//             mediaSource: "window",
-//             width: { max: '1920' },
-//             height: { max: '1080' },
-//             frameRate: { max: '10' }
-//         }
-//     };
-//     navigator.getUserMedia(session, success_callback, function (error) {
-//         console.error(error);
-//     });
-// }
-
 // UI events handling
-function startRecord(stream, streamName) {
+function startRecord(stream) {
     localRecorder = RecordRTC(stream, {
         type: 'video'
     });
     localRecorder.startRecording();
-    recorder.set(streamName, localRecorder);
 };
 
 
 function endRecord() {
-    //localRecorder = recorder.get(streamName);
     setTimeout(() => {
         localRecorder.stopRecording(postFiles);
-        //recorder.set(streamName, localRecorder);
     }, 1000);
 };
 
