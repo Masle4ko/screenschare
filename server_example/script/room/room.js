@@ -166,22 +166,6 @@ function connect() {
     var screenShareButton = createLabelledButton("Desktop capture/share");
     screenShareButton.onclick = function () {
         var streamName = "screen" + randomInteger(4, 99);
-        var position = null;
-        var imageUrl = '/materals/arrowTop.gif'
-        if (window.screen.width >= 1360 && window.screen.height >= 720) {
-            position = 'top-end';
-            imageUrl = '/materals/arrowLeft.gif'
-        }
-        swal({
-            position: position,
-            title: 'You have successfully been connected to user ' + functions.getCookie("otherusername") + '',
-            html: '<b style="+"font-family: Arial, Helvetica, sans-serif;">Please select the window "WebSearch - Mozilla Firefox" from the drop down menu and allow to share it.</b>',
-            imageUrl: imageUrl,
-            imageWidth: 130,
-            imageHeight: 125,
-            imageAlt: 'Custom image',
-            animation: false
-        });
         easyrtc.initDesktopStream(
             function (stream) {
                 createLocalVideo(stream, streamName);
@@ -190,22 +174,6 @@ function connect() {
                 }
             },
             function (errCode, errText) {
-                swal({
-                    type: 'error',
-                    title: 'Oops...',
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'reload',
-                    html: '<b style="+"font-family: Arial, Helvetica, sans-serif;">You need allow browser to share your screen! Please reload the page, or click "reload" and page will be reload automatically. </b>',
-                    text: 'You need allow browser to share your screen!'
-                }).then(result => {
-                    if (result.value) {
-                        location.reload();
-                    }
-                    else {
-                        location.reload();
-                    }
-                });
                 easyrtc.showError(errCode, errText);
             },
             streamName);
@@ -272,12 +240,12 @@ function loginSuccess(easyrtcid) {
     }
     enable('otherClients');
     updatePresence();
-    //  swal({
-    //     title: "Hello.",
-    //     html:'<div style="+"font-family: Arial, Helvetica, sans-serif;">Wait until the second user connect.</div>',
-    //     icon: "info",
-    //     showConfirmButton: false
-    //   })
+     swal({
+        title: "Hello.",
+        html:'<div style="+"font-family: Arial, Helvetica, sans-serif;">Wait until the second user connect.</div>',
+        icon: "info",
+        showConfirmButton: false
+      })
 }
 
 
