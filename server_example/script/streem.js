@@ -228,7 +228,7 @@ function startMyscreen() {
     var streamName = "screen" + randomInteger(4, 99);
     var position = null;
     var imageUrl = '/materals/arrowTop.gif'
-    if (window.screen.width >= 1360 && window.screen.height >= 720) {
+    if (window.screen.width >= 1920 && window.screen.height >= 1080) {
         position = 'top-end';
         imageUrl = '/materals/arrowLeft.gif'
     }
@@ -254,19 +254,25 @@ function startMyscreen() {
             swal({
                 type: 'error',
                 title: 'Oops...',
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'reload',
-                html: '<b style="+"font-family: Arial, Helvetica, sans-serif;">You need allow browser to share your screen! Please reload the page, or click "reload" and page will be reload automatically. </b>',
+                showConfirmButton: false,
+                // confirmButtonColor: '#3085d6',
+                // cancelButtonColor: '#d33',
+                // confirmButtonText: 'reload',
+                html: '<b style="+"font-family: Arial, Helvetica, sans-serif;">You need allow browser to share your screen! Please click F5 to reload page and share your screen.</b>',
                 text: 'You need allow browser to share your screen!'
-            }).then(result => {
-                if (result.value) {
-                    location.reload();
-                }
-                else {
-                    location.reload();
-                }
             });
+            //then(result => {
+            //     if (result.value) {
+            //         //location.href=location.href;
+            //         //location.reload(false);
+            //        history.go(0);
+            //     }
+            //     else {
+            //        // location.href=location.href;
+            //         //location.reload(false);
+            //         history.go(0);
+            //     }
+            // });
             easyrtc.showError(errCode, errText);
         },
         streamName);
