@@ -9,7 +9,6 @@ var userId;
 var needToCallOtherUsers;
 var otherusername;
 function initApp() {
-    windowOpen("http://demo4.kbs.uni-hannover.de/?uid=" + functions.checkCookie("uid") + "", "search", 0, 0, screen.width / 2, screen.height);
     selfEasyrtcid = functions.checkCookie("selfEasyrtcid");
     connect();
     window.onbeforeunload = function (event) {
@@ -150,6 +149,12 @@ function connect() {
         jQuery('#rooms').empty();
         document.getElementById("main").className = "notconnected";
         console.log("disconnect listener fired");
+        swal({
+            type: 'error',
+            title: 'Oops...',
+            showConfirmButton: false,
+            html: '<div style="+"font-family: Arial, Helvetica, sans-serif;">Something went wrong. Please reload the page.</div>'
+        });
     });
     updatePresence();
     easyrtc.connect("easyrtc.instantMessaging", loginSuccess, loginFailure);
@@ -242,7 +247,7 @@ function loginSuccess(easyrtcid) {
     updatePresence();
      swal({
         title: "Hello.",
-        html:'<div style="+"font-family: Arial, Helvetica, sans-serif;">Wait until the second user connect.</div>',
+        html:'<div style="+"font-family: Arial, Helvetica, sans-serif;">Wait until the second user connects.</div>',
         icon: "info",
         showConfirmButton: false
       })

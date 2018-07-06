@@ -234,8 +234,9 @@ function startMyscreen() {
     }
     swal({
         position: position,
+        showConfirmButton: false,
         title: 'You have successfully been connected to user ' + functions.getCookie("otherusername") + '',
-        html: '<b style="+"font-family: Arial, Helvetica, sans-serif;">Please select the window "WebSearch - Mozilla Firefox" from the drop down menu and allow to share it.</b>',
+        html: '<div style="+"font-family: Arial, Helvetica, sans-serif;">Please select the window <b>"WebSearch - Mozilla Firefox"</b> from the drop down menu and allow to share it.</div>',
         imageUrl: imageUrl,
         imageWidth: 130,
         imageHeight: 125,
@@ -258,18 +259,17 @@ function startMyscreen() {
                 // confirmButtonColor: '#3085d6',
                 // cancelButtonColor: '#d33',
                 // confirmButtonText: 'reload',
-                html: '<b style="+"font-family: Arial, Helvetica, sans-serif;">You need allow browser to share your screen! Please click F5 to reload page and share your screen.</b>',
-                text: 'You need allow browser to share your screen!'
+                html: '<div style="+"font-family: Arial, Helvetica, sans-serif;">You need to allow your browser to share your screen! Please reload the page and share your screen.</div>',
             });
-            //then(result => {
+            // then(result => {
             //     if (result.value) {
-            //         //location.href=location.href;
-            //         //location.reload(false);
+            //         location.href=location.href;
+            //         location.reload();
             //        history.go(0);
             //     }
             //     else {
-            //        // location.href=location.href;
-            //         //location.reload(false);
+            //        location.href=location.href;
+            //         location.reload();
             //         history.go(0);
             //     }
             // });
