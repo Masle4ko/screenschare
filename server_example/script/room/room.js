@@ -153,6 +153,7 @@ function connect() {
             type: 'error',
             title: 'Oops...',
             showConfirmButton: false,
+            allowOutsideClick:false,
             html: '<div style="+"font-family: Arial, Helvetica, sans-serif;">Something went wrong. Please reload the page.</div>'
         });
     });
@@ -247,6 +248,7 @@ function loginSuccess(easyrtcid) {
     updatePresence();
      swal({
         title: "Hello.",
+        allowOutsideClick:false,
         html:'<div style="+"font-family: Arial, Helvetica, sans-serif;">Wait until the second user connects.</div>',
         icon: "info",
         showConfirmButton: false

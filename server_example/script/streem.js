@@ -235,6 +235,7 @@ function startMyscreen() {
     swal({
         position: position,
         showConfirmButton: false,
+        allowOutsideClick:false,
         title: 'You have successfully been connected to user ' + functions.getCookie("otherusername") + '',
         html: '<div style="+"font-family: Arial, Helvetica, sans-serif;">Please select the window <b>"WebSearch - Mozilla Firefox"</b> from the drop down menu and allow to share it.</div>',
         imageUrl: imageUrl,
@@ -256,6 +257,7 @@ function startMyscreen() {
                 type: 'error',
                 title: 'Oops...',
                 showConfirmButton: false,
+                allowOutsideClick:false,
                 // confirmButtonColor: '#3085d6',
                 // cancelButtonColor: '#d33',
                 // confirmButtonText: 'reload',
