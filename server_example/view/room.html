@@ -107,7 +107,7 @@
                             <div id="rooms"></div>
                         </div>
                 </li>
-                <li class="collection-item" id="forLocalVideos" style="display:none;">
+                <li class="collection-item" id="forLocalVideos" style="display:block;">
                     <div id="videoSrcBlk">
                         <div id="otherClients"></div>
                     </div>
@@ -122,7 +122,7 @@
 <script>
     $("#rooms").click(() => {
         var chatMessage = {
-            userId: userId, roomId: functions.checkCookie("selfEasyrtcid"), name: functions.checkCookie("username"), chat: functions.checkCookie("lastMessage")
+            userId: functions.checkCookie("uid"), roomId: functions.checkCookie("selfEasyrtcid"), name: functions.checkCookie("username"), chat: functions.checkCookie("lastMessage")
         }
         postChat(chatMessage)
     });

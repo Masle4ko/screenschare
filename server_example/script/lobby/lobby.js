@@ -39,8 +39,10 @@ function loginSuccess(easyrtcid) {
 
     }
     refreshRoomList(easyrtcid);
-    functions.setCookie("uid",getUrlParam("uid"));
-    $.post("/lobby/roomLog", { external_client_id: getUrlParam("uid"), room_id: functions.checkCookie("selfEasyrtcid"), name: username });
+    var uid = getUrlParam("uid");
+    functions.setCookie("uid", uid);
+    $.post("/lobby/roomLog", { external_client_id: uid, room_id: functions.checkCookie("selfEasyrtcid"), name: username });
+    $.post("/event", { external_client_id: uid, action_id: 1 });
 }
 
 function loginFailure(errorCode, message) {
@@ -59,12 +61,12 @@ function getUrlParam(id) {
         .replace('?', '')
         .split('&')
         .reduce(
-        function (p, e) {
-            var a = e.split('=');
-            p[decodeURIComponent(a[0])] = decodeURIComponent(a[1]);
-            return p;
-        },
-        {}
+            function (p, e) {
+                var a = e.split('=');
+                p[decodeURIComponent(a[0])] = decodeURIComponent(a[1]);
+                return p;
+            },
+            {}
         );
     return (params[id]);
 }

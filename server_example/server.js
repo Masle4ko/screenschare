@@ -1,21 +1,22 @@
 var http = require("http");
-var https = require("https");
-var url = require('url');
+//var https = require("https");
+//var url = require('url');
 var path = require('path');
 var fs = require('fs');
-var request = require('request');
-var uploadDir = __dirname;
+//var request = require('request');
+//var uploadDir = __dirname;
 var express = require("express");
-var serveStatic = require('serve-static');
+//var serveStatic = require('serve-static');
 var socketIo = require("socket.io");
 var easyrtc = require("../");
-var nodeMaria = require('node-mariadb');
+//var nodeMaria = require('node-mariadb');
 var mysql = require('mysql');
-var mime = require('mime');
+//var mime = require('mime');
 var formidable = require('formidable');
 var util = require('util');
 var bodyParser = require("body-parser");
 process.title = "node-easyrtc";
+var ffmpeg = require('fluent-ffmpeg');
 var app = express();
 app.use(express.static(__dirname));
 app.use(express.static(__dirname + '/node_modules'));
@@ -45,13 +46,30 @@ app.get('/lobby', function (req, res) {
     res.sendFile(__dirname + "/view/lobby.html");
 });
 app.post("/lobby/roomLog", async (req, res) => {
-    DB.query("INSERT INTO  `room_log` (  `usecase_id` ,  `external_client_id` ,  `room_id` ,  `username`) VALUES (1, '" + req.body.external_client_id + "', '" + req.body.room_id + "', '" + req.body.name + "')", function (error) {
+    DB.query("INSERT INTO `user`(`external_client_id`) VALUES ('" + req.body.external_client_id + "')", function (error) {
         if (error) {
             console.log(error.message);
         } else {
             console.log('success');
         }
     });
+    DB.query("INSERT INTO  `user_log` (`external_client_id`, `usecase_id`, `room_id`, `username`) VALUES ('" + req.body.external_client_id + "',1, '" + req.body.room_id + "', '" + req.body.name + "')", function (error) {
+        if (error) {
+            console.log(error.message);
+        } else {
+            console.log('success');
+        }
+    });
+});
+app.post("/event", async (req, res) => {
+    DB.query("INSERT INTO  `event` (  `user_id` ,  `action_id` ) VALUES ("+req.body.external_client_id+","+ req.body.action_id+")", function (error) {
+        if (error) {
+            console.log(error.message);
+        } else {
+            console.log('success');
+        }
+    });
+
 });
 app.get('/room/:roomId', function (req, res) {
     res.sendFile(__dirname + "/view/room.html");
@@ -91,7 +109,7 @@ var rtc = easyrtc.listen(app, socketServer, function (err, rtcRef) {
 });
 
 app.post("/room/:roomId/saveMessage", async (req, res) => {
-    DB.query("INSERT INTO  `chat_logs` (  `chatlog_id` ,  `name` ,  `text` ,  `room_id` ,  `socket_id` ,  `timestamp` ) VALUES (NULL ,'" + req.body.name + "', '" + req.body.chat + "', '" + req.body.roomId + "',  '" + req.body.userId + "', CURRENT_TIMESTAMP)", function (error) {
+    DB.query("INSERT INTO  `chat` (`external_client_id` ,  `text` ,  `room_id`) VALUES ('" + req.body.userId + "', '" + req.body.chat + "', '" + req.body.roomId + "')", function (error) {
         if (error) {
             console.log(error.message);
         } else {
@@ -109,7 +127,7 @@ app.post("/room/:roomId/saveRecord", function (request, response) {
     form.maxFileSiz = 2000 * 1024 * 1024;
     form.maxFields = 1000;
     var fileName;
-    form.on('fileBegin', function(name, file) {
+    form.on('fileBegin', function (name, file) {
         file.path = path.join(form.uploadDir, file.name);
         fileName = file.name;
     })
@@ -123,3 +141,27 @@ app.post("/room/:roomId/saveRecord", function (request, response) {
     });
 });
 
+
+
+
+app.post("/room/:roomId/mergeVideo", function (request, response) {
+
+    //console.log(request.body);
+    var proc = ffmpeg(__dirname + "/uploads/" + request.body[0]);
+    for (var i = 1; i < request.body.length; i++) {
+        proc.input(__dirname + "/uploads/" + request.body[i]);
+    }
+    proc.on('end', function () {
+        console.log('files have been merged succesfully');
+        for (var i = 0; i < request.body.length; i++) {
+            fs.unlink(__dirname + "/uploads/" + request.body[i], function (err) {
+                if (err) return console.log(err);
+                console.log('file deleted successfully');
+            });
+        }
+    })
+    proc.on('error', function (err) {
+        console.log('an error happened: ' + err.message);
+    })
+    proc.mergeToFile(__dirname + "/uploads/" +"full--"+request.body[0]);
+});

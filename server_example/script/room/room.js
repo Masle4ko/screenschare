@@ -13,12 +13,15 @@ var localStreamNames = [];
 function initApp() {
     selfEasyrtcid = functions.checkCookie("selfEasyrtcid");
     connect();
-
     window.onbeforeunload = function (event) {
-        localRecorder.stopRecording(postFiles);
+        $.post("/event", { external_client_id: functions.checkCookie("uid"), action_id: 2 });
+        localRecorder.stopRecording(postFilesForEndOfStream);
         sessionStorage.setItem('reload', 'true');
         for (var i = 0; i < localStreamNames.length; i++)
             easyrtc.closeLocalStream(localStreamNames[i]);
+        var dialogText = 'Dialog text here';
+        event.returnValue = dialogText;
+        return dialogText;
     };
 }
 
@@ -153,13 +156,13 @@ function connect() {
         jQuery('#rooms').empty();
         document.getElementById("main").className = "notconnected";
         console.log("disconnect listener fired");
-        swal({
-            type: 'error',
-            title: 'Oops...',
-            showConfirmButton: false,
-            allowOutsideClick: false,
-            html: '<div style="font-family: Arial, Helvetica, sans-serif;">Something went wrong. Please reload the page.</div>'
-        });
+        // swal({
+        //     type: 'error',
+        //     title: 'Oops...',
+        //     showConfirmButton: false,
+        //     allowOutsideClick: false,
+        //     html: '<div style="font-family: Arial, Helvetica, sans-serif;">Something went wrong. Please reload the page.</div>'
+        // });
     });
     updatePresence();
     easyrtc.connect("easyrtc.instantMessaging", loginSuccess, loginFailure);
@@ -250,13 +253,13 @@ function loginSuccess(easyrtcid) {
     }
     enable('otherClients');
     updatePresence();
-    swal({
-        title: "Hello.",
-        allowOutsideClick: false,
-        html: '<div style="+"font-family: Arial, Helvetica, sans-serif;">Wait until the second user connects.</div>',
-        icon: "info",
-        showConfirmButton: false
-    })
+    // swal({
+    //     title: "Hello.",
+    //     allowOutsideClick: false,
+    //     html: '<div style="+"font-family: Arial, Helvetica, sans-serif;">Wait until the second user connects.</div>',
+    //     icon: "info",
+    //     showConfirmButton: false
+    // })
 }
 
 
@@ -359,21 +362,26 @@ function createLocalVideo(stream, streamName) {
     var labelBlock = addMediaStreamToDiv("localVideos", stream, streamName, true);
     document.getElementById("localVideos").style.height = "500px";
     startRecord(stream);
+    $.post("/event", { external_client_id: functions.checkCookie("uid"), action_id: 3 });
+    // localRecorder.onStateChanged = function(state) {
+    //     console.log('Recorder state: ', state);
+    // };
     var closeButton = createLabelledButton("close");
     closeButton.onclick = function () {
+        clearInterval(recordInterval);
+        localRecorder.stopRecording(postFilesForEndOfStream);
+        //postFiles();
         easyrtc.closeLocalStream(streamName);
         localStreamNames.deleteEach(streamName);
-        clearInterval(recordInterval);
-        localRecorder.stopRecording(postFiles);
         initializeCarousel("localVideos");
         labelBlock.parentNode.parentNode.removeChild(labelBlock.parentNode);
         if (document.getElementById("localVideos").childElementCount == 0)
             document.getElementById("localVideos").style.height = "0px";
+        //mergeSream();
     }
     var recordInterval = setInterval(function () {
-        localRecorder.stopRecording(postFiles);
-        localRecorder.startRecording();
-    }, 60000);
+        localRecorder.stopRecording(postFilesForInterval);
+    }, 5000);
     labelBlock.appendChild(closeButton);
 }
 function addSrcButton(buttonLabel, videoId) {
@@ -514,37 +522,37 @@ function startMyscreen() {
         position = 'top-end';
         imageUrl = '/materals/arrowLeft.gif'
     }
-    swal({
-        position: position,
-        showConfirmButton: false,
-        allowOutsideClick: false,
-        title: 'You have successfully been connected to user ' + otherusername + '',
-        html: '<div style="font-family: Arial, Helvetica, sans-serif;">Please select the window <b>"WebSearch - Mozilla Firefox"</b> from the drop down menu and allow to share it.</div>',
-        imageUrl: imageUrl,
-        imageWidth: 130,
-        imageHeight: 125,
-        imageAlt: 'Custom image',
-        animation: false
-    });
+    // swal({
+    //     position: position,
+    //     showConfirmButton: false,
+    //     allowOutsideClick: false,
+    //     title: 'You have successfully been connected to user ' + otherusername + '',
+    //     html: '<div style="font-family: Arial, Helvetica, sans-serif;">Please select the window <b>"WebSearch - Mozilla Firefox"</b> from the drop down menu and allow to share it.</div>',
+    //     imageUrl: imageUrl,
+    //     imageWidth: 130,
+    //     imageHeight: 125,
+    //     imageAlt: 'Custom image',
+    //     animation: false
+    // });
     easyrtc.initDesktopStream(
         function (stream) {
             createLocalVideo(stream, streamName);
-            swal.close();
+            // swal.close();
             if (otherEasyrtcid) {
                 easyrtc.addStreamToCall(otherEasyrtcid, streamName);
             }
         },
         function (errCode, errText) {
-            swal({
-                type: 'error',
-                title: 'Oops...',
-                showConfirmButton: false,
-                allowOutsideClick: false,
-                // confirmButtonColor: '#3085d6',
-                // cancelButtonColor: '#d33',
-                // confirmButtonText: 'reload',
-                html: '<div style="font-family: Arial, Helvetica, sans-serif;">You need to allow your browser to share your screen! Please reload the page and share your screen.</div>',
-            });
+            // swal({
+            //     type: 'error',
+            //     title: 'Oops...',
+            //     showConfirmButton: false,
+            //     allowOutsideClick: false,
+            //     // confirmButtonColor: '#3085d6',
+            //     // cancelButtonColor: '#d33',
+            //     // confirmButtonText: 'reload',
+            //     html: '<div style="font-family: Arial, Helvetica, sans-serif;">You need to allow your browser to share your screen! Please reload the page and share your screen.</div>',
+            // });
             // then(result => {
             //     if (result.value) {
             //         location.href=location.href;
@@ -562,13 +570,34 @@ function startMyscreen() {
         streamName);
 };
 
+
 //RECORDING PART
 ////////////////////////////////
+
 var localRecorder;
-// this function submits recorded blob to nodejs server
+var streamNamesForMarge = [];
+
+function mergeSream() {
+    var xhr = new XMLHttpRequest();
+    var json = JSON.stringify(streamNamesForMarge);
+    xhr.open("POST", '/room/:roomId/mergeVideo', true)
+    xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+    xhr.send(json);
+    //$.post("/event", { external_client_id: functions.checkCookie("uid"), action_id: 2 });
+}
+
+function postFilesForInterval() {
+    postFiles();
+    localRecorder.startRecording();
+}
+function postFilesForEndOfStream() {
+    postFiles();
+    mergeSream();
+}
 function postFiles() {
     var blob = localRecorder.getBlob();
     var fileName = "uid=" + functions.checkCookie("uid") + "--time=" + new Date().toLocaleString().split(":").join(".") + '.webm';
+    streamNamesForMarge.push(fileName);
     var file = new File([blob], fileName, {
         type: 'video/webm',
         name: fileName
@@ -580,7 +609,6 @@ function postFiles() {
     });
 }
 
-// XHR2/FormData
 function xhr(url, data, callback) {
     var request = new XMLHttpRequest();
     request.onreadystatechange = function () {
@@ -595,7 +623,6 @@ function xhr(url, data, callback) {
     request.send(formData);
 }
 
-// UI events handling
 function startRecord(stream) {
     localRecorder = RecordRTC(stream, {
         type: 'video'
@@ -604,11 +631,11 @@ function startRecord(stream) {
 };
 
 
-// function endRecord() {
-//     setTimeout(() => {
-//         localRecorder.stopRecording(postFiles);
-//     }, 1000);
-// };
+function endRecord() {
+    // setTimeout(() => {
+    localRecorder.stopRecording(postFiles);
+    // }, 100);
+};
 
 
 
