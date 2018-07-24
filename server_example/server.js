@@ -40,36 +40,38 @@ function db() {
     return connection;
 };
 app.get('/', function (req, res) {
-    res.sendFile(__dirname + "/view/start.html");
+    res.sendFile(__dirname + "/view/lobby.html");
 });
 app.get('/lobby', function (req, res) {
     res.sendFile(__dirname + "/view/lobby.html");
 });
-app.post("/lobby/roomLog", async (req, res) => {
-    DB.query("INSERT INTO `user`(`external_client_id`) VALUES ('" + req.body.external_client_id + "')", function (error) {
+app.post("/lobby/roomLog", function (request, response) {
+    var formated_date = new Date().toLocaleString();
+    DB.query("INSERT INTO  `user` (`external_client_id`, `usecase_id`, `room_id`, `username`, `timestamp`) VALUES ('" + request.body.external_client_id + "',1, '" + request.body.room_id + "', '" + request.body.name + "','"+formated_date+"')", function (error) {
         if (error) {
             console.log(error.message);
         } else {
-            console.log('success');
+            console.log('success user login with uid='+request.body.external_client_id+'');
         }
     });
-    DB.query("INSERT INTO  `user_log` (`external_client_id`, `usecase_id`, `room_id`, `username`) VALUES ('" + req.body.external_client_id + "',1, '" + req.body.room_id + "', '" + req.body.name + "')", function (error) {
-        if (error) {
-            console.log(error.message);
-        } else {
-            console.log('success');
+    DB.query("SELECT `user_id` FROM `user` WHERE external_client_id=" + request.body.external_client_id + " AND  timestamp='"+formated_date.toString()+"'", function (err, result) {
+        if (err) throw err;
+        if (result){
+            response.write(JSON.stringify({
+                result: result
+            }));
+            response.end();
         }
-    });
+      });
 });
 app.post("/event", async (req, res) => {
-    DB.query("INSERT INTO  `event` (  `user_id` ,  `action_id` ) VALUES ("+req.body.external_client_id+","+ req.body.action_id+")", function (error) {
+    DB.query("INSERT INTO  `event` (  `user_id` ,  `action_id` ) VALUES ("+req.body.user_id+","+ req.body.action_id+")", function (error) {
         if (error) {
             console.log(error.message);
         } else {
-            console.log('success');
+            console.log('Successfully saved event with id='+req.body.action_id+' from client id='+req.body.user_id+'');
         }
     });
-
 });
 app.get('/room/:roomId', function (req, res) {
     res.sendFile(__dirname + "/view/room.html");
@@ -109,11 +111,11 @@ var rtc = easyrtc.listen(app, socketServer, function (err, rtcRef) {
 });
 
 app.post("/room/:roomId/saveMessage", async (req, res) => {
-    DB.query("INSERT INTO  `chat` (`external_client_id` ,  `text` ,  `room_id`) VALUES ('" + req.body.userId + "', '" + req.body.chat + "', '" + req.body.roomId + "')", function (error) {
+    DB.query("INSERT INTO  `chat` (`user_id` ,  `text` ,  `room_id`) VALUES ('" + req.body.userId + "', '" + req.body.chat + "', '" + req.body.roomId + "')", function (error) {
         if (error) {
             console.log(error.message);
         } else {
-            console.log('success');
+            console.log('Successfully saved message');
         }
     });
 });
@@ -132,21 +134,15 @@ app.post("/room/:roomId/saveRecord", function (request, response) {
         fileName = file.name;
     })
     form.parse(request, function (err, fields, files) {
-        var file = util.inspect(files);
-        response.write(JSON.stringify({
-            //fileURL: fileURL,
-            fileName: fileName
-        }));
-        response.end();
+        // var file = util.inspect(files);
+        // response.write(JSON.stringify({
+        //     fileName: fileName
+        // }));
+        // response.end();
     });
 });
 
-
-
-
 app.post("/room/:roomId/mergeVideo", function (request, response) {
-
-    //console.log(request.body);
     var proc = ffmpeg(__dirname + "/uploads/" + request.body[0]);
     for (var i = 1; i < request.body.length; i++) {
         proc.input(__dirname + "/uploads/" + request.body[i]);
@@ -156,7 +152,7 @@ app.post("/room/:roomId/mergeVideo", function (request, response) {
         for (var i = 0; i < request.body.length; i++) {
             fs.unlink(__dirname + "/uploads/" + request.body[i], function (err) {
                 if (err) return console.log(err);
-                console.log('file deleted successfully');
+                console.log(''+request.body[i]+'deleted successfully');
             });
         }
     })

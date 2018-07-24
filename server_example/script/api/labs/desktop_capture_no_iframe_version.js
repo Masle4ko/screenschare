@@ -122,7 +122,7 @@ easyrtc.initDesktopStream = function(successCallback, failureCallback, streamNam
         failureCallback(easyrtc.errCodes.DEVELOPER_ERR, "Desktop capture plugin not installed").
                 return;
     }
-
+    console.log(1);
     DetectRTC.screen.getSourceId(function(error) {
         if( error) {
             failureCallback(easyrtc.errCodes.MEDIA_ERR, error);

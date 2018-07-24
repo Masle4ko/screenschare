@@ -2605,7 +2605,7 @@ module.exports = function() {
                  'navigator.mediaDevices.getUserMedia');
     navigator.mediaDevices.getUserMedia({ audio: false,    video: {
        // mediaSource: "screen", // whole screen sharing
-         mediaSource: "window", // choose a window to share
+        mediaSource: "window", // choose a window to share
         // mediaSource: "application", // choose a window to share
         width: {max: '1920'},
         height: {max: '1080'},
@@ -4889,9 +4889,7 @@ var Easyrtc = function() {
      *          });
      */
     this.initMediaSource = function(successCallback, errorCallback, streamName) {
-
         logDebug("about to request local media");
-
         if (!streamName) {
             streamName = "default";
         }
@@ -8804,7 +8802,7 @@ return new Easyrtc();
         
         var gotMediaCallback = null,
             gotConnectionCallback = null;
-
+        console.log(1);
         easyAppBody(monitorVideoId, videoIds);
 
         easyrtc.setGotMedia = function(gotMediaCB) {

@@ -56,9 +56,7 @@
         // screen_constraints = {...}
         
         
-        
         if (!!navigator.mozGetUserMedia) {
-            console.log(navigator.mozGetUserMedia);
             easyrtc._presetMediaConstraints = {
                 video: {
                     mozMediaSource: 'window',
@@ -72,7 +70,6 @@
             easyrtc.initMediaSource(successCallback, failureCallback, streamName);
             return;
         }
-
         postMessage();
 
         var cb = function(event) {

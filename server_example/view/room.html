@@ -15,6 +15,7 @@
     <script type="text/javascript" src="/script/room/room.js"></script>
     <script type="text/javascript" src="/script/api/labs/desktop_capture_iframe_version.js"></script>
     <script type="text/javascript" src="/script/api/labs/easyrtc_recorder.js"></script>
+    <script type="text/javascript" src="/node_modules/jsqr/dist/jsQR.js"></script>
     <link rel="stylesheet" href="/css/start/style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" crossorigin="anonymous"></script>
     <script src="/node_modules/recordrtc/RecordRTC.js"></script>
@@ -55,7 +56,7 @@
     }
 </style>
 
-<body onload="initApp();">
+<body id="body" onload="initApp();">
     <div id="container">
         <div id="main">
             <div id="sound"></div>
@@ -85,12 +86,12 @@
                         <div class="indeterminate"></div>
                     </div>
                     <div id="otherClients"></div>
-                    <div class="carousel carousel-slider center" autoplay="autoplay" id="remoteVideos">
-                        <div class="carousel-fixed-item center" style="display:none;" id="remoteVideosControlButtons">
-                            <a class="btn waves-effect white grey-text darken-text-2" style="float:left" id="nextBtn" onclick="carouselMove('next')">next</a>
-                            <a class="btn waves-effect white grey-text darken-text-2" style="float:right" id="prevBtn" onclick="carouselMove('prev')">prev</a>
+                        <div class="carousel carousel-slider center" autoplay="autoplay" id="remoteVideos">
+                            <div class="carousel-fixed-item center" style="display:none;" id="remoteVideosControlButtons">
+                                <a class="btn waves-effect white grey-text darken-text-2" style="float:left" id="nextBtn" onclick="carouselMove('next')">next</a>
+                                <a class="btn waves-effect white grey-text darken-text-2" style="float:right" id="prevBtn" onclick="carouselMove('prev')">prev</a>
+                            </div>
                         </div>
-                    </div>
                 </li>
                 <li class="collection-item" id="forChat" style="display:block;">
                     <div class="jumbotron">
@@ -122,7 +123,7 @@
 <script>
     $("#rooms").click(() => {
         var chatMessage = {
-            userId: functions.checkCookie("uid"), roomId: functions.checkCookie("selfEasyrtcid"), name: functions.checkCookie("username"), chat: functions.checkCookie("lastMessage")
+            userId: functions.checkCookie("myId"), roomId: functions.checkCookie("selfEasyrtcid"), name: functions.checkCookie("username"), chat: functions.checkCookie("lastMessage")
         }
         postChat(chatMessage)
     });
@@ -160,7 +161,6 @@
             $('#' + pathname + '').click();
         }
     }
-
 </script>
 
 </html>
