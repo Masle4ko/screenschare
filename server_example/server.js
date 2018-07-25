@@ -43,7 +43,7 @@ app.get('/', function (req, res) {
     res.sendFile(__dirname + "/view/start.html");
 });
 app.get('/lobby', function (req, res) {
-    res.sendFile(__dirname + "/view/start.html");
+    res.sendFile(__dirname + "/view/lobby.html");
 });
 app.post("/lobby/roomLog", function (request, response) {
     if (request.body.external_client_id && request.body.room_id && request.body.room_id) {
