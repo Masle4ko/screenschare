@@ -40,36 +40,38 @@ function db() {
     return connection;
 };
 app.get('/', function (req, res) {
-    res.sendFile(__dirname + "/view/lobby.html");
+    res.sendFile(__dirname + "/view/start.html");
 });
 app.get('/lobby', function (req, res) {
-    res.sendFile(__dirname + "/view/lobby.html");
+    res.sendFile(__dirname + "/view/start.html");
 });
 app.post("/lobby/roomLog", function (request, response) {
-    var formated_date = new Date().toLocaleString();
-    DB.query("INSERT INTO  `user` (`external_client_id`, `usecase_id`, `room_id`, `username`, `timestamp`) VALUES ('" + request.body.external_client_id + "',1, '" + request.body.room_id + "', '" + request.body.name + "','"+formated_date+"')", function (error) {
-        if (error) {
-            console.log(error.message);
-        } else {
-            console.log('success user login with uid='+request.body.external_client_id+'');
-        }
-    });
-    DB.query("SELECT `user_id` FROM `user` WHERE external_client_id=" + request.body.external_client_id + " AND  timestamp='"+formated_date.toString()+"'", function (err, result) {
-        if (err) throw err;
-        if (result){
-            response.write(JSON.stringify({
-                result: result
-            }));
-            response.end();
-        }
-      });
+    if (request.body.external_client_id && request.body.room_id && request.body.room_id) {
+        var formated_date = new Date().toLocaleString();
+        DB.query("INSERT INTO  `user` (`external_client_id`, `usecase_id`, `room_id`, `username`, `timestamp`) VALUES ('" + request.body.external_client_id + "',1, '" + request.body.room_id + "', '" + request.body.name + "','" + formated_date + "')", function (error) {
+            if (error) {
+                console.log(error.message);
+            } else {
+                console.log('success user login with uid=' + request.body.external_client_id + '');
+            }
+        });
+        DB.query("SELECT `user_id` FROM `user` WHERE external_client_id=" + request.body.external_client_id + " AND  timestamp='" + formated_date.toString() + "'", function (err, result) {
+            if (err) throw err;
+            if (result) {
+                response.write(JSON.stringify({
+                    result: result
+                }));
+                response.end();
+            }
+        });
+    }
 });
 app.post("/event", async (req, res) => {
-    DB.query("INSERT INTO  `event` (  `user_id` ,  `action_id` ) VALUES ("+req.body.user_id+","+ req.body.action_id+")", function (error) {
+    DB.query("INSERT INTO  `event` (  `user_id` ,  `action_id` ) VALUES (" + req.body.user_id + "," + req.body.action_id + ")", function (error) {
         if (error) {
             console.log(error.message);
         } else {
-            console.log('Successfully saved event with id='+req.body.action_id+' from client id='+req.body.user_id+'');
+            console.log('Successfully saved event with id=' + req.body.action_id + ' from client id=' + req.body.user_id + '');
         }
     });
 });
@@ -152,12 +154,12 @@ app.post("/room/:roomId/mergeVideo", function (request, response) {
         for (var i = 0; i < request.body.length; i++) {
             fs.unlink(__dirname + "/uploads/" + request.body[i], function (err) {
                 if (err) return console.log(err);
-                console.log(''+request.body[i]+'deleted successfully');
+                console.log('' + request.body[i] + 'deleted successfully');
             });
         }
     })
     proc.on('error', function (err) {
         console.log('an error happened: ' + err.message);
     })
-    proc.mergeToFile(__dirname + "/uploads/" +"full--"+request.body[0]);
+    proc.mergeToFile(__dirname + "/uploads/" + "full--" + request.body[0]);
 });
