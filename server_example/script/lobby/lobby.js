@@ -1,5 +1,15 @@
 var username = "";
 function initApp() {
+    if (typeof InstallTrigger == 'undefined') {
+        swal({
+            type: 'error',
+            title: 'Oops...',
+            showConfirmButton: false,
+            allowOutsideClick: false,
+            html: '<div style="font-family: Arial, Helvetica, sans-serif;">Currently ScreenShare works only in Firefox. Please open this page in Firefox.</div>'
+        });
+    }
+
     username = functions.checkCookie("username");
     if (username != "") {
         document.getElementById("userNameField").value = username;
@@ -36,14 +46,24 @@ function loginSuccess(easyrtcid) {
     username = document.getElementById("userNameField").value;
     if (username != undefined) {
         functions.setCookie("username", username)
-
     }
-    refreshRoomList(easyrtcid);
     var uid = getUrlParam("uid");
-    functions.setCookie("uid", uid);
-    xhr("/lobby/roomLog", JSON.stringify({ external_client_id: uid, room_id: functions.checkCookie("selfEasyrtcid"), name: username }), function (responseText) {
-        functions.setCookie("myId", JSON.parse(responseText).result[0].user_id);
-    });
+    if (Number.isInteger(Number(uid))) {
+        refreshRoomList(easyrtcid);
+        functions.setCookie("uid", uid);
+        xhr("/lobby/roomLog", JSON.stringify({ external_client_id: uid, room_id: functions.checkCookie("selfEasyrtcid"), name: username }), function (responseText) {
+            functions.setCookie("myId", JSON.parse(responseText).result[0].user_id);
+        });
+    }
+    else {
+        swal({
+            type: 'error',
+            title: 'Oops...',
+            showConfirmButton: false,
+            allowOutsideClick: false,
+            html: '<div style="font-family: Arial, Helvetica, sans-serif;">Bad uid.</div>'
+        });
+    }
 }
 
 function loginFailure(errorCode, message) {
@@ -52,7 +72,16 @@ function loginFailure(errorCode, message) {
 
 
 function windowOpen(url, title, top, left, width, height, location = "1", toolbar = "1", menubar = "1", scrollbars = "1", resizable = "0") {
-    window.open(url, title, "top=" + 0 + ", left=" + left + ", width=" + width + ",height=" + height + ", location=" + location + ", toolbar=" + toolbar + ", menubar=" + menubar + ",scrollbars=" + scrollbars + ",resizable=" + resizable + "");
+    var newWin = window.open(url, title, "top=" + 0 + ", left=" + left + ", width=" + width + ",height=" + height + ", location=" + location + ", toolbar=" + toolbar + ", menubar=" + menubar + ",scrollbars=" + scrollbars + ",resizable=" + resizable + "");
+    if (!newWin || newWin.closed || typeof newWin.closed == 'undefined') {
+        swal({
+            type: 'error',
+            title: 'Oops...',
+            showConfirmButton: false,
+            allowOutsideClick: false,
+            html: '<div style="font-family: Arial, Helvetica, sans-serif;">Your browser disable pop-up windows. Please disable your popup blocker.</div>'
+        });
+    }
 }
 
 function getUrlParam(id) {

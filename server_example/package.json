@@ -25,9 +25,10 @@
     "recordrtc": "^5.4.6",
     "request": "^2.87.0",
     "serve-static": "^1.8.0",
-    "socket.io": "^1.7.4",
+    "socket.io": "^2.1.1",
     "util": "^0.10.3",
-    "video-stitch": "^1.5.0"
+    "video-stitch": "^1.5.0",
+    "woveon-logger": "0.0.6-c"
   },
   "license": "BSD2",
   "engines": {

@@ -154,7 +154,6 @@ function connect() {
     easyrtc.setDisconnectListener(function () {
         jQuery('#rooms').empty();
         document.getElementById("main").className = "notconnected";
-        console.log("disconnect listener fired");
         swal({
             type: 'error',
             title: 'Oops...',

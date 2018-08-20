@@ -31,7 +31,8 @@
     "crypto": "^1.0.1",
     "https": "^1.0.0",
     "jsqr": "^1.1.0",
-    "underscore": "1.5.x"
+    "underscore": "1.5.x",
+    "woveon-logger": "0.0.6-c"
   },
   "analyze": false,
   "license": "BSD-2-Clause",
