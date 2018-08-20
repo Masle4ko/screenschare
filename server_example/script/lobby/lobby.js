@@ -6,7 +6,7 @@ function initApp() {
             title: 'Oops...',
             showConfirmButton: false,
             allowOutsideClick: false,
-            html: '<div style="font-family: Arial, Helvetica, sans-serif;">Currently ScreenShare works only in Firefox. Please open this page in Firefox.</div>'
+            html: '<div style="font-family: Arial, Helvetica, sans-serif;">Currently ScreenShare works only in Firefox.<br> Please open this page in Firefox.</div>'
         });
     }
 
@@ -79,7 +79,7 @@ function windowOpen(url, title, top, left, width, height, location = "1", toolba
             title: 'Oops...',
             showConfirmButton: false,
             allowOutsideClick: false,
-            html: '<div style="font-family: Arial, Helvetica, sans-serif;">Your browser disable pop-up windows. Please disable your popup blocker.</div>'
+            html: '<div style="font-family: Arial, Helvetica, sans-serif;">You browser blocked pop-up windows.<br>Please disable you pop-up blocker.</div>'
         });
     }
 }

@@ -241,13 +241,13 @@ function loginSuccess(easyrtcid) {
     }
     enable('otherClients');
     updatePresence();
-    swal({
-        title: "Hello.",
-        allowOutsideClick: false,
-        html: '<div style="+"font-family: Arial, Helvetica, sans-serif;">Wait until the second user connects.</div>',
-        icon: "info",
-        showConfirmButton: false
-    })
+    // swal({
+    //     title: "Hello.",
+    //     allowOutsideClick: false,
+    //     html: '<div style="+"font-family: Arial, Helvetica, sans-serif;">Wait until the second user connects.</div>',
+    //     icon: "info",
+    //     showConfirmButton: false
+    // })
 }
 
 
