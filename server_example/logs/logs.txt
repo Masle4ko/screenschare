@@ -1,3 +1,4 @@
 [32m[2018-08-20T09:09:48.674Z] [INFO--] [top\easyrtc\server_example\server.js:171][39m success user login with uid=2
 [32m[2018-08-20T09:09:52.880Z] [INFO--] [top\easyrtc\server_example\server.js:171][39m Successfully saved message
 [32m[2018-08-20T09:11:52.879Z] [INFO--] [top\easyrtc\server_example\server.js:171][39m Successfully saved message
+[32m[2018-08-20T10:03:15.304Z] [INFO--] [top\easyrtc\server_example\server.js:171][39m success user login with uid=4
