@@ -5,7 +5,6 @@
 	<title>Lobby</title>
 	<script type="text/javascript" src="/script/other/prettify.js"></script>
 	<script type="text/javascript" src="/script/other/loadAndFilter.js"></script>
-	<script type="text/javascript" src="/script/other/jquery.min.js"></script>
 	<script src="/node_modules/socket.io-client/dist/socket.io.js"></script>
 	<script type="text/javascript" src="/script/api/easyrtc.js"></script>
 	<script type="text/javascript" src="/script/functions/functions.js"></script>
@@ -15,27 +14,23 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.24.4/sweetalert2.all.js"></script>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.24.3/sweetalert2.css">
+	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
+	<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 </head>
 
 <body onload="initApp();">
 	<div id="join">
 		<div id="join-form">
-			<form class="col s12">
+			<form class="col s12" id="formId" onsubmit="connect(); return false;">
 				<div class="input-field col s12">
-					<div class="input-field inline">
-						<input id="userNameField" type="text">
-						<label for="userNameField">Username</label>
-					</div>
+					<input id="userNameField" type="text">
+					<label for="userNameField">Username</label>
 				</div>
+				<button class="btn waves-effect" id="connectButton">Connect</button>
 			</form>
-			<div class="input-field col s12">
-				<button class="waves-effect waves-light btn btn-success" id="connectButton" onclick="connect();">Connect</button>
-			</div>
 		</div>
 	</div>
-	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
-	<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 	<script type="text/javascript">
 		function showMe(box, divId) {
 			if (box.checked) {
@@ -52,8 +47,7 @@
 		document.onkeypress = function (e) {
 			e = e || window.event;
 			if (e.keyCode === 13) {
-				document.getElementById("connectButton").click();
-				//connect();
+				connect();
 			}
 		}
 	</script>
