@@ -18,8 +18,9 @@ var bodyParser = require("body-parser");
 process.title = "node-easyrtc";
 var ffmpeg = require('fluent-ffmpeg');
 var app = express();
-const Logger = require('woveon-logger');
-var logger = new Logger('mylogger', { level: 'verbose', debug: true });
+//const Logger = require('woveon-logger');
+var log4js = require('log4js');
+const log4js_extend = require("log4js-extend");
 app.use(express.static(__dirname));
 app.use(express.static(__dirname + '/node_modules'));
 app.use(express.static(__dirname + '/cert'));
@@ -32,17 +33,29 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 
-var DB = db();
-function db() {
-    var connection = mysql.createConnection({
-        host: "learnweb.l3s.uni-hannover.de",
-        port: 3306,
-        user: "pairsearch",
-        password: "Ywe9EOH9lxk6dIWk",
-        database: "pairsearch"
-    });
-    return connection;
-};
+log4js.configure({
+    appenders: {
+        consoleAppender: { type: 'console',format: "(@file:@line:@column)"},
+        fileAppender: { type: 'file', filename: __dirname + '/logs/logs.txt' },
+    },
+    categories: {
+        default: { appenders: ['consoleAppender', 'fileAppender'], level: 'debug' },
+    },
+});
+log4js_extend(log4js, {
+    format: "(@file:@line:@column)"
+  });
+const logger = log4js.getLogger();
+
+var DB = mysql.createPool({
+    connectionLimit: 4,
+    host: "learnweb.l3s.uni-hannover.de",
+    port: 3306,
+    user: "pairsearch",
+    password: "Ywe9EOH9lxk6dIWk",
+    database: "pairsearch"
+});
+
 app.get('/', function (req, res) {
     res.sendFile(__dirname + "/view/start.html");
 });
@@ -50,40 +63,46 @@ app.get('/lobby', function (req, res) {
     res.sendFile(__dirname + "/view/lobby.html");
 });
 app.post("/lobby/roomLog", function (request, response) {
-    if (request.body.external_client_id && request.body.room_id && request.body.room_id) {
-        var formated_date = new Date().toLocaleString();
-        if (DB.state === 'disconnected') {
-            DB = db();
-        }
-        DB.query("INSERT INTO  `user` (`external_client_id`, `usecase_id`, `room_id`, `username`, `timestamp`) VALUES ('" + request.body.external_client_id + "',1, '" + request.body.room_id + "', '" + request.body.name + "','" + formated_date + "')", function (error) {
-            if (error) {
-                logInfo(error.message, 1);
-            } else {
-                logInfo('success user login with uid=' + request.body.external_client_id + '', 0);
-            }
-        });
-        DB.query("SELECT `user_id` FROM `user` WHERE external_client_id=" + request.body.external_client_id + " AND  timestamp='" + formated_date.toString() + "'", function (err, result) {
+    if (Number.isInteger(Number(request.body.external_client_id)) && Number(request.body.external_client_id) > 1) {
+        DB.getConnection(function (err, connection) {
             if (err) throw err;
-            if (result) {
-                response.write(JSON.stringify({
-                    result: result
-                }));
-                response.end();
-            }
+            var sql = "INSERT INTO  `user` (`external_client_id`, `usecase_id`, `room_id`, `username`) VALUES (" + DB.escape(request.body.external_client_id) + ",1, " + DB.escape(request.body.room_id) + ", " + DB.escape(request.body.name) + ")";
+            connection.query(sql, function (error, result, fields) {
+                connection.release();
+                if (error) {
+                    logger.error(sql+'\n' + error.message);
+                } else {
+                    if (Number.isInteger(Number(result.insertId))) {
+                        logger.info('success user login with uid=' + request.body.external_client_id + ' his user_id=' + result.insertId);
+                        response.write(JSON.stringify({
+                            result: result.insertId
+                        }));
+                        response.end();
+                    }
+                    else {
+                        logger.error('problem with insertId');
+                    }
+                }
+            });
+
         });
     }
 });
-app.post("/event", async (req, res) => {
-    if (DB.state === 'disconnected') {
-        DB = db();
+app.post("/event", function (req, res) {
+    if (Number.isInteger(Number(req.body.user_id)) && Number(req.body.user_id) > 1 && Number.isInteger(Number(req.body.action_id)) && Number(req.body.action_id) >= 0) {
+        DB.getConnection(function (err, connection) {
+            if (err) throw err;
+            var sql = "INSERT INTO  `event` (  `user_id` ,  `action_id` ) VALUES (" + DB.escape(req.body.user_id) + "," + DB.escape(req.body.action_id) + ")"
+            connection.query(sql, function (error) {
+                connection.release();
+                if (error) {
+                    logger.error(sql+'\n' + error.message)
+                } else {
+                    logger.info('Successfully saved event with id=' + req.body.action_id + ' from client id=' + req.body.user_id);
+                }
+            });
+        });
     }
-    DB.query("INSERT INTO  `event` (  `user_id` ,  `action_id` ) VALUES (" + req.body.user_id + "," + req.body.action_id + ")", function (error) {
-        if (error) {
-            logInfo(error.message, 1);
-        } else {
-            logInfo('Successfully saved event with id=' + req.body.action_id + ' from client id=' + req.body.user_id + '', 0);
-        }
-    });
 });
 app.get('/room/:roomId', function (req, res) {
     res.sendFile(__dirname + "/view/room.html");
@@ -115,22 +134,25 @@ var rtc = easyrtc.listen(app, socketServer, function (err, rtcRef) {
     });
 });
 
-app.post("/room/:roomId/saveMessage", async (req, res) => {
-    if (DB.state === 'disconnected') {
-        DB = db();
+app.post("/room/:roomId/saveMessage", function (req, res) {
+    if (Number.isInteger(Number(req.body.user_id)) && Number(req.body.user_id) > 1) {
+        DB.getConnection(function (err, connection) {
+            if (err) throw err;
+            var sql = "INSERT INTO  `chat` (`user_id` ,  `text` ,  `room_id`) VALUES (" + DB.escape(req.body.user_id) + ", " + DB.escape(req.body.chat) + ", " + DB.escape(req.body.roomId) + ")";
+            connection.query(sql, function (error) {
+                connection.release();
+                if (error) {
+                    logger.error(sql+'\n' + error.message);
+                } else {
+                    logger.info('Successfully saved message from user_id=' + req.body.user_id);
+                }
+            });
+        });
     }
-    DB.query("INSERT INTO  `chat` (`user_id` ,  `text` ,  `room_id`) VALUES ('" + req.body.userId + "', '" + req.body.chat + "', '" + req.body.roomId + "')", function (error) {
-        if (error) {
-            logInfo(error.message, 1);
-        } else {
-            logInfo('Successfully saved message', 0);
-        }
-    });
 });
 
 app.post("/room/:roomId/saveRecord", function (request, response) {
     var form = new formidable.IncomingForm();
-    //var dir = !!process.platform.match(/^win/) ? '\\uploads\\' : '/uploads/';
     form.uploadDir = __dirname + '/uploads';
     form.keepExtensions = true;
     form.maxFieldsSize = 10 * 1024 * 1024 * 1024;
@@ -150,39 +172,23 @@ app.post("/room/:roomId/mergeVideo", function (request, response) {
         proc.input(__dirname + "/uploads/" + request.body[i]);
     }
     proc.on('end', function () {
-        logInfo('files have been merged succesfully', 0);
         for (var i = 0; i < request.body.length; i++) {
             fs.unlink(__dirname + "/uploads/" + request.body[i], function (err) {
-                if (err) return logInfo(err, 1);
+                if (err) return err;
             });
         }
     })
     proc.on('error', function (err) {
-        logInfo('an error happened: ' + err.message, 1);
+        logger.error('an error happened: ' + err.message);
     })
     proc.mergeToFile(__dirname + "/uploads/" + "full--" + request.body[0]);
 });
 
 
-function logInfo(msg, value) {
-    if (value == 0) {
-        logger.info(msg);
-        logger.set('outputTo', 'string');
-        fs.appendFile(__dirname + "/logs/logs.txt", logger.info(msg)+'\r\n', function (err) {
-            if (err) {
-                return logger.error(err);
-            }
-        });
-        logger.set('outputTo', 'console');
-    }
-    if (value == 1) {
-        logger.error(msg);
-        logger.set('outputTo', 'string');
-        fs.appendFile(__dirname + "/logs/logs.txt", logger.error(msg), function (err) {
-            if (err) {
-                return logger.error(err);
-            }
-        });
-        logger.set('outputTo', 'console');
-    }
+function logToFile(msg) {
+    fs.appendFile(__dirname + "/logs/logs.txt", msg + '\r\n', function (err) {
+        if (err) {
+            return logger.error(err);
+        }
+    });
 }

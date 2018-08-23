@@ -49,10 +49,12 @@ function loginSuccess(easyrtcid) {
     }
     var uid = getUrlParam("uid");
     if (Number.isInteger(Number(uid))) {
-        refreshRoomList(easyrtcid);
-        functions.setCookie("uid", uid);
         xhr("/lobby/roomLog", JSON.stringify({ external_client_id: uid, room_id: functions.checkCookie("selfEasyrtcid"), name: username }), function (responseText) {
-            functions.setCookie("myId", JSON.parse(responseText).result[0].user_id);
+            if (Number.isInteger(Number(JSON.parse(responseText).result))) {
+                functions.setCookie("uid", uid);
+                functions.setCookie("myId", JSON.parse(responseText).result);
+                refreshRoomList(easyrtcid);
+            }
         });
     }
     else {

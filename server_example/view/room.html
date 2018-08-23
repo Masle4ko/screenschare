@@ -108,7 +108,7 @@
                             <div id="rooms"></div>
                         </div>
                 </li>
-                <li class="collection-item" id="forLocalVideos" style="display:none;">
+                <li class="collection-item" id="forLocalVideos" style="display:block;">
                     <div id="videoSrcBlk">
                         <div id="otherClients"></div>
                     </div>
@@ -122,10 +122,14 @@
 </body>
 <script>
     $("#rooms").click(() => {
-        var chatMessage = {
-            userId: functions.checkCookie("myId"), roomId: functions.checkCookie("selfEasyrtcid"), name: functions.checkCookie("username"), chat: functions.checkCookie("lastMessage")
-        }
-        postChat(chatMessage)
+        var request = new XMLHttpRequest();
+        request.open('POST', "/room/:roomId/saveMessage");
+        request.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+        request.send(JSON.stringify({user_id: functions.checkCookie("myId"), roomId: functions.checkCookie("selfEasyrtcid"), name: functions.checkCookie("username"), chat: functions.checkCookie("lastMessage")}));
+        // var chatMessage = {
+        //     userId: functions.checkCookie("myId"), roomId: functions.checkCookie("selfEasyrtcid"), name: functions.checkCookie("username"), chat: functions.checkCookie("lastMessage")
+        // }
+        // postChat(chatMessage)
     });
     function postChat(chat) {
         $.post("/room/:roomId/saveMessage", chat)
