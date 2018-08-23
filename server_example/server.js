@@ -62,7 +62,7 @@ app.get('/', function (req, res) {
 app.get('/lobby', function (req, res) {
     res.sendFile(__dirname + "/view/lobby.html");
 });
-app.post("/lobby/roomLog", function (request, response) {
+app.post('/lobby/roomLog', function (request, response) {
     if (Number.isInteger(Number(request.body.external_client_id)) && Number(request.body.external_client_id) > 1) {
         DB.getConnection(function (err, connection) {
             if (err) throw err;
@@ -88,7 +88,7 @@ app.post("/lobby/roomLog", function (request, response) {
         });
     }
 });
-app.post("/event", function (req, res) {
+app.post('/event', function (req, res) {
     if (Number.isInteger(Number(req.body.user_id)) && Number(req.body.user_id) > 1 && Number.isInteger(Number(req.body.action_id)) && Number(req.body.action_id) >= 0) {
         DB.getConnection(function (err, connection) {
             if (err) throw err;
