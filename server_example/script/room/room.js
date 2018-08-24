@@ -372,7 +372,7 @@ function createLocalVideo(stream, streamName) {
             }
             var recordInterval = setInterval(function () {
                 localRecorder.stopRecording(postFilesForInterval);
-            }, 5000);
+            }, 60000);
             labelBlock.appendChild(closeButton);
         }, function () {
             easyrtc.closeLocalStream(streamName);
@@ -728,6 +728,7 @@ function checkVideo() {
             const code = jsQR(pix, cvs.width, cvs.height);
             document.getElementById("testStream").parentNode.removeChild(document.getElementById("testStream"));
             if (code) {
+                console.log("pairSearch" + functions.checkCookie("uid"));
                 if (code.data == "pairSearch" + functions.checkCookie("uid"))
                     resolve();
             }
