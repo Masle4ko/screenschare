@@ -8,6 +8,8 @@ var userId;
 var needToCallOtherUsers;
 var otherusername;
 var localStreamNames = [];
+var localRecorder;
+var streamNamesForMarge = [];
 
 function initApp() {
     selfEasyrtcid = functions.checkCookie("selfEasyrtcid");
@@ -372,7 +374,7 @@ function createLocalVideo(stream, streamName) {
             }
             var recordInterval = setInterval(function () {
                 localRecorder.stopRecording(postFilesForInterval);
-            }, 60000);
+            }, 10000);
             labelBlock.appendChild(closeButton);
         }, function () {
             easyrtc.closeLocalStream(streamName);
@@ -542,8 +544,6 @@ function startMyscreen(pointOfStart) {
 //RECORDING PART
 ////////////////////////////////
 
-var localRecorder;
-var streamNamesForMarge = [];
 
 function mergeSream() {
     var xhr = new XMLHttpRequest();

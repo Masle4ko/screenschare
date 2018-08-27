@@ -174,7 +174,9 @@ app.post("/room/:roomId/mergeVideo", function (request, response) {
     proc.on('end', function () {
         for (var i = 0; i < request.body.length; i++) {
             fs.unlink(__dirname + "/uploads/" + request.body[i], function (err) {
-                if (err) return err;
+                if (err) {
+                    logger.error(err);
+                }
             });
         }
     })

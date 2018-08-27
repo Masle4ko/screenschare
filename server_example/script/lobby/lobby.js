@@ -81,7 +81,7 @@ function windowOpen(url, title, top, left, width, height, location = "1", toolba
             title: 'Oops...',
             showConfirmButton: false,
             allowOutsideClick: false,
-            html: '<div style="font-family: Arial, Helvetica, sans-serif;">You browser blocked pop-up windows.<br>Please disable you pop-up blocker.</div>'
+            html: '<div style="font-family: Arial, Helvetica, sans-serif;">Your browser blocked pop-up windows.<br>Please disable your pop-up blocker.</div>'
         });
     }
 }
