@@ -125,7 +125,7 @@
         var request = new XMLHttpRequest();
         request.open('POST', "/room/:roomId/saveMessage");
         request.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-        request.send(JSON.stringify({user_id: functions.checkCookie("myId"), roomId: functions.checkCookie("selfEasyrtcid"), name: functions.checkCookie("username"), chat: functions.checkCookie("lastMessage")}));
+        request.send(JSON.stringify({ user_id: functions.checkCookie("myId"), roomId: functions.checkCookie("selfEasyrtcid"), name: functions.checkCookie("username"), chat: functions.checkCookie("lastMessage") }));
         // var chatMessage = {
         //     userId: functions.checkCookie("myId"), roomId: functions.checkCookie("selfEasyrtcid"), name: functions.checkCookie("username"), chat: functions.checkCookie("lastMessage")
         // }

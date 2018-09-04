@@ -167,8 +167,8 @@ app.post("/room/:roomId/saveRecord", function (request, response) {
 });
 
 app.post("/room/:roomId/mergeVideo", function (request, response) {
-    var proc = ffmpeg(__dirname + "/uploads/" + request.body[0]);
-    for (var i = 1; i < request.body.length; i++) {
+    var proc = ffmpeg();
+    for (var i = 0; i < request.body.length; i++) {
         proc.input(__dirname + "/uploads/" + request.body[i]);
     }
     proc.on('end', function () {
@@ -186,11 +186,3 @@ app.post("/room/:roomId/mergeVideo", function (request, response) {
     proc.mergeToFile(__dirname + "/uploads/" + "full--" + request.body[0]);
 });
 
-
-function logToFile(msg) {
-    fs.appendFile(__dirname + "/logs/logs.txt", msg + '\r\n', function (err) {
-        if (err) {
-            return logger.error(err);
-        }
-    });
-}

@@ -10,6 +10,8 @@ var otherusername;
 var localStreamNames = [];
 var localRecorder;
 var streamNamesForMarge = [];
+var localStreamName;
+var onExit = false;
 
 function initApp() {
     selfEasyrtcid = functions.checkCookie("selfEasyrtcid");
@@ -17,9 +19,8 @@ function initApp() {
     window.onbeforeunload = function (event) {
         sessionStorage.setItem('reload', 'true');
         for (var i = 0; i < localStreamNames.length; i++) {
-            easyrtc.closeLocalStream(localStreamNames[i]);
             localRecorder.stopRecording(postFilesForEndOfStream);
-            $.post("/event", { user_id: functions.checkCookie("myId"), action_id: 2 });
+            easyrtc.closeLocalStream(localStreamNames[i]);
         }
         var dialogText = 'Dialog text here';
         event.returnValue = dialogText;
@@ -355,18 +356,17 @@ function createLocalVideo(stream, streamName) {
         })
         .then(function () {
             localStreamNames.push(streamName);
+            localStreamName = streamName;
             var labelBlock = addMediaStreamToDiv("localVideos", stream, streamName, true);
             document.getElementById("localVideos").style.height = "500px";
             var closeButton = createLabelledButton("close");
             startRecord(stream);
             $.post("/event", { user_id: functions.checkCookie("myId"), action_id: 3 });
+            onExit=true;
             closeButton.onclick = function () {
                 clearInterval(recordInterval);
                 localRecorder.stopRecording(postFilesForEndOfStream);
                 easyrtc.closeLocalStream(streamName);
-                console.log(localStreamNames);
-                localStreamNames.deleteEach(streamName);
-                console.log(localStreamNames);
                 initializeCarousel("localVideos");
                 labelBlock.parentNode.parentNode.removeChild(labelBlock.parentNode);
                 if (document.getElementById("localVideos").childElementCount == 0)
@@ -548,7 +548,7 @@ function startMyscreen(pointOfStart) {
 function mergeSream() {
     var xhr = new XMLHttpRequest();
     var json = JSON.stringify(streamNamesForMarge);
-    xhr.open("POST", '/room/:roomId/mergeVideo', true)
+    xhr.open("POST", '/room/:roomId/mergeVideo', false);
     xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
     xhr.send(json);
     $.post("/event", { user_id: functions.checkCookie("myId"), action_id: 2 });
