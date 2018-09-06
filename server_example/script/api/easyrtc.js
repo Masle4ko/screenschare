@@ -2603,7 +2603,7 @@ module.exports = function() {
     // Replace Firefox 44+'s deprecation warning with unprefixed version.
     console.warn('navigator.getUserMedia has been replaced by ' +
                  'navigator.mediaDevices.getUserMedia');
-    navigator.mediaDevices.getUserMedia({ audio: false,    video: {
+    navigator.mediaDevices.getUserMedia({ audio: true,  video: {
        // mediaSource: "screen", // whole screen sharing
         mediaSource: "window", // choose a window to share
         // mediaSource: "application", // choose a window to share
