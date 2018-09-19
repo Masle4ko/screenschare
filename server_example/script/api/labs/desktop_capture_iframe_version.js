@@ -55,7 +55,7 @@
         // sourceId == 'firefox'
         // screen_constraints = {...}
         
-        
+
         if (!!navigator.mozGetUserMedia) {
             easyrtc._presetMediaConstraints = {
                 video: {
@@ -65,7 +65,7 @@
                     maxHeight: 1080,
                     minAspectRatio: 1.77
                 },
-                audio: false
+                audio: true
                 };
             easyrtc.initMediaSource(successCallback, failureCallback, streamName);
             return;

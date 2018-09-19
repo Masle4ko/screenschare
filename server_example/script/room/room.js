@@ -16,16 +16,16 @@ var onExit = false;
 function initApp() {
     selfEasyrtcid = functions.checkCookie("selfEasyrtcid");
     connect();
-    window.onbeforeunload = function (event) {
-        sessionStorage.setItem('reload', 'true');
-        for (var i = 0; i < localStreamNames.length; i++) {
-            localRecorder.stopRecording(postFilesForEndOfStream);
-            easyrtc.closeLocalStream(localStreamNames[i]);
-        }
-        var dialogText = 'Dialog text here';
-        event.returnValue = dialogText;
-        return dialogText;
-    };
+    // window.onbeforeunload = function (event) {
+    //     //sessionStorage.setItem('reload', 'true');
+    //     // for (var i = 0; i < localStreamNames.length; i++) {
+    //     //     localRecorder.stopRecording(postFilesForEndOfStream);
+    //     //     easyrtc.closeLocalStream(localStreamNames[i]);
+    //     // }
+    //     var dialogText = 'Dialog text here';
+    //     event.returnValue = dialogText;
+    //     return dialogText;
+    // };
 }
 
 function addToConversation(who, msgType, content, targeting) {
@@ -150,7 +150,8 @@ function randomInteger(min, max) {
 }
 function connect() {
     easyrtc.enableDataChannels(true);
-    easyrtc.setRoomEntryListener();
+    easyrtc.setAutoInitUserMedia(false);
+    //easyrtc.setRoomEntryListener();
     easyrtc.setDataChannelCloseListener();
     easyrtc.setRoomOccupantListener(RoomOccupantListener);
     easyrtc.setPeerListener(peerListener);
@@ -244,13 +245,13 @@ function loginSuccess(easyrtcid) {
     }
     enable('otherClients');
     updatePresence();
-    swal({
-        title: "Hello.",
-        allowOutsideClick: false,
-        html: '<div style="+"font-family: Arial, Helvetica, sans-serif;">Wait until the second user connects.</div>',
-        icon: "info",
-        showConfirmButton: false
-    })
+    // swal({
+    //     title: "Hello.",
+    //     allowOutsideClick: false,
+    //     html: '<div style="+"font-family: Arial, Helvetica, sans-serif;">Wait until the second user connects.</div>',
+    //     icon: "info",
+    //     showConfirmButton: false
+    // })
 }
 
 
@@ -283,7 +284,6 @@ function windowOpen(url, title, top, left, width, height, location = "1", toolba
 
 
 //STREAM PART
-var otherEasyrtcid = null;
 var needCall = true;
 var streamNumbers = 0;
 
@@ -327,12 +327,16 @@ function addMediaStreamToDiv(divId, stream, streamName, isLocal) {
     var video = document.createElement("video");
     video.setAttribute("class", "responsive-video");
     video.type = "video/webm";
-    video.controls = true;
     video.style.width = screen.width - 100;
     video.style.height = (screen.height / 2) - 100;
-    video.muted = isLocal;
+    video.muted = true;
+    video.autoplay = true;
     video.style.marginBottom = "10px";
     video.style.verticalAlign = "middle";
+    video.onloadedmetadata="this.muted = true";
+    //video.setAttribute('muted', true);
+    video.setAttribute('controls', true);
+    easyrtc.setVideoObjectSrc(video, stream);
     container.appendChild(video);
     document.getElementById(divId).appendChild(container);
     initializeCarousel(divId);
@@ -344,15 +348,14 @@ function addMediaStreamToDiv(divId, stream, streamName, isLocal) {
             document.getElementById("remoteVideosControlButtons").style.display = "block";
         }
     }
-    easyrtc.setVideoObjectSrc(video, stream);
-    video.autoplay = true;
     return labelBlock;
 }
 
 function createLocalVideo(stream, streamName) {
     createVideoForTestStream(stream)
         .then(function () {
-            return checkVideo()
+            // return checkVideo()
+            return
         })
         .then(function () {
             localStreamNames.push(streamName);
@@ -362,10 +365,10 @@ function createLocalVideo(stream, streamName) {
             var closeButton = createLabelledButton("close");
             startRecord(stream);
             $.post("/event", { user_id: functions.checkCookie("myId"), action_id: 3 });
-            onExit=true;
+            onExit = true;
             closeButton.onclick = function () {
-                clearInterval(recordInterval);
-                localRecorder.stopRecording(postFilesForEndOfStream);
+                //clearInterval(recordInterval);
+                //localRecorder.stopRecording(postFilesForEndOfStream);
                 easyrtc.closeLocalStream(streamName);
                 initializeCarousel("localVideos");
                 labelBlock.parentNode.parentNode.removeChild(labelBlock.parentNode);
@@ -383,7 +386,6 @@ function createLocalVideo(stream, streamName) {
 };
 
 function RoomOccupantListener(roomName, occupants) {
-    easyrtc.setAutoInitUserMedia(false);
     for (var easyrtcid in occupants) {
         easyrtc.sendDataWS(easyrtcid, 'otherusername', { username: functions.checkCookie("username") }, function (ackMesg) {
             if (ackMesg.msgType === 'error') {
@@ -394,9 +396,9 @@ function RoomOccupantListener(roomName, occupants) {
             if (sessionStorage.getItem('reload') === 'true') {
                 performCall(easyrtcid);
             }
-            if (functions.checkCookie("roomCreator") == "true") {
-                playSound();
-            }
+            // if (functions.checkCookie("roomCreator") == "true") {
+            //     playSound();
+            // }
             setTimeout(() => {
                 startMyscreen(true);
             }, 500);
@@ -490,51 +492,51 @@ function playSound() {
 
 function startMyscreen(pointOfStart) {
     var streamName = "screen" + randomInteger(4, 99);
-    if (pointOfStart) {
-        var position = null;
-        var imageUrl = '/materals/arrowTop.gif'
-        if (window.screen.width >= 1920 && window.screen.height >= 1080) {
-            position = 'top-end';
-            imageUrl = '/materals/arrowLeft.gif'
-        }
-        swal({
-            position: position,
-            showConfirmButton: false,
-            allowOutsideClick: false,
-            title: 'You have successfully been connected to user ' + otherusername + '',
-            html: '<div style="font-family: Arial, Helvetica, sans-serif;">Please select the window <b>"WebSearch - Mozilla Firefox"</b> from the drop down menu and allow to share it.</div>',
-            imageUrl: imageUrl,
-            imageWidth: 130,
-            imageHeight: 125,
-            imageAlt: 'Custom image',
-            animation: false
-        });
-    }
-    else {
-        swal({
-            type: 'error',
-            title: 'Oops...',
-            showConfirmButton: false,
-            allowOutsideClick: false,
-            html: '<div style="font-family: Arial, Helvetica, sans-serif;">You have chosen the wrong screen! Please select the window <b>"WebSearch - Mozilla Firefox"</b> from the drop down menu and allow to share it.</div>',
-        });
-    }
+    // if (pointOfStart) {
+    //     var position = null;
+    //     var imageUrl = '/materals/arrowTop.gif'
+    //     if (window.screen.width >= 1920 && window.screen.height >= 1080) {
+    //         position = 'top-end';
+    //         imageUrl = '/materals/arrowLeft.gif'
+    //     }
+    //     // swal({
+    //     //     position: position,
+    //     //     showConfirmButton: false,
+    //     //     allowOutsideClick: false,
+    //     //     title: 'You have successfully been connected to user ' + otherusername + '',
+    //     //     html: '<div style="font-family: Arial, Helvetica, sans-serif;">Please select the window <b>"WebSearch - Mozilla Firefox"</b> from the drop down menu and allow to share it.</div>',
+    //     //     imageUrl: imageUrl,
+    //     //     imageWidth: 130,
+    //     //     imageHeight: 125,
+    //     //     imageAlt: 'Custom image',
+    //     //     animation: false
+    //     // });
+    // }
+    // else {
+    //     swal({
+    //         type: 'error',
+    //         title: 'Oops...',
+    //         showConfirmButton: false,
+    //         allowOutsideClick: false,
+    //         html: '<div style="font-family: Arial, Helvetica, sans-serif;">You have chosen the wrong screen! Please select the window <b>"WebSearch - Mozilla Firefox"</b> from the drop down menu and allow to share it.</div>',
+    //     });
+    // }
     easyrtc.initDesktopStream(
         function (stream) {
             createLocalVideo(stream, streamName);
-            swal.close();
+            //swal.close();
             if (otherEasyrtcid) {
                 easyrtc.addStreamToCall(otherEasyrtcid, streamName);
             }
         },
         function (errCode, errText) {
-            swal({
-                type: 'error',
-                title: 'Oops...',
-                showConfirmButton: false,
-                allowOutsideClick: false,
-                html: '<div style="font-family: Arial, Helvetica, sans-serif;">You need to allow your browser to share your screen! Please reload the page and share your screen.</div>',
-            });
+            // swal({
+            //     type: 'error',
+            //     title: 'Oops...',
+            //     showConfirmButton: false,
+            //     allowOutsideClick: false,
+            //     html: '<div style="font-family: Arial, Helvetica, sans-serif;">You need to allow your browser to share your screen! Please reload the page and share your screen.</div>',
+            // });
             easyrtc.showError(errCode, errText);
         },
         streamName);
@@ -564,7 +566,7 @@ function postFilesForEndOfStream() {
 }
 function postFiles() {
     var blob = localRecorder.getBlob();
-    var fileName = "uid=" + functions.checkCookie("uid") + "--time=" + new Date().toLocaleString().split(":").join(".") + '.webm';
+    var fileName = "uid=" + functions.checkCookie("uid");
     streamNamesForMarge.push(fileName);
     var file = new File([blob], fileName, {
         type: 'video/webm',

@@ -111,7 +111,7 @@ app.get('/room/:roomId', function (req, res) {
 var webServer = http.createServer(app).listen(8000);
 easyrtc.setOption("roomDefaultEnable", false);
 var socketServer = socketIo.listen(webServer, { "log level": 1 });
-//easyrtc.setOption("logLevel", "debug");
+// easyrtc.setOption("logLevel", "debug");
 easyrtc.events.on("easyrtcAuth", function (socket, easyrtcid, msg, socketCallback, callback) {
     easyrtc.events.defaultListeners.easyrtcAuth(socket, easyrtcid, msg, socketCallback, function (err, connectionObj) {
         if (err || !msg.msgData || !msg.msgData.credential || !connectionObj) {
@@ -158,10 +158,9 @@ app.post("/room/:roomId/saveRecord", function (request, response) {
     form.maxFieldsSize = 10 * 1024 * 1024 * 1024;
     form.maxFileSiz = 2000 * 1024 * 1024;
     form.maxFields = 1000;
-    var fileName;
     form.on('fileBegin', function (name, file) {
+        file.name=file.name+"--time=" + new Date().toLocaleString().split(":").join(".") + '.webm';
         file.path = path.join(form.uploadDir, file.name);
-        fileName = file.name;
     })
     form.parse(request, function (err, fields, files) { });
 });
@@ -172,13 +171,13 @@ app.post("/room/:roomId/mergeVideo", function (request, response) {
         proc.input(__dirname + "/uploads/" + request.body[i]);
     }
     proc.on('end', function () {
-        for (var i = 0; i < request.body.length; i++) {
-            fs.unlink(__dirname + "/uploads/" + request.body[i], function (err) {
-                if (err) {
-                    logger.error(err);
-                }
-            });
-        }
+        // for (var i = 0; i < request.body.length; i++) {
+        //     fs.unlink(__dirname + "/uploads/" + request.body[i], function (err) {
+        //         if (err) {
+        //             logger.error(err);
+        //         }
+        //     });
+        // }
     })
     proc.on('error', function (err) {
         logger.error('an error happened: ' + err.message);

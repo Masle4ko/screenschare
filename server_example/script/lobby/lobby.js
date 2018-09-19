@@ -1,14 +1,14 @@
 var username = "";
 function initApp() {
-    if (typeof InstallTrigger == 'undefined') {
-        swal({
-            type: 'error',
-            title: 'Oops...',
-            showConfirmButton: false,
-            allowOutsideClick: false,
-            html: '<div style="font-family: Arial, Helvetica, sans-serif;">Currently ScreenShare works only in Firefox.<br> Please open this page in Firefox.</div>'
-        });
-    }
+    // if (typeof InstallTrigger == 'undefined') {
+    //     swal({
+    //         type: 'error',
+    //         title: 'Oops...',
+    //         showConfirmButton: false,
+    //         allowOutsideClick: false,
+    //         html: '<div style="font-family: Arial, Helvetica, sans-serif;">Currently ScreenShare works only in Firefox.<br> Please open this page in Firefox.</div>'
+    //     });
+    // }
 
     username = functions.checkCookie("username");
     if (username != "") {
