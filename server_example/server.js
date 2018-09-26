@@ -18,6 +18,7 @@ var bodyParser = require("body-parser");
 process.title = "node-easyrtc";
 var ffmpeg = require('fluent-ffmpeg');
 var app = express();
+var moment = require('moment');
 //const Logger = require('woveon-logger');
 var log4js = require('log4js');
 const log4js_extend = require("log4js-extend");
@@ -32,10 +33,13 @@ app.use(express.static(__dirname + '/logs'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
+var listForMarge = [];
+startServer = true;
+var valueOf;
 
 log4js.configure({
     appenders: {
-        consoleAppender: { type: 'console',format: "(@file:@line:@column)"},
+        consoleAppender: { type: 'console', format: "(@file:@line:@column)" },
         fileAppender: { type: 'file', filename: __dirname + '/logs/logs.txt' },
     },
     categories: {
@@ -44,7 +48,7 @@ log4js.configure({
 });
 log4js_extend(log4js, {
     format: "(@file:@line:@column)"
-  });
+});
 const logger = log4js.getLogger();
 
 var DB = mysql.createPool({
@@ -70,7 +74,7 @@ app.post('/lobby/roomLog', function (request, response) {
             connection.query(sql, function (error, result, fields) {
                 connection.release();
                 if (error) {
-                    logger.error(sql+'\n' + error.message);
+                    logger.error(sql + '\n' + error.message);
                 } else {
                     if (Number.isInteger(Number(result.insertId))) {
                         logger.info('success user login with uid=' + request.body.external_client_id + ' his user_id=' + result.insertId);
@@ -96,7 +100,7 @@ app.post('/event', function (req, res) {
             connection.query(sql, function (error) {
                 connection.release();
                 if (error) {
-                    logger.error(sql+'\n' + error.message)
+                    logger.error(sql + '\n' + error.message)
                 } else {
                     logger.info('Successfully saved event with id=' + req.body.action_id + ' from client id=' + req.body.user_id);
                 }
@@ -142,7 +146,7 @@ app.post("/room/:roomId/saveMessage", function (req, res) {
             connection.query(sql, function (error) {
                 connection.release();
                 if (error) {
-                    logger.error(sql+'\n' + error.message);
+                    logger.error(sql + '\n' + error.message);
                 } else {
                     logger.info('Successfully saved message from user_id=' + req.body.user_id);
                 }
@@ -158,14 +162,61 @@ app.post("/room/:roomId/saveRecord", function (request, response) {
     form.maxFieldsSize = 10 * 1024 * 1024 * 1024;
     form.maxFileSiz = 2000 * 1024 * 1024;
     form.maxFields = 1000;
+    var data = [];
     form.on('fileBegin', function (name, file) {
-        file.name=file.name+"--time=" + new Date().toLocaleString().split(":").join(".") + '.webm';
+        data = file.name.split(/,/);
+        file.name = "uid=" + data[0] + "--time=" + new Date().toLocaleString().split(":").join(".") + '.webm';
         file.path = path.join(form.uploadDir, file.name);
+        data[2] = file.name;
     })
-    form.parse(request, function (err, fields, files) { });
+    form.on('end', function () {
+        if (checkUid(parseInt(data[0]))) {
+            valueOf = false;
+            listForMarge.forEach(function (entry) {
+                console.log(entry.uid +"=="+data[0]);
+                if (entry.uid == parseInt(data[0])) {
+                    console.log("data[1]="+data[1]);
+                    var check = data[1] - entry.currentPart;
+                    console.log("check="+check);
+                    if (check == 1) {
+                        entry.streamParts.push(data[2]);
+                        console.log("кол-во="+entry.streamParts.length);
+                        entry.update = moment().format('DD/MM/YYYY HH:mm:ss');
+                        entry.currentPart = data[1];
+                        console.log("текущ часть="+entry.currentPart);
+
+                    }
+                    else {
+                        mergeVideo(entry.streamParts);
+                    }
+                }
+            });
+        }
+        else {
+            newUser = new Object();
+            newUser.uid = parseInt(data[0]);
+            newUser.update = moment().format('DD/MM/YYYY HH:mm:ss');
+            newUser.streamParts = [];
+            newUser.streamParts.push(data[2]);
+            newUser.currentPart = newUser.streamParts.length;
+            listForMarge.push(newUser);
+        }
+    })
+    form.parse(request, function (err, fields, files) {
+    });
+    if (startServer) {
+        var mergeInterval = setInterval(function () {
+            listForMarge.forEach(function (entry) {
+                console.log(entry.update);
+                console.log(moment.utc(moment(moment().format('DD/MM/YYYY HH:mm:ss'), "DD/MM/YYYY HH:mm:ss").diff(moment(entry.update, "DD/MM/YYYY HH:mm:ss"))).format("HH:mm:ss"));
+            });
+        }, 11000);
+        startServer = false;
+    }
 });
 
 app.post("/room/:roomId/mergeVideo", function (request, response) {
+    console.log('zalypa');
     var proc = ffmpeg();
     for (var i = 0; i < request.body.length; i++) {
         proc.input(__dirname + "/uploads/" + request.body[i]);
@@ -185,3 +236,23 @@ app.post("/room/:roomId/mergeVideo", function (request, response) {
     proc.mergeToFile(__dirname + "/uploads/" + "full--" + request.body[0]);
 });
 
+function mergeVideo(namesOfParts) {
+    var proc = ffmpeg();
+    for (var i = 0; i < namesOfParts.length; i++) {
+        proc.input(__dirname + "/uploads/" + namesOfParts[i]);
+    }
+    proc.on('end', function () {
+    })
+    proc.on('error', function (err) {
+        logger.error('an error happened: ' + err.message);
+    })
+    proc.mergeToFile(__dirname + "/uploads/" + "full--" + namesOfParts[0]);
+}
+
+function checkUid(uid) {
+    listForMarge.forEach(function (entry) {
+        if (entry.uid == uid)
+            valueOf = true;
+    });
+    return valueOf;
+}
