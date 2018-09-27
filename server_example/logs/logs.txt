@@ -12,3 +12,8 @@
 [2018-09-26T21:44:25.305] [INFO] default - Successfully saved message from user_id=792 (C:\Users\Masloy\Desktop\easyrtc\server_example\server.js:151:28)
 [2018-09-26T21:44:26.290] [INFO] default - Successfully saved message from user_id=792 (C:\Users\Masloy\Desktop\easyrtc\server_example\server.js:151:28)
 [2018-09-26T21:44:26.334] [INFO] default - Successfully saved message from user_id=792 (C:\Users\Masloy\Desktop\easyrtc\server_example\server.js:151:28)
+[2018-09-27T10:33:45.783] [INFO] default - success user login with uid=4 his user_id=799 (C:\Users\Masloy\Desktop\easyrtc\server_example\server.js:80:32)
+[2018-09-27T10:33:54.345] [INFO] default - Successfully saved event with id=3 from client id=799 (C:\Users\Masloy\Desktop\easyrtc\server_example\server.js:105:28)
+[2018-09-27T10:34:27.413] [INFO] default - Successfully saved event with id=3 from client id=799 (C:\Users\Masloy\Desktop\easyrtc\server_example\server.js:105:28)
+[2018-09-27T10:35:54.338] [INFO] default - Successfully saved event with id=3 from client id=799 (C:\Users\Masloy\Desktop\easyrtc\server_example\server.js:105:28)
+[2018-09-27T10:36:27.493] [INFO] default - Successfully saved event with id=3 from client id=799 (C:\Users\Masloy\Desktop\easyrtc\server_example\server.js:105:28)

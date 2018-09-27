@@ -260,13 +260,13 @@ function loginSuccess(easyrtcid) {
     }
     enable('otherClients');
     updatePresence();
-    swal({
-        title: "Hello.",
-        allowOutsideClick: false,
-        html: '<div style="+"font-family: Arial, Helvetica, sans-serif;">Wait until the second user connects.</div>',
-        icon: "info",
-        showConfirmButton: false
-    })
+    // swal({
+    //     title: "Hello.",
+    //     allowOutsideClick: false,
+    //     html: '<div style="+"font-family: Arial, Helvetica, sans-serif;">Wait until the second user connects.</div>',
+    //     icon: "info",
+    //     showConfirmButton: false
+    // })
 }
 
 
@@ -521,44 +521,44 @@ function startMyscreen(pointOfStart) {
             position = 'top-end';
             imageUrl = '/materals/arrowLeft.gif'
         }
-        swal({
-            position: position,
-            showConfirmButton: false,
-            allowOutsideClick: false,
-            title: 'You have successfully been connected to user ' + otherusername + '',
-            html: '<div style="font-family: Arial, Helvetica, sans-serif;">Please select the window <b>"WebSearch - Mozilla Firefox"</b> from the drop down menu and allow to share it.</div>',
-            imageUrl: imageUrl,
-            imageWidth: 130,
-            imageHeight: 125,
-            imageAlt: 'Custom image',
-            animation: false
-        });
+        // swal({
+        //     position: position,
+        //     showConfirmButton: false,
+        //     allowOutsideClick: false,
+        //     title: 'You have successfully been connected to user ' + otherusername + '',
+        //     html: '<div style="font-family: Arial, Helvetica, sans-serif;">Please select the window <b>"WebSearch - Mozilla Firefox"</b> from the drop down menu and allow to share it.</div>',
+        //     imageUrl: imageUrl,
+        //     imageWidth: 130,
+        //     imageHeight: 125,
+        //     imageAlt: 'Custom image',
+        //     animation: false
+        // });
     }
     else {
-        swal({
-            type: 'error',
-            title: 'Oops...',
-            showConfirmButton: false,
-            allowOutsideClick: false,
-            html: '<div style="font-family: Arial, Helvetica, sans-serif;">You have chosen the wrong screen! Please select the window <b>"WebSearch - Mozilla Firefox"</b> from the drop down menu and allow to share it.</div>',
-        });
+        // swal({
+        //     type: 'error',
+        //     title: 'Oops...',
+        //     showConfirmButton: false,
+        //     allowOutsideClick: false,
+        //     html: '<div style="font-family: Arial, Helvetica, sans-serif;">You have chosen the wrong screen! Please select the window <b>"WebSearch - Mozilla Firefox"</b> from the drop down menu and allow to share it.</div>',
+        // });
     }
     easyrtc.initDesktopStream(
         function (stream) {
             createLocalVideo(stream, streamName);
-            swal.close();
+            ///swal.close();
             if (otherEasyrtcid) {
                 easyrtc.addStreamToCall(otherEasyrtcid, streamName);
             }
         },
         function (errCode, errText) {
-            swal({
-                type: 'error',
-                title: 'Oops...',
-                showConfirmButton: false,
-                allowOutsideClick: false,
-                html: '<div style="font-family: Arial, Helvetica, sans-serif;">You need to allow your browser to share your screen! Please reload the page and share your screen.</div>',
-            });
+            // swal({
+            //     type: 'error',
+            //     title: 'Oops...',
+            //     showConfirmButton: false,
+            //     allowOutsideClick: false,
+            //     html: '<div style="font-family: Arial, Helvetica, sans-serif;">You need to allow your browser to share your screen! Please reload the page and share your screen.</div>',
+            // });
             easyrtc.showError(errCode, errText);
         },
         streamName);
