@@ -7,33 +7,32 @@ var otherEasyrtcid = null;
 var userId;
 var needToCallOtherUsers;
 var otherusername;
-var localStreamNames = [];
 var localRecorder;
-var streamNamesForMarge = [];
-var localStreamName;
-var onExit = false;
+var streamNamesForMerge = [];
 var currentPart = 0;
+var haveSelfVideo = false;
 
 function initApp() {
     selfEasyrtcid = functions.checkCookie("selfEasyrtcid");
     connect();
-    // window.addEventListener('beforeunload', function (e) {
-    //     localRecorder.stopRecording(postFilesForEndOfStream);
-    // }, false);
-    // window.addEventListener('unload', function (e) {
-    //     localRecorder.stopRecording(postFilesForEndOfStream);
-    // }, false);
-
-    // window.onbeforeunload = function (event) {
-    //     //sessionStorage.setItem('reload', 'true');
-    //     // for (var i = 0; i < localStreamNames.length; i++) {
-    //     //     localRecorder.stopRecording(postFilesForEndOfStream);
-    //     //     easyrtc.closeLocalStream(localStreamNames[i]);
-    //     // }
-    //     var dialogText = 'Dialog text here';
-    //     event.returnValue = dialogText;
-    //     return dialogText;
-    // };
+    window.onunload = function () {
+        easyrtc.disconnect();
+        if (streamNamesForMerge.length >= 1) {
+            let body = {
+                streamNamesForMerge: streamNamesForMerge,
+                myId: parseInt(functions.checkCookie("myId")),
+                eventId: 2
+            };
+            let headers = {
+                type: 'application/json'
+            };
+            let blob = new Blob([JSON.stringify(body)], headers);
+            navigator.sendBeacon('/room/:roomId/mergeVideo', blob);
+        }
+    };
+    window.onbeforeunload = function () {
+        easyrtc.disconnect();
+    }
 }
 
 
@@ -166,7 +165,7 @@ function randomInteger(min, max) {
 function connect() {
     easyrtc.enableDataChannels(true);
     easyrtc.setAutoInitUserMedia(false);
-    //easyrtc.setRoomEntryListener();
+    easyrtc.setRoomEntryListener();
     easyrtc.setDataChannelCloseListener();
     easyrtc.setRoomOccupantListener(RoomOccupantListener);
     easyrtc.setPeerListener(peerListener);
@@ -260,13 +259,13 @@ function loginSuccess(easyrtcid) {
     }
     enable('otherClients');
     updatePresence();
-    // swal({
-    //     title: "Hello.",
-    //     allowOutsideClick: false,
-    //     html: '<div style="+"font-family: Arial, Helvetica, sans-serif;">Wait until the second user connects.</div>',
-    //     icon: "info",
-    //     showConfirmButton: false
-    // })
+    swal({
+        title: "Hello.",
+        allowOutsideClick: false,
+        html: '<div style="+"font-family: Arial, Helvetica, sans-serif;">Wait until the second user connects.</div>',
+        icon: "info",
+        showConfirmButton: false
+    })
 }
 
 
@@ -332,77 +331,43 @@ function createLabelledButton(buttonLabel) {
 
 function addMediaStreamToDiv(divId, stream, streamName, isLocal) {
     var container = document.createElement("div");
-    container.setAttribute("class", "carousel-item gray white-text");
-    container.style.display = "block";
     var formattedName = streamName.replace("(", "<br>").replace(")", "");
     var labelBlock = document.createElement("div");
     labelBlock.style.width = "100px";
     labelBlock.innerHTML = formattedName;
+    labelBlock.style.color = "white";
     container.appendChild(labelBlock);
     var video = document.createElement("video");
     video.setAttribute("class", "responsive-video");
     video.type = "video/webm";
-    video.id="myVideo";
+    video.id = "myVideo";
     video.style.width = screen.width - 100;
     video.style.height = (screen.height / 2) - 100;
-    // var audioTracks = stream.getAudioTracks();
-    // if (audioTracks[0]) {
-    //     audioTracks[0].enabled = false;
-    // }
-    //connection.streamEvents.selectAll('local').mute();
-    
-    video.autoplay = true;
-    // video.onload = function(){
-    //     video.muted = "muted";
-    // }
     video.style.marginBottom = "10px";
     video.style.verticalAlign = "middle";
-    video.setAttribute('controls', true);
-    easyrtc.setVideoObjectSrc(video, stream);
+    video.muted = isLocal;
+    video.controls = true;
     container.appendChild(video);
     document.getElementById(divId).appendChild(container);
-    initializeCarousel(divId);
-    if (divId == "remoteVideos") {
-        labelBlock.style.width = "0px";
-        document.getElementById("remoteVideos").style.height = video.style.height + 25;
-        document.getElementById("remoteVideos").style.width = video.style.width + 25;
-        if (++streamNumbers > 1) {
-            document.getElementById("remoteVideosControlButtons").style.display = "block";
-        }
-    }
+    video.autoplay = true;
+    easyrtc.setVideoObjectSrc(video, stream);
     return labelBlock;
 }
 
 function createLocalVideo(stream, streamName) {
-    createVideoForTestStream(stream)
+    createVideoForTestStream(stream, streamName)
         .then(function () {
-            // return checkVideo()
-            return
+            return checkVideo()
         })
         .then(function () {
-            localStreamNames.push(streamName);
-            localStreamName = streamName;
-            var labelBlock = addMediaStreamToDiv("localVideos", stream, streamName, true);
-            document.getElementById("localVideos").style.height = "500px";
-            var closeButton = createLabelledButton("close");
-            //startRecord(stream);
-            $.post("/event", { user_id: functions.checkCookie("myId"), action_id: 3 });
-            onExit = true;
-            closeButton.onclick = function () {
-                // clearInterval(recordInterval);
-                // localRecorder.stopRecording(postFilesForEndOfStream);
-                easyrtc.closeLocalStream(streamName);
-                initializeCarousel("localVideos");
-                labelBlock.parentNode.parentNode.removeChild(labelBlock.parentNode);
-                if (document.getElementById("localVideos").childElementCount == 0)
-                    document.getElementById("localVideos").style.height = "0px";
-            }
-            // var recordInterval = setInterval(function () {
-            //     localRecorder.stopRecording(postFilesForInterval);
-            // }, 10000);
-            labelBlock.appendChild(closeButton);
+            startRecord(stream);
+            $.post("/event", { myId: parseInt(functions.checkCookie("myId")), eventId: 3 });
+            var recordInterval = setInterval(function () {
+                localRecorder.stopRecording(postFilesForInterval);
+            }, 10000);
         }, function () {
             easyrtc.closeLocalStream(streamName);
+            document.getElementById("myVideo").parentNode.removeChild(document.getElementById("myVideo"));
             startMyscreen(false);
         });
 };
@@ -464,19 +429,13 @@ easyrtc.setStreamAcceptor(function (easyrtcid, stream, streamName) {
 });
 
 easyrtc.setOnStreamClosed(function (easyrtcid, stream, streamName) {
-    var item;
-    while (document.getElementById("remoteBlock" + easyrtcid + streamName) != null) {
-        item = document.getElementById("remoteBlock" + easyrtcid + streamName);
-        item.parentNode.removeChild(item);
-        if (--streamNumbers < 2) {
-            document.getElementById("remoteVideosControlButtons").style.display = "none";
-        }
-    }
-    if (document.getElementById("remoteVideos").childElementCount == 1) {
-        document.getElementById("progress").style.display = "block";
-        document.getElementById("progressMessage").style.display = "block";
-        document.getElementById("remoteVideos").style.height = "0px";
-    }
+    var item = document.getElementById("remoteBlock" + easyrtcid + streamName);
+    item.parentNode.removeChild(item);
+
+    document.getElementById("progress").style.display = "block";
+    document.getElementById("progressMessage").style.display = "block";
+    document.getElementById("remoteVideos").style.height = "0px";
+
 });
 
 
@@ -521,44 +480,44 @@ function startMyscreen(pointOfStart) {
             position = 'top-end';
             imageUrl = '/materals/arrowLeft.gif'
         }
-        // swal({
-        //     position: position,
-        //     showConfirmButton: false,
-        //     allowOutsideClick: false,
-        //     title: 'You have successfully been connected to user ' + otherusername + '',
-        //     html: '<div style="font-family: Arial, Helvetica, sans-serif;">Please select the window <b>"WebSearch - Mozilla Firefox"</b> from the drop down menu and allow to share it.</div>',
-        //     imageUrl: imageUrl,
-        //     imageWidth: 130,
-        //     imageHeight: 125,
-        //     imageAlt: 'Custom image',
-        //     animation: false
-        // });
+        swal({
+            position: position,
+            showConfirmButton: false,
+            allowOutsideClick: false,
+            title: 'You have successfully been connected to user ' + otherusername + '',
+            html: '<div style="font-family: Arial, Helvetica, sans-serif;">Please select the window <b>"WebSearch - Mozilla Firefox"</b> from the drop down menu and allow to share it.</div>',
+            imageUrl: imageUrl,
+            imageWidth: 130,
+            imageHeight: 125,
+            imageAlt: 'Custom image',
+            animation: false
+        });
     }
     else {
-        // swal({
-        //     type: 'error',
-        //     title: 'Oops...',
-        //     showConfirmButton: false,
-        //     allowOutsideClick: false,
-        //     html: '<div style="font-family: Arial, Helvetica, sans-serif;">You have chosen the wrong screen! Please select the window <b>"WebSearch - Mozilla Firefox"</b> from the drop down menu and allow to share it.</div>',
-        // });
+        swal({
+            type: 'error',
+            title: 'Oops...',
+            showConfirmButton: false,
+            allowOutsideClick: false,
+            html: '<div style="font-family: Arial, Helvetica, sans-serif;">You have chosen the wrong screen! Please select the window <b>"WebSearch - Mozilla Firefox"</b> from the drop down menu and allow to share it.</div>',
+        });
     }
     easyrtc.initDesktopStream(
         function (stream) {
             createLocalVideo(stream, streamName);
-            ///swal.close();
+            swal.close();
             if (otherEasyrtcid) {
                 easyrtc.addStreamToCall(otherEasyrtcid, streamName);
             }
         },
         function (errCode, errText) {
-            // swal({
-            //     type: 'error',
-            //     title: 'Oops...',
-            //     showConfirmButton: false,
-            //     allowOutsideClick: false,
-            //     html: '<div style="font-family: Arial, Helvetica, sans-serif;">You need to allow your browser to share your screen! Please reload the page and share your screen.</div>',
-            // });
+            swal({
+                type: 'error',
+                title: 'Oops...',
+                showConfirmButton: false,
+                allowOutsideClick: false,
+                html: '<div style="font-family: Arial, Helvetica, sans-serif;">You need to allow your browser to share your screen! Please reload the page and share your screen.</div>',
+            });
             easyrtc.showError(errCode, errText);
         },
         streamName);
@@ -569,33 +528,34 @@ function startMyscreen(pointOfStart) {
 ////////////////////////////////
 
 
-function mergeSream() {
-    var xhr = new XMLHttpRequest();
-    var json = JSON.stringify(streamNamesForMarge);
-    xhr.open("POST", '/room/:roomId/mergeVideo', false);
-    xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-    xhr.send(json);
-    $.post("/event", { user_id: functions.checkCookie("myId"), action_id: 2 });
-}
+// function mergeSream() {
+//     var xhr = new XMLHttpRequest();
+//     var json = JSON.stringify(streamNamesForMerge);
+//     xhr.open("POST", '/room/:roomId/mergeVideo', false);
+//     xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+//     xhr.send(json);
+//     $.post("/event", { user_id: functions.checkCookie("myId"), action_id: 2 });
+// }
 
 function postFilesForInterval() {
     postFiles();
     localRecorder.startRecording();
 }
-function postFilesForEndOfStream() {
-    postFiles();
-    mergeSream();
-}
+
+// function postFilesForEndOfStream() {
+//     postFiles();
+//     mergeSream();
+// }
+
 function postFiles() {
     var blob = localRecorder.getBlob();
-    var fileName = functions.checkCookie("uid") + "," + ++currentPart;
-    streamNamesForMarge.push(fileName);
+    var fileName = "uid=" + functions.checkCookie("uid") + "--time=" + new Date().toLocaleString().split(":").join(".") + '.webm';
+    streamNamesForMerge.push(fileName);
     var file = new File([blob], fileName, {
         type: 'video/webm',
         name: fileName
     });
     xhr("/room/:roomId/saveRecord", file);
-
 }
 
 function xhr(url, data) {
@@ -617,63 +577,6 @@ function startRecord(stream) {
     });
     localRecorder.startRecording();
 };
-
-
-// function getPixelData() {
-//     var frame = captureVideoFrame('localV', 'png');
-//     var img = new Image();
-//     var cvs = document.createElement('canvas');
-//     var ctx = cvs.getContext("2d");
-//     var idt;
-//     var pix;
-//     var myPromise = new Promise((resolve, reject) => {
-//         img.onload = function () {
-//             resolve();
-//         }
-//     });
-//     myPromise.then(function () {
-//         var countRed = 0;
-//         var countGrey = 0;
-//         cvs.width = img.width; cvs.height = img.height;
-//         console.log(img.width + "  " + img.height);
-//         ctx.drawImage(img, 0, 0, cvs.width, cvs.height);
-//         idt = ctx.getImageData(0, 0, cvs.width, cvs.height);
-//         pix = idt.data;
-//         for (var i = 0, n = pix.length; i < n; i += 4) {
-//             if (pix[i] > 250 && pix[i + 1] > 87 && pix[i + 1] < 95 && pix[i + 2] > 87 && pix[i + 2] < 95) {
-//                 ++countRed;
-//                 continue;
-//             }
-//             if (pix[i] > 68 && pix[i] < 72 && pix[i + 1] > 87 && pix[i + 1] < 93 && pix[i + 2] > 90 && pix[i + 2] < 103) {
-//                 ++countGrey;
-//                 continue;
-//             }
-//         }
-//         if (window.screen.width >= 1920 && window.screen.height >= 1080) {
-//             if (countRed > 1400 && countGrey > 1600) {
-//                 console.log(2);
-//             }
-//         }
-//         else {
-//             if (window.screen.width >= 1360 && window.screen.width < 1920 && window.screen.height >= 720 && window.screen.height < 1080) {
-//                 if (countRed > 1400 && countGrey > 1600) {
-//                     console.log(33);
-//                     resolve();
-//                 }
-//                 else {
-//                     swal({
-//                         type: 'error',
-//                         title: 'Oops...',
-//                         showConfirmButton: false,
-//                         allowOutsideClick: false,
-//                         html: '<div style="font-family: Arial, Helvetica, sans-serif;">Something went wrong. Please reload the page.</div>'
-//                     });
-//                 }
-//             }
-//         }
-//     }, function (err) { console.log(err); });
-//     img.setAttribute('src', frame.dataUri);
-// }
 
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
@@ -718,16 +621,29 @@ function startRecord(stream) {
     };
 }));
 
-function createVideoForTestStream(stream) {
+function createVideoForTestStream(stream, streamName) {
     return new Promise((resolve, reject) => {
+        var container = document.createElement("div");
+        var formattedName = streamName.replace("(", "<br>").replace(")", "");
+        var labelBlock = document.createElement("div");
+        labelBlock.style.width = "100px";
+        labelBlock.style.color = "white";
+        labelBlock.innerHTML = formattedName;
+        container.appendChild(labelBlock);
         var video = document.createElement("video");
         video.setAttribute("class", "responsive-video");
-        video.id = "testStream";
-        video.setAttribute("class", "responsive-video");
         video.type = "video/webm";
-        video.style.display = "none";
+        video.id = "myVideo";
+        video.style.width = screen.width - 100;
+        video.style.height = (screen.height / 2) - 100;
+        video.style.marginBottom = "10px";
+        video.style.verticalAlign = "middle";
+        video.muted = true;
+        video.controls = true;
+        video.autoplay = true;
         video.oncanplaythrough = function () {
-            document.getElementById("body").appendChild(video);
+            container.appendChild(video);
+            document.getElementById("localVideos").appendChild(container);
             resolve();
 
         }
@@ -737,7 +653,7 @@ function createVideoForTestStream(stream) {
 }
 function checkVideo() {
     return new Promise((resolve, reject) => {
-        var frame = captureVideoFrame('testStream', 'png');
+        var frame = captureVideoFrame('myVideo', 'png');
         var img = new Image();
         var cvs = document.createElement('canvas');
         var ctx = cvs.getContext("2d");
@@ -749,11 +665,11 @@ function checkVideo() {
             idt = ctx.getImageData(0, 0, cvs.width, cvs.height);
             pix = idt.data;
             const code = jsQR(pix, cvs.width, cvs.height);
-            document.getElementById("testStream").parentNode.removeChild(document.getElementById("testStream"));
-            if (code) {
-                console.log("pairSearch" + functions.checkCookie("uid"));
-                if (code.data == "pairSearch" + functions.checkCookie("uid"))
+            if (code != null) {
+                console.log(code);
+               if (code.data == "pairSearch" + functions.checkCookie("uid")) {
                     resolve();
+               }
             }
             else {
                 reject();

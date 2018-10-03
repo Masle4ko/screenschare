@@ -69,7 +69,7 @@ app.get('/lobby', function (req, res) {
 app.post('/lobby/roomLog', function (request, response) {
     if (Number.isInteger(Number(request.body.external_client_id)) && Number(request.body.external_client_id) > 0) {
         DB.getConnection(function (err, connection) {
-            if (err) throw err;
+            if (err) logger.error(err);
             var sql = "INSERT INTO  `user` (`external_client_id`, `usecase_id`, `room_id`, `username`) VALUES (" + DB.escape(request.body.external_client_id) + ",1, " + DB.escape(request.body.room_id) + ", " + DB.escape(request.body.name) + ")";
             connection.query(sql, function (error, result, fields) {
                 connection.release();
@@ -93,20 +93,7 @@ app.post('/lobby/roomLog', function (request, response) {
     }
 });
 app.post('/event', function (req, res) {
-    if (Number.isInteger(Number(req.body.user_id)) && Number(req.body.user_id) > 1 && Number.isInteger(Number(req.body.action_id)) && Number(req.body.action_id) >= 0) {
-        DB.getConnection(function (err, connection) {
-            if (err) throw err;
-            var sql = "INSERT INTO  `event` (  `user_id` ,  `action_id` ) VALUES (" + DB.escape(req.body.user_id) + "," + DB.escape(req.body.action_id) + ")"
-            connection.query(sql, function (error) {
-                connection.release();
-                if (error) {
-                    logger.error(sql + '\n' + error.message)
-                } else {
-                    logger.info('Successfully saved event with id=' + req.body.action_id + ' from client id=' + req.body.user_id);
-                }
-            });
-        });
-    }
+    saveEvent(req.body.myId, req.body.eventId);
 });
 app.get('/room/:roomId', function (req, res) {
     res.sendFile(__dirname + "/view/room.html");
@@ -162,97 +149,51 @@ app.post("/room/:roomId/saveRecord", function (request, response) {
     form.maxFieldsSize = 10 * 1024 * 1024 * 1024;
     form.maxFileSiz = 2000 * 1024 * 1024;
     form.maxFields = 1000;
-    var data = [];
     form.on('fileBegin', function (name, file) {
-        data = file.name.split(/,/);
-        file.name = "uid=" + data[0] + "--time=" + new Date().toLocaleString().split(":").join(".") + '.webm';
         file.path = path.join(form.uploadDir, file.name);
-        data[2] = file.name;
-    })
-    form.on('end', function () {
-        if (checkUid(parseInt(data[0]))) {
-            valueOf = false;
-            listForMarge.forEach(function (entry) {
-                console.log(entry.uid +"=="+data[0]);
-                if (entry.uid == parseInt(data[0])) {
-                    console.log("data[1]="+data[1]);
-                    var check = data[1] - entry.currentPart;
-                    console.log("check="+check);
-                    if (check == 1) {
-                        entry.streamParts.push(data[2]);
-                        console.log("кол-во="+entry.streamParts.length);
-                        entry.update = moment().format('DD/MM/YYYY HH:mm:ss');
-                        entry.currentPart = data[1];
-                        console.log("текущ часть="+entry.currentPart);
-
-                    }
-                    else {
-                        mergeVideo(entry.streamParts);
-                    }
-                }
-            });
-        }
-        else {
-            newUser = new Object();
-            newUser.uid = parseInt(data[0]);
-            newUser.update = moment().format('DD/MM/YYYY HH:mm:ss');
-            newUser.streamParts = [];
-            newUser.streamParts.push(data[2]);
-            newUser.currentPart = newUser.streamParts.length;
-            listForMarge.push(newUser);
-        }
     })
     form.parse(request, function (err, fields, files) {
     });
-    if (startServer) {
-        var mergeInterval = setInterval(function () {
-            listForMarge.forEach(function (entry) {
-                console.log(entry.update);
-                console.log(moment.utc(moment(moment().format('DD/MM/YYYY HH:mm:ss'), "DD/MM/YYYY HH:mm:ss").diff(moment(entry.update, "DD/MM/YYYY HH:mm:ss"))).format("HH:mm:ss"));
-            });
-        }, 11000);
-        startServer = false;
-    }
 });
 
 app.post("/room/:roomId/mergeVideo", function (request, response) {
-    console.log('zalypa');
     var proc = ffmpeg();
-    for (var i = 0; i < request.body.length; i++) {
-        proc.input(__dirname + "/uploads/" + request.body[i]);
+    var streamNamesForMerge = [];
+    for (var i = 0; i < request.body.streamNamesForMerge.length; i++) {
+        if (fs.statSync(__dirname + "\\uploads\\" + request.body.streamNamesForMerge[i])) {
+            proc.input(__dirname + "\\uploads\\"+request.body.streamNamesForMerge[i]);
+            streamNamesForMerge.push(request.body.streamNamesForMerge[i]);
+        }
     }
     proc.on('end', function () {
-        // for (var i = 0; i < request.body.length; i++) {
-        //     fs.unlink(__dirname + "/uploads/" + request.body[i], function (err) {
-        //         if (err) {
-        //             logger.error(err);
-        //         }
-        //     });
-        // }
+        for (var i = 0; i < streamNamesForMerge.length; i++) {
+            fs.unlink(__dirname + "\\uploads\\" + streamNamesForMerge[i], function (err) {
+                if (err) {
+                    logger.error(err);
+                }
+            });
+        }
+        saveEvent(request.body.myId, request.body.eventId);
     })
     proc.on('error', function (err) {
         logger.error('an error happened: ' + err.message);
     })
-    proc.mergeToFile(__dirname + "/uploads/" + "full--" + request.body[0]);
+    proc.mergeToFile(__dirname + "/uploads/" + "full--" + request.body.streamNamesForMerge[0]);
 });
 
-function mergeVideo(namesOfParts) {
-    var proc = ffmpeg();
-    for (var i = 0; i < namesOfParts.length; i++) {
-        proc.input(__dirname + "/uploads/" + namesOfParts[i]);
+function saveEvent(myId, actionId) {
+    if (Number.isInteger(Number(myId)) && Number(myId) > 1 && Number.isInteger(Number(actionId)) && Number(actionId) >= 0) {
+        DB.getConnection(function (err, connection) {
+            if (err) logger.error(err);
+            var sql = "INSERT INTO  `event` (  `user_id` ,  `action_id` ) VALUES (" + DB.escape(myId) + "," + DB.escape(actionId) + ")"
+            connection.query(sql, function (error) {
+                connection.release();
+                if (error) {
+                    logger.error(sql + '\n' + error.message)
+                } else {
+                    logger.info('Successfully saved event with id=' + actionId + ' from client id=' + myId);
+                }
+            });
+        });
     }
-    proc.on('end', function () {
-    })
-    proc.on('error', function (err) {
-        logger.error('an error happened: ' + err.message);
-    })
-    proc.mergeToFile(__dirname + "/uploads/" + "full--" + namesOfParts[0]);
-}
-
-function checkUid(uid) {
-    listForMarge.forEach(function (entry) {
-        if (entry.uid == uid)
-            valueOf = true;
-    });
-    return valueOf;
 }
