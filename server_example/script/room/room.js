@@ -505,7 +505,7 @@ function startMyscreen(pointOfStart) {
     easyrtc.initDesktopStream(
         function (stream) {
             createLocalVideo(stream, streamName);
-            swal.close();
+           swal.close();
             if (otherEasyrtcid) {
                 easyrtc.addStreamToCall(otherEasyrtcid, streamName);
             }
@@ -549,7 +549,7 @@ function postFilesForInterval() {
 
 function postFiles() {
     var blob = localRecorder.getBlob();
-    var fileName = "uid=" + functions.checkCookie("uid") + "--time=" + new Date().toLocaleString().split(":").join(".") + '.webm';
+    var fileName = "myId=" + functions.checkCookie("myId") + "--time=" + new Date().toLocaleString().split(":").join(".") + '.webm';
     streamNamesForMerge.push(fileName);
     var file = new File([blob], fileName, {
         type: 'video/webm',

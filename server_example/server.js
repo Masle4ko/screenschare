@@ -32,10 +32,9 @@ app.use(express.static(__dirname + '/script'));
 app.use(express.static(__dirname + '/logs'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-
-var listForMarge = [];
+var timers = new Array();
+var streamNamesForMerge = new Array();
 startServer = true;
-var valueOf;
 
 log4js.configure({
     appenders: {
@@ -149,36 +148,30 @@ app.post("/room/:roomId/saveRecord", function (request, response) {
     form.maxFieldsSize = 10 * 1024 * 1024 * 1024;
     form.maxFileSiz = 2000 * 1024 * 1024;
     form.maxFields = 1000;
+    var fileName;
     form.on('fileBegin', function (name, file) {
         file.path = path.join(form.uploadDir, file.name);
+        fileName = file.name;
     })
     form.parse(request, function (err, fields, files) {
+    });
+    form.on('end', function () {
+        var myId = fileName.match(/\d+/)[0];
+        console.log(streamNamesForMerge[myId]);
+        if (streamNamesForMerge[myId] == null)
+            streamNamesForMerge[myId] = new Array();
+        streamNamesForMerge[myId].push(fileName);
+        var timer = timers[myId];
+        if (timer != null)
+            clearTimeout(timer);
+        timer = setTimeout(function(){videoMerge(streamNamesForMerge[myId], myId, 2)}, 120 * 1000);
+
+        timers[myId] = timer;
     });
 });
 
 app.post("/room/:roomId/mergeVideo", function (request, response) {
-    var proc = ffmpeg();
-    var streamNamesForMerge = [];
-    for (var i = 0; i < request.body.streamNamesForMerge.length; i++) {
-        if (fs.statSync(__dirname + "\\uploads\\" + request.body.streamNamesForMerge[i])) {
-            proc.input(__dirname + "\\uploads\\"+request.body.streamNamesForMerge[i]);
-            streamNamesForMerge.push(request.body.streamNamesForMerge[i]);
-        }
-    }
-    proc.on('end', function () {
-        for (var i = 0; i < streamNamesForMerge.length; i++) {
-            fs.unlink(__dirname + "\\uploads\\" + streamNamesForMerge[i], function (err) {
-                if (err) {
-                    logger.error(err);
-                }
-            });
-        }
-        saveEvent(request.body.myId, request.body.eventId);
-    })
-    proc.on('error', function (err) {
-        logger.error('an error happened: ' + err.message);
-    })
-    proc.mergeToFile(__dirname + "/uploads/" + "full--" + request.body.streamNamesForMerge[0]);
+    videoMerge(request.body.streamNamesForMerge, request.body.myId, request.body.eventId);
 });
 
 function saveEvent(myId, actionId) {
@@ -196,4 +189,32 @@ function saveEvent(myId, actionId) {
             });
         });
     }
+}
+
+function videoMerge(streamNamesForMergefromRequest, myId, eventId) {
+    var timer = timers[myId];
+    if (timer != null)
+        clearTimeout(timer);
+    var proc = ffmpeg();
+    var streamNamesForMerge = [];
+    for (var i = 0; i < streamNamesForMergefromRequest.length; i++) {
+        if (fs.statSync(__dirname + "\\uploads\\" + streamNamesForMergefromRequest[i])) {
+            proc.input(__dirname + "\\uploads\\" + streamNamesForMergefromRequest[i]);
+            streamNamesForMerge.push(streamNamesForMergefromRequest[i]);
+        }
+    }
+    proc.on('end', function () {
+        for (var i = 0; i < streamNamesForMerge.length; i++) {
+            fs.unlink(__dirname + "\\uploads\\" + streamNamesForMerge[i], function (err) {
+                if (err) {
+                    logger.error(err);
+                }
+            });
+        }
+        saveEvent(myId, eventId);
+    })
+    proc.on('error', function (err) {
+        logger.error('an error happened: ' + err.message);
+    })
+    proc.mergeToFile(__dirname + "/uploads/" + "full--" + streamNamesForMergefromRequest[0]);
 }
