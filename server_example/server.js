@@ -4,7 +4,6 @@ var http = require("http");
 var path = require('path');
 var fs = require('fs');
 //var request = require('request');
-//var uploadDir = __dirname;
 var express = require("express");
 //var serveStatic = require('serve-static');
 var socketIo = require("socket.io");
@@ -157,7 +156,6 @@ app.post("/room/:roomId/saveRecord", function (request, response) {
     });
     form.on('end', function () {
         var myId = fileName.match(/\d+/)[0];
-        console.log(streamNamesForMerge[myId]);
         if (streamNamesForMerge[myId] == null)
             streamNamesForMerge[myId] = new Array();
         streamNamesForMerge[myId].push(fileName);
@@ -198,14 +196,14 @@ function videoMerge(streamNamesForMergefromRequest, myId, eventId) {
     var proc = ffmpeg();
     var streamNamesForMerge = [];
     for (var i = 0; i < streamNamesForMergefromRequest.length; i++) {
-        if (fs.statSync(__dirname + "\\uploads\\" + streamNamesForMergefromRequest[i])) {
-            proc.input(__dirname + "\\uploads\\" + streamNamesForMergefromRequest[i]);
+        if (fs.statSync(__dirname + "/uploads/" + streamNamesForMergefromRequest[i])) {
+            proc.input(__dirname + "/uploads/" + streamNamesForMergefromRequest[i]);
             streamNamesForMerge.push(streamNamesForMergefromRequest[i]);
         }
     }
     proc.on('end', function () {
         for (var i = 0; i < streamNamesForMerge.length; i++) {
-            fs.unlink(__dirname + "\\uploads\\" + streamNamesForMerge[i], function (err) {
+            fs.unlink(__dirname + "/uploads/" + streamNamesForMerge[i], function (err) {
                 if (err) {
                     logger.error(err);
                 }

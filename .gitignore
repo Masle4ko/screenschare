@@ -182,3 +182,9 @@ desktopCapture
 /api/labs/desktopCapture
 test/reports/
 bower_components/
+
+# exclude everything
+server_example/uploads/*
+
+# exception to the rule
+!somefolder/.test.txt

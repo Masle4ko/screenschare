@@ -11,6 +11,7 @@ var localRecorder;
 var streamNamesForMerge = [];
 var currentPart = 0;
 var haveSelfVideo = false;
+var myStreamName;
 
 function initApp() {
     selfEasyrtcid = functions.checkCookie("selfEasyrtcid");
@@ -355,11 +356,13 @@ function addMediaStreamToDiv(divId, stream, streamName, isLocal) {
 }
 
 function createLocalVideo(stream, streamName) {
+
     createVideoForTestStream(stream, streamName)
         .then(function () {
             return checkVideo()
         })
         .then(function () {
+            myStreamName = streamName;
             startRecord(stream);
             $.post("/event", { myId: parseInt(functions.checkCookie("myId")), eventId: 3 });
             var recordInterval = setInterval(function () {
@@ -429,6 +432,7 @@ easyrtc.setStreamAcceptor(function (easyrtcid, stream, streamName) {
 });
 
 easyrtc.setOnStreamClosed(function (easyrtcid, stream, streamName) {
+    //easyrtc.closeLocalStream(myStreamName);
     var item = document.getElementById("remoteBlock" + easyrtcid + streamName);
     item.parentNode.removeChild(item);
 
