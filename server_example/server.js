@@ -99,6 +99,17 @@ app.get('/room/:roomId', function (req, res) {
 
 var webServer = http.createServer(app).listen(8000);
 easyrtc.setOption("roomDefaultEnable", false);
+
+var myIceServers = [
+    {"url":"stun:numb.viagenie.ca"},
+    {
+      "url":"turn:numb.viagenie.ca",
+      "username":" kemkes@kbs.uni-hannover.de",
+      "credential":"  jaba6rot7"
+    }
+  ];
+
+  easyrtc.setOption("appIceServers", myIceServers);
 var socketServer = socketIo.listen(webServer, { "log level": 1 });
 // easyrtc.setOption("logLevel", "debug");
 easyrtc.events.on("easyrtcAuth", function (socket, easyrtcid, msg, socketCallback, callback) {
