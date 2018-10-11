@@ -101,15 +101,15 @@ var webServer = http.createServer(app).listen(8000);
 easyrtc.setOption("roomDefaultEnable", false);
 
 var myIceServers = [
-    {"url":"stun:numb.viagenie.ca"},
+    { "url": "stun:numb.viagenie.ca:3478" },
     {
-      "url":"turn:numb.viagenie.ca",
-      "username":" kemkes@kbs.uni-hannover.de",
-      "credential":"  jaba6rot7"
+        "url": "turn:numb.viagenie.ca:3478",
+        "username": "kemkes@kbs.uni-hannover.de",
+        "credential": "jaba6rot7"
     }
-  ];
+];
 
-  easyrtc.setOption("appIceServers", myIceServers);
+easyrtc.setOption("appIceServers", myIceServers);
 var socketServer = socketIo.listen(webServer, { "log level": 1 });
 // easyrtc.setOption("logLevel", "debug");
 easyrtc.events.on("easyrtcAuth", function (socket, easyrtcid, msg, socketCallback, callback) {
@@ -173,7 +173,7 @@ app.post("/room/:roomId/saveRecord", function (request, response) {
         var timer = timers[myId];
         if (timer != null)
             clearTimeout(timer);
-        timer = setTimeout(function(){videoMerge(streamNamesForMerge[myId], myId, 2)}, 120 * 1000);
+        timer = setTimeout(function () { videoMerge(streamNamesForMerge[myId], myId, 2) }, 120 * 1000);
 
         timers[myId] = timer;
     });
