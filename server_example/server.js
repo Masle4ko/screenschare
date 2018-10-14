@@ -65,7 +65,7 @@ app.get('/lobby', function (req, res) {
     res.sendFile(__dirname + "/view/lobby.html");
 });
 app.post('/lobby/roomLog', function (request, response) {
-    if (Number.isInteger(Number(request.body.external_client_id)) && Number(request.body.external_client_id) > 0) {
+    if (request.body.external_client_id !=null) {
         DB.getConnection(function (err, connection) {
             if (err) logger.error(err);
             var sql = "INSERT INTO  `user` (`external_client_id`, `usecase_id`, `room_id`, `username`) VALUES (" + DB.escape(request.body.external_client_id) + ",1, " + DB.escape(request.body.room_id) + ", " + DB.escape(request.body.name) + ")";
@@ -101,9 +101,9 @@ var webServer = http.createServer(app).listen(8000);
 easyrtc.setOption("roomDefaultEnable", false);
 
 var myIceServers = [
-    { "url": "stun:numb.viagenie.ca:3478" },
+    { "urls": "stun:numb.viagenie.ca:3478" },
     {
-        "url": "turn:numb.viagenie.ca:3478",
+        "urls": "turn:numb.viagenie.ca:3478?transport=tcp",
         "username": "kemkes@kbs.uni-hannover.de",
         "credential": "jaba6rot7"
     }

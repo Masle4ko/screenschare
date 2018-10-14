@@ -12,6 +12,7 @@ var streamNamesForMerge = [];
 var currentPart = 0;
 var haveSelfVideo = false;
 var myStreamName;
+var firstCon = true;
 
 function initApp() {
     selfEasyrtcid = functions.checkCookie("selfEasyrtcid");
@@ -44,25 +45,27 @@ function addToConversation(who, msgType, content, targeting) {
     if (!content) {
         content = "**no body**";
     }
-    content = content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    content = content.replace(/\n/g, '<br />');
-    var targetingStr = "";
-    if (targeting) {
-        if (targeting.targetEasyrtcid) {
-            targetingStr += "user=" + targeting.targetEasyrtcid;
+    if (typeof (content) == "string") {
+        content = content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        content = content.replace(/\n/g, '<br />');
+        var targetingStr = "";
+        if (targeting) {
+            if (targeting.targetEasyrtcid) {
+                targetingStr += "user=" + targeting.targetEasyrtcid;
+            }
+            if (targeting.targetRoom) {
+                targetingStr += " room=" + targeting.targetRoom;
+            }
+            if (targeting.targetGroup) {
+                targetingStr += " group=" + targeting.targetGroup;
+            }
         }
-        if (targeting.targetRoom) {
-            targetingStr += " room=" + targeting.targetRoom;
-        }
-        if (targeting.targetGroup) {
-            targetingStr += " group=" + targeting.targetGroup;
-        }
+        if (who != "Me")
+            who = otherusername;
+        document.getElementById('conversation').innerHTML +=
+            new Date().toLocaleTimeString() + " <b>" + who + ":</b>&nbsp;" + content + "<br />";
+        updateScroll();
     }
-    if (who != "Me")
-        who = otherusername;
-    document.getElementById('conversation').innerHTML +=
-        new Date().toLocaleTimeString() + " <b>" + who + ":</b>&nbsp;" + content + "<br />";
-    updateScroll();
 }
 
 function updateScroll() {
@@ -260,13 +263,16 @@ function loginSuccess(easyrtcid) {
     }
     enable('otherClients');
     updatePresence();
-    swal({
-        title: "Hello.",
-        allowOutsideClick: false,
-        html: '<div style="+"font-family: Arial, Helvetica, sans-serif;">Wait until the second user connects.</div>',
-        icon: "info",
-        showConfirmButton: false
-    })
+    if (firstCon) {
+        swal({
+            title: "Hello.",
+            allowOutsideClick: false,
+            html: '<div style="+"font-family: Arial, Helvetica, sans-serif;">Wait until the second user connects.</div>',
+            icon: "info",
+            showConfirmButton: false
+        })
+        firstCon = false;
+    }
 }
 
 
@@ -509,7 +515,7 @@ function startMyscreen(pointOfStart) {
     easyrtc.initDesktopStream(
         function (stream) {
             createLocalVideo(stream, streamName);
-           swal.close();
+            swal.close();
             if (otherEasyrtcid) {
                 easyrtc.addStreamToCall(otherEasyrtcid, streamName);
             }
@@ -671,9 +677,9 @@ function checkVideo() {
             const code = jsQR(pix, cvs.width, cvs.height);
             if (code != null) {
                 console.log(code);
-               if (code.data == "pairSearch" + functions.checkCookie("uid")) {
+                if (code.data == "pairSearch" + functions.checkCookie("uid")) {
                     resolve();
-               }
+                }
             }
             else {
                 reject();

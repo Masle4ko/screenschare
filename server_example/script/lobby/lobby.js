@@ -48,7 +48,7 @@ function loginSuccess(easyrtcid) {
         functions.setCookie("username", username)
     }
     var uid = getUrlParam("uid");
-    if (Number.isInteger(Number(uid))) {
+    if (uid != null) {
         xhr("/lobby/roomLog", JSON.stringify({ external_client_id: uid, room_id: functions.checkCookie("selfEasyrtcid"), name: username }), function (responseText) {
             if (Number.isInteger(Number(JSON.parse(responseText).result))) {
                 functions.setCookie("uid", uid);
