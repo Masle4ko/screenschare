@@ -104,13 +104,8 @@ var myIceServers = [
     { "urls": "stun.l.google.com:19302" },
     {
         "urls": "turn:hermes.kbs.uni-hannover.de:3478",
-        "username": "ninefingers",
-        "credential": "0xbc807ee29df3c9ffa736523fb2c4e8ee"
-    },
-    {
-        "urls": "turn:hermes.kbs.uni-hannover.de:3478?transport=tcp",
-        "username": "ninefingers",
-        "credential": "0xbc807ee29df3c9ffa736523fb2c4e8ee"
+        "username": "firsttest",
+        "credential": "unsicherergehtesnicht"
     }
 ];
 
