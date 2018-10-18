@@ -101,9 +101,15 @@ var webServer = http.createServer(app).listen(8000);
 easyrtc.setOption("roomDefaultEnable", false);
 
 var myIceServers = [
-    { "urls": "stun.l.google.com:19302?transport=udp" },
+    { "urls": "stun:stun.l.google.com:19302" },
     {
         "urls": "turn:hermes.kbs.uni-hannover.de:3478",
+        "username": "firsttest",
+        "credential": "unsicherergehtesnicht",
+        "credentialType": "password"
+    },
+    {
+        "urls": "turn:hermes.kbs.uni-hannover.de:3478?transport=tcp",
         "username": "firsttest",
         "credential": "unsicherergehtesnicht",
         "credentialType": "password"
