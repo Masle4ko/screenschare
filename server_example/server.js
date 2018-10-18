@@ -101,11 +101,16 @@ var webServer = http.createServer(app).listen(8000);
 easyrtc.setOption("roomDefaultEnable", false);
 
 var myIceServers = [
-    { "urls": "stun:numb.viagenie.ca:3478" },
+    { "urls": "stun.l.google.com:19302" },
     {
-        "urls": "turn:numb.viagenie.ca:3478?transport=tcp",
-        "username": "kemkes@kbs.uni-hannover.de",
-        "credential": "jaba6rot7"
+        "urls": "turn:hermes.kbs.uni-hannover.de:3478",
+        "username": "ninefingers",
+        "credential": "youhavetoberealistic"
+    },
+    {
+        "urls": "turn:hermes.kbs.uni-hannover.de:3478?transport=tcp",
+        "username": "ninefingers",
+        "credential": "youhavetoberealistic"
     }
 ];
 
