@@ -18,21 +18,21 @@ function initApp() {
 
 function refreshRoomList(easyrtcid) {
     easyrtc.getRoomList(function (roomList) {
-        var iscon = false;
+
         for (var roomName in roomList) {
             if (roomList[roomName].numberClients < 2) {
                 functions.setCookie("selfEasyrtcid", roomName);
                 windowOpen("http://demo5.kbs.uni-hannover.de/pairsearch/?uid=" + functions.checkCookie("uid") + "", "search", 0, 0, screen.width / 2, screen.height);
                 windowOpen("/room/" + roomName + "", "room", 0, screen.height, screen.width / 2, screen.height);
-                iscon = true;
+                return;
             }
         }
-        if (!iscon) {
-            functions.setCookie("selfEasyrtcid", easyrtcid);
-            functions.setCookie("roomCreator", true);
-            windowOpen("http://demo5.kbs.uni-hannover.de/pairsearch/?uid=" + functions.checkCookie("uid") + "", "search", 0, 0, screen.width / 2, screen.height);
-            windowOpen("/room/" + easyrtcid + "", "room", 0, screen.height, screen.width / 2, screen.height);
-        }
+
+        functions.setCookie("selfEasyrtcid", easyrtcid);
+        functions.setCookie("roomCreator", true);
+        windowOpen("http://demo5.kbs.uni-hannover.de/pairsearch/?uid=" + functions.checkCookie("uid") + "", "search", 0, 0, screen.width / 2, screen.height);
+        windowOpen("/room/" + easyrtcid + "", "room", 0, screen.height, screen.width / 2, screen.height);
+
     }, null);
 }
 

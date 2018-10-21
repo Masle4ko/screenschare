@@ -103,12 +103,6 @@ easyrtc.setOption("roomDefaultEnable", false);
 var myIceServers = [
     { "urls": "stun:stun.l.google.com:19302" },
     {
-        "urls": "turn:hermes.kbs.uni-hannover.de:3478",
-        "username": "firsttest",
-        "credential": "unsicherergehtesnicht",
-        "credentialType": "password"
-    },
-    {
         "urls": "turn:hermes.kbs.uni-hannover.de:3478?transport=tcp",
         "username": "firsttest",
         "credential": "unsicherergehtesnicht",
@@ -118,7 +112,7 @@ var myIceServers = [
 
 easyrtc.setOption("appIceServers", myIceServers);
 var socketServer = socketIo.listen(webServer, { "log level": 1 });
- easyrtc.setOption("logLevel", "debug");
+ //easyrtc.setOption("logLevel", "debug");
 easyrtc.events.on("easyrtcAuth", function (socket, easyrtcid, msg, socketCallback, callback) {
     easyrtc.events.defaultListeners.easyrtcAuth(socket, easyrtcid, msg, socketCallback, function (err, connectionObj) {
         if (err || !msg.msgData || !msg.msgData.credential || !connectionObj) {

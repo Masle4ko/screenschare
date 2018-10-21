@@ -583,7 +583,7 @@ function xhr(url, data) {
 
 function startRecord(stream) {
     localRecorder = RecordRTC(stream, {
-        type: 'video'
+        disableLogs: true
     });
     localRecorder.startRecording();
 };
