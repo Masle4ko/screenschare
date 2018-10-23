@@ -33,8 +33,14 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 var timers = new Array();
 var streamNamesForMerge = new Array();
-startServer = true;
+var AsyncLock = require('async-lock');
+var lock = new AsyncLock();
+const EventEmitter = require('events');
 
+class MyEmitter extends EventEmitter { }
+const myEmitter = new MyEmitter();
+
+myEmitter.emit('event');
 log4js.configure({
     appenders: {
         consoleAppender: { type: 'console', format: "(@file:@line:@column)" },
@@ -65,7 +71,7 @@ app.get('/lobby', function (req, res) {
     res.sendFile(__dirname + "/view/lobby.html");
 });
 app.post('/lobby/roomLog', function (request, response) {
-    if (request.body.external_client_id !=null) {
+    if (request.body.external_client_id != null) {
         DB.getConnection(function (err, connection) {
             if (err) logger.error(err);
             var sql = "INSERT INTO  `user` (`external_client_id`, `usecase_id`, `room_id`, `username`) VALUES (" + DB.escape(request.body.external_client_id) + ",1, " + DB.escape(request.body.room_id) + ", " + DB.escape(request.body.name) + ")";
@@ -103,6 +109,12 @@ easyrtc.setOption("roomDefaultEnable", false);
 var myIceServers = [
     { "urls": "stun:stun.l.google.com:19302" },
     {
+        "urls": "turn:hermes.kbs.uni-hannover.de:3478",
+        "username": "firsttest",
+        "credential": "unsicherergehtesnicht",
+        "credentialType": "password"
+    },
+    {
         "urls": "turn:hermes.kbs.uni-hannover.de:3478?transport=tcp",
         "username": "firsttest",
         "credential": "unsicherergehtesnicht",
@@ -112,7 +124,7 @@ var myIceServers = [
 
 easyrtc.setOption("appIceServers", myIceServers);
 var socketServer = socketIo.listen(webServer, { "log level": 1 });
- //easyrtc.setOption("logLevel", "debug");
+//easyrtc.setOption("logLevel", "debug");
 easyrtc.events.on("easyrtcAuth", function (socket, easyrtcid, msg, socketCallback, callback) {
     easyrtc.events.defaultListeners.easyrtcAuth(socket, easyrtcid, msg, socketCallback, function (err, connectionObj) {
         if (err || !msg.msgData || !msg.msgData.credential || !connectionObj) {
@@ -124,6 +136,32 @@ easyrtc.events.on("easyrtcAuth", function (socket, easyrtcid, msg, socketCallbac
         console.log("[" + easyrtcid + "] Credential saved!", connectionObj.getFieldValueSync("credential"));
         callback(err, connectionObj);
     });
+});
+
+easyrtc.events.on("msgTypeGetRoomList", function (connectionObj, socketCallback, next) {
+    var easyrtcid = connectionObj.getEasyrtcid();
+    var appObj = connectionObj.getApp();
+    connectionObj.generateRoomList(
+        function (err, roomList) {
+            if (err) {
+                connectionObj.util.sendSocketCallbackMsg(easyrtcid, socketCallback, connectionObj.util.getErrorMsg("MSG_REJECT_NO_ROOM_LIST"), appObj);
+            }
+            else {
+                //lock.acquire("key1", function (done) {
+                connectionObj.util.sendSocketCallbackMsg(easyrtcid, socketCallback, { "msgType": "roomList", "msgData": { "roomList": roomList } }, appObj);
+                //myEmitter.on('event', () => {
+                //   console.log('done');
+                //  done();
+                // });
+                // }, function (err, ret) {
+                // }, {});
+            }
+        }
+    );
+});
+
+app.post('eventEmit', function (req, res) {
+    myEmitter.emit('event');
 });
 
 // Start EasyRTC server

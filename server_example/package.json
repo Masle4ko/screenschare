@@ -8,6 +8,7 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "async-lock": "^1.1.3",
     "daemonite-material": "^4.1.1",
     "easyrtc": "github:priologic/easyrtc#beta",
     "express": "^4.16.3",

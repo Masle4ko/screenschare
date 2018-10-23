@@ -676,7 +676,6 @@ function checkVideo() {
             pix = idt.data;
             const code = jsQR(pix, cvs.width, cvs.height);
             if (code != null) {
-                console.log(code);
                 if (code.data == "pairSearch" + functions.checkCookie("uid")) {
                     resolve();
                 }

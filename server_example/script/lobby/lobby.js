@@ -22,18 +22,25 @@ function refreshRoomList(easyrtcid) {
         for (var roomName in roomList) {
             if (roomList[roomName].numberClients < 2) {
                 functions.setCookie("selfEasyrtcid", roomName);
-                windowOpen("http://demo5.kbs.uni-hannover.de/pairsearch/?uid=" + functions.checkCookie("uid") + "", "search", 0, 0, screen.width / 2, screen.height);
+                windowOpen("http://demo5.kbs.uni-hannover.de/pairsearch/?uid=" + functions.checkCookie("uid") + "&roomid=" + roomName, "search", 0, 0, screen.width / 2, screen.height);
                 windowOpen("/room/" + roomName + "", "room", 0, screen.height, screen.width / 2, screen.height);
+                    var xhr = new XMLHttpRequest();
+                    var json = JSON.stringify({userId:1});
+                    xhr.open("POST", 'eventEmit', false);
+                    xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+                    xhr.send(json);
                 return;
             }
         }
 
         functions.setCookie("selfEasyrtcid", easyrtcid);
         functions.setCookie("roomCreator", true);
-        windowOpen("http://demo5.kbs.uni-hannover.de/pairsearch/?uid=" + functions.checkCookie("uid") + "", "search", 0, 0, screen.width / 2, screen.height);
+        windowOpen("http://demo5.kbs.uni-hannover.de/pairsearch/?uid=" + functions.checkCookie("uid") + "&roomid=" + easyrtcid, "search", 0, 0, screen.width / 2, screen.height);
         windowOpen("/room/" + easyrtcid + "", "room", 0, screen.height, screen.width / 2, screen.height);
 
-    }, null);
+    }, function (errorCode, errorText) {
+        console.log(errorCode + errorText);
+    });
 }
 
 function connect() {
