@@ -3,12 +3,11 @@
 <head>
 	<meta charset="utf-8">
 	<title>Lobby</title>
-	<script type="text/javascript" src="/script/other/prettify.js"></script>
+	<!-- <script type="text/javascript" src="/script/other/prettify.js"></script>
 	<script type="text/javascript" src="/script/other/loadAndFilter.js"></script>
 	<script src="/node_modules/socket.io-client/dist/socket.io.js"></script>
-	<script type="text/javascript" src="/script/api/easyrtc.js"></script>
+	<script type="text/javascript" src="/script/api/easyrtc.js"></script> -->
 	<script type="text/javascript" src="/script/functions/functions.js"></script>
-	<script type="text/javascript" src="/script/lobby/lobby.js"></script>
 	<link rel="stylesheet" href="/css/start/style.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
@@ -19,10 +18,10 @@
 	<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 </head>
 
-<body onload="initApp();">
+<body>
 	<div id="join">
 		<div id="join-form">
-			<form class="col s12" id="formId" onsubmit="connect(); return false;">
+			<form class="col s12" id="formId" onsubmit="start(); return false;">
 				<div class="input-field col s12">
 					<input id="userNameField" type="text">
 					<label for="userNameField">Username</label>
@@ -32,23 +31,22 @@
 		</div>
 	</div>
 	<script type="text/javascript">
-		function showMe(box, divId) {
-			if (box.checked) {
-				var vis = "block";
-				$(box).val(true);
-			}
-			else {
-				var vis = "none";
-				$(box).val(false);
-			}
-			document.getElementById(divId).style.display = vis;
-		}
-
 		document.onkeypress = function (e) {
 			e = e || window.event;
 			if (e.keyCode === 13) {
-				connect();
+				start();
 			}
+		}
+
+		function start() {
+			username = document.getElementById("userNameField").value;
+			if (username != undefined) {
+				functions.setCookie("username", username);
+			}
+			var uid = functions.getUrlParam("uid");
+			functions.setCookie("uid", uid);
+			functions.windowOpen("/room", "room", 0, screen.height, screen.width / 2, screen.height);
+
 		}
 	</script>
 </body>

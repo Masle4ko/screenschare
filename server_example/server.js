@@ -33,14 +33,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 var timers = new Array();
 var streamNamesForMerge = new Array();
-var AsyncLock = require('async-lock');
-var lock = new AsyncLock();
-const EventEmitter = require('events');
 
-class MyEmitter extends EventEmitter { }
-const myEmitter = new MyEmitter();
-
-myEmitter.emit('event');
 log4js.configure({
     appenders: {
         consoleAppender: { type: 'console', format: "(@file:@line:@column)" },
@@ -70,7 +63,7 @@ app.get('/', function (req, res) {
 app.get('/lobby', function (req, res) {
     res.sendFile(__dirname + "/view/lobby.html");
 });
-app.post('/lobby/roomLog', function (request, response) {
+app.post("/room/login", function (request, response) {
     if (request.body.external_client_id != null) {
         DB.getConnection(function (err, connection) {
             if (err) logger.error(err);
@@ -99,7 +92,7 @@ app.post('/lobby/roomLog', function (request, response) {
 app.post('/event', function (req, res) {
     saveEvent(req.body.myId, req.body.eventId);
 });
-app.get('/room/:roomId', function (req, res) {
+app.get('/room', function (req, res) {
     res.sendFile(__dirname + "/view/room.html");
 });
 
@@ -147,21 +140,16 @@ easyrtc.events.on("msgTypeGetRoomList", function (connectionObj, socketCallback,
                 connectionObj.util.sendSocketCallbackMsg(easyrtcid, socketCallback, connectionObj.util.getErrorMsg("MSG_REJECT_NO_ROOM_LIST"), appObj);
             }
             else {
-                //lock.acquire("key1", function (done) {
-                connectionObj.util.sendSocketCallbackMsg(easyrtcid, socketCallback, { "msgType": "roomList", "msgData": { "roomList": roomList } }, appObj);
-                //myEmitter.on('event', () => {
-                //   console.log('done');
-                //  done();
-                // });
-                // }, function (err, ret) {
-                // }, {});
+                for (var roomName in roomList) {
+                    if (roomList[roomName].numberClients < 2) {
+                        connectionObj.util.sendSocketCallbackMsg(easyrtcid, socketCallback, { "msgType": "roomList", "msgData": { "roomList": JSON.stringify(roomName) } }, appObj);
+                        return;
+                    }
+                }
+                connectionObj.util.sendSocketCallbackMsg(easyrtcid, socketCallback, { "msgType": "roomList", "msgData": { "roomList": JSON.stringify(easyrtcid) } }, appObj);
             }
         }
     );
-});
-
-app.post('eventEmit', function (req, res) {
-    myEmitter.emit('event');
 });
 
 // Start EasyRTC server

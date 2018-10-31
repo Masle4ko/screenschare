@@ -112,7 +112,7 @@
                         </div>
                 </li>
 
-                <li class="collection-item" autoplay="autoplay" id="forLocalVideos" style="display:none;">
+                <li class="collection-item" autoplay="autoplay" id="forLocalVideos" style="display:block;">
                     <div id="videoSrcBlk">
                         <div id="otherClients"></div>
                     </div>
@@ -127,14 +127,16 @@
 </body>
 <script>
     $("#rooms").click(() => {
-        var request = new XMLHttpRequest();
-        request.open('POST', "/room/:roomId/saveMessage");
-        request.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-        request.send(JSON.stringify({ user_id: functions.checkCookie("myId"), roomId: functions.checkCookie("selfEasyrtcid"), name: functions.checkCookie("username"), chat: functions.checkCookie("lastMessage") }));
+        functions.xhr("/room/:roomId/saveMessage", JSON.stringify({ user_id: functions.checkCookie("myId"), roomId: functions.checkCookie("roomName"), name: functions.checkCookie("username"), chat: functions.checkCookie("lastMessage") }));
     });
-    function postChat(chat) {
-        $.post("/room/:roomId/saveMessage", chat)
-    };
+
+    document.onkeyup = function (e) {
+        e = e || window.event;
+        if (e.keyCode === 13) {
+            var pathname = window.location.pathname.split('/')[2];
+            $('#' + pathname + '').click();
+        }
+    }
 
     // $(document).ready(function () {
     //     $('#localVideos').carousel({
@@ -147,25 +149,18 @@
     //     });
     //     $('.sidenav').sidenav();
     // });
-    function showMe(divId) {
-        if (document.getElementById(divId).style.display == "block")
-            var vis = "none";
-        if (document.getElementById(divId).style.display == "none")
-            var vis = "block";
-        document.getElementById(divId).style.display = vis;
-    }
 
     // function carouselMove(id) {
     //     $('#remoteVideos').carousel(id);
-
     // }
-    document.onkeyup = function (e) {
-        e = e || window.event;
-        if (e.keyCode === 13) {
-            var pathname = window.location.pathname.split('/')[2];
-            $('#' + pathname + '').click();
-        }
-    }
+
+    // function showMe(divId) {
+    //     if (document.getElementById(divId).style.display == "block")
+    //         var vis = "none";
+    //     if (document.getElementById(divId).style.display == "none")
+    //         var vis = "block";
+    //     document.getElementById(divId).style.display = vis;
+    // }
 </script>
 
 </html>
