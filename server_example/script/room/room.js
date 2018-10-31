@@ -392,29 +392,13 @@ function RoomOccupantListener(roomName, occupants) {
                 }
             });
         }
-        userForCall=easyrtcid;
         if (needCall) {
-            // if (sessionStorage.getItem('reload') === 'true') {
-            //     performCall(easyrtcid);
-            // }
-            // if (functions.checkCookie("roomCreator") == "true") {
-            //     playSound();
-            // }
-           // setTimeout(() => {
-            setTimeout(() => {
-                performCall(easyrtcid);
-            }, 1000);
-                startMyscreen(true);
-                userForCall=easyrtcid;
-           // }, 500);
+            startMyscreen(true);
             needCall = false;
-            // setTimeout(() => {
-            //     performCall(easyrtcid);
-            // }, 2000);
         }
-        // if (sessionStorage.getItem('reload') != 'true') {
-        //     performCall(easyrtcid);
-        // }
+        setTimeout(() => {
+            performCall(easyrtcid);
+        }, 1000);
     }
 }
 
@@ -448,7 +432,6 @@ easyrtc.setStreamAcceptor(function (easyrtcid, stream, streamName) {
     }
 });
 easyrtc.setOnStreamClosed(function (easyrtcid, stream, streamName) {
-    easyrtc.closeLocalStream(myStreamName);
     var item = document.getElementById("remoteBlock" + easyrtcid + streamName);
     item.parentNode.removeChild(item);
     document.getElementById("progress").style.display = "block";
@@ -524,7 +507,7 @@ function startMyscreen(pointOfStart) {
     easyrtc.initDesktopStream(
         function (stream) {
             createLocalVideo(stream, streamName);
-            myStreamName=streamName;
+            myStreamName = streamName;
             //swal.close();
             if (otherEasyrtcid) {
                 easyrtc.addStreamToCall(otherEasyrtcid, streamName);
