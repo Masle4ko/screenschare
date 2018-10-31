@@ -9542,9 +9542,9 @@ var Easyrtc = function() {
             pc = peerConns[caller].pc;
 
             function iceAddSuccess() {
-                logDebug("iceAddSuccess: " +
-                    JSON.stringify(candidate));
-                processCandicate(msgData.candidate);
+                // logDebug("iceAddSuccess: " +
+                //     JSON.stringify(candidate));
+                // processCandicate(msgData.candidate);
             }
 
             function iceAddFailure(domError) {

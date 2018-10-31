@@ -12,6 +12,7 @@ var haveSelfVideo = false;
 var myStreamName;
 var firstCon = true;
 var OccupantListenerList = [];
+var userForCall;
 function initApp() {
     connect();
     window.onunload = function () {
@@ -161,10 +162,6 @@ function randomInteger(min, max) {
     return rand;
 }
 function connect() {
-    easyrtc.setOnStreamClosed( function (callerEasyrtcid) {
-        console.log(1);
-        //easyrtc.setVideoObjectSrc(document.getElementById('caller'), "");
-    });
     easyrtc.enableDataChannels(true);
     easyrtc.setAutoInitUserMedia(false);
     easyrtc.setRoomEntryListener();
@@ -172,6 +169,7 @@ function connect() {
     easyrtc.setRoomOccupantListener(RoomOccupantListener);
     easyrtc.setPeerListener(peerListener);
     easyrtc.setDisconnectListener(function () {
+        easyrtc.closeLocalStream(myStreamName);
         jQuery('#rooms').empty();
         document.getElementById("main").className = "notconnected";
         swal({
@@ -372,6 +370,7 @@ function createLocalVideo(stream, streamName) {
         })
         .then(function () {
             myStreamName = streamName;
+            performCall(userForCall);
             //startRecord(stream);
             $.post("/event", { myId: parseInt(functions.checkCookie("myId")), eventId: 3 });
             // var recordInterval = setInterval(function () {
@@ -393,6 +392,7 @@ function RoomOccupantListener(roomName, occupants) {
                 }
             });
         }
+        userForCall=easyrtcid;
         if (needCall) {
             // if (sessionStorage.getItem('reload') === 'true') {
             //     performCall(easyrtcid);
@@ -400,15 +400,21 @@ function RoomOccupantListener(roomName, occupants) {
             // if (functions.checkCookie("roomCreator") == "true") {
             //     playSound();
             // }
+           // setTimeout(() => {
             setTimeout(() => {
+                performCall(easyrtcid);
+            }, 1000);
                 startMyscreen(true);
-            }, 500);
+                userForCall=easyrtcid;
+           // }, 500);
             needCall = false;
-           // performCall(easyrtcid);
+            // setTimeout(() => {
+            //     performCall(easyrtcid);
+            // }, 2000);
         }
-        if (sessionStorage.getItem('reload') != 'true') {
-            performCall(easyrtcid);
-        }
+        // if (sessionStorage.getItem('reload') != 'true') {
+        //     performCall(easyrtcid);
+        // }
     }
 }
 
@@ -441,21 +447,15 @@ easyrtc.setStreamAcceptor(function (easyrtcid, stream, streamName) {
         labelBlock.parentNode.id = "remoteBlock" + easyrtcid + streamName;
     }
 });
-easyrtc.setOnStreamClosed( function (callerEasyrtcid) {
-    console.log(1);
-    //easyrtc.setVideoObjectSrc(document.getElementById('caller'), "");
+easyrtc.setOnStreamClosed(function (easyrtcid, stream, streamName) {
+    easyrtc.closeLocalStream(myStreamName);
+    var item = document.getElementById("remoteBlock" + easyrtcid + streamName);
+    item.parentNode.removeChild(item);
+    document.getElementById("progress").style.display = "block";
+    document.getElementById("progressMessage").style.display = "block";
+    document.getElementById("remoteVideos").style.height = "0px";
+
 });
-// easyrtc.setOnStreamClosed(function (easyrtcid, stream, streamName) {
-//     console.log(1);
-//     //easyrtc.closeLocalStream(myStreamName);
-//     var item = document.getElementById("remoteBlock" + easyrtcid + streamName);
-//     item.parentNode.removeChild(item);
-
-//     document.getElementById("progress").style.display = "block";
-//     document.getElementById("progressMessage").style.display = "block";
-//     document.getElementById("remoteVideos").style.height = "0px";
-
-// });
 
 
 var callerPending = null;
@@ -524,6 +524,7 @@ function startMyscreen(pointOfStart) {
     easyrtc.initDesktopStream(
         function (stream) {
             createLocalVideo(stream, streamName);
+            myStreamName=streamName;
             //swal.close();
             if (otherEasyrtcid) {
                 easyrtc.addStreamToCall(otherEasyrtcid, streamName);
