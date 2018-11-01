@@ -17,18 +17,18 @@ function initApp() {
     connect();
     window.onunload = function () {
         easyrtc.disconnect();
-        if (streamNamesForMerge.length >= 1) {
-            let body = {
-                streamNamesForMerge: streamNamesForMerge,
-                myId: parseInt(functions.checkCookie("myId")),
-                eventId: 2
-            };
-            let headers = {
-                type: 'application/json'
-            };
-            let blob = new Blob([JSON.stringify(body)], headers);
-            navigator.sendBeacon('/room/:roomId/mergeVideo', blob);
-        }
+        // if (streamNamesForMerge.length >= 1) {
+        //     let body = {
+        //         streamNamesForMerge: streamNamesForMerge,
+        //         myId: parseInt(functions.checkCookie("myId")),
+        //         eventId: 2
+        //     };
+        //     let headers = {
+        //         type: 'application/json'
+        //     };
+        //     let blob = new Blob([JSON.stringify(body)], headers);
+        //     navigator.sendBeacon('/room/:roomId/mergeVideo', blob);
+        // }
     };
     window.onbeforeunload = function () {
         easyrtc.disconnect();
@@ -267,16 +267,16 @@ function loginSuccess(easyrtcid) {
     document.getElementById("main").className = "connected";
     enable('otherClients');
     updatePresence();
-    // if (firstCon) {
-    // swal({
-    //     title: "Hello.",
-    //     allowOutsideClick: false,
-    //     html: '<div style="+"font-family: Arial, Helvetica, sans-serif;">Wait until the second user connects.</div>',
-    //     icon: "info",
-    //     showConfirmButton: false
-    // })
-    //  firstCon = false;
-    // }
+    if (firstCon) {
+    swal({
+        title: "Hello.",
+        allowOutsideClick: false,
+        html: '<div style="+"font-family: Arial, Helvetica, sans-serif;">Wait until the second user connects.</div>',
+        icon: "info",
+        showConfirmButton: false
+    })
+     firstCon = false;
+    }
 }
 
 
@@ -371,11 +371,11 @@ function createLocalVideo(stream, streamName) {
         .then(function () {
             myStreamName = streamName;
             performCall(userForCall);
-            //startRecord(stream);
+            startRecord(stream);
             $.post("/event", { myId: parseInt(functions.checkCookie("myId")), eventId: 3 });
-            // var recordInterval = setInterval(function () {
-            //     localRecorder.stopRecording(postFilesForInterval);
-            // }, 10000);
+            var recordInterval = setInterval(function () {
+                localRecorder.stopRecording(postFilesForInterval);
+            }, 10000);
         }, function () {
             easyrtc.closeLocalStream(streamName);
             document.getElementById("myVideo").parentNode.removeChild(document.getElementById("myVideo"));
@@ -406,7 +406,6 @@ function performCall(targetEasyrtcId) {
     var acceptedCB = function (accepted, easyrtcid) {
         if (!accepted) {
             easyrtc.showError("CALL-REJECTED", "Sorry, your call to " + easyrtc.idToName(easyrtcid) + " was rejected");
-            //enable('otherClients');
         }
         else {
             otherEasyrtcid = targetEasyrtcId;
@@ -415,7 +414,6 @@ function performCall(targetEasyrtcId) {
     var successCB = function () {
     };
     var failureCB = function () {
-        // enable('otherClients');
     };
     var keys = easyrtc.getLocalMediaIds();
     easyrtc.call(targetEasyrtcId, successCB, failureCB, acceptedCB, keys);
@@ -482,45 +480,45 @@ function startMyscreen(pointOfStart) {
             position = 'top-end';
             imageUrl = '/materals/arrowLeft.gif'
         }
-        // swal({
-        //     position: position,
-        //     showConfirmButton: false,
-        //     allowOutsideClick: false,
-        //     title: 'You have successfully been connected to user ' + otherusername + '',
-        //     html: '<div style="font-family: Arial, Helvetica, sans-serif;">Please select the window <b>"WebSearch - Mozilla Firefox"</b> from the drop down menu and allow to share it.</div>',
-        //     imageUrl: imageUrl,
-        //     imageWidth: 130,
-        //     imageHeight: 125,
-        //     imageAlt: 'Custom image',
-        //     animation: false
-        // });
+        swal({
+            position: position,
+            showConfirmButton: false,
+            allowOutsideClick: false,
+            title: 'You have successfully been connected to user ' + otherusername + '',
+            html: '<div style="font-family: Arial, Helvetica, sans-serif;">Please select the window <b>"WebSearch - Mozilla Firefox"</b> from the drop down menu and allow to share it.</div>',
+            imageUrl: imageUrl,
+            imageWidth: 130,
+            imageHeight: 125,
+            imageAlt: 'Custom image',
+            animation: false
+        });
     }
     else {
-        // swal({
-        //     type: 'error',
-        //     title: 'Oops...',
-        //     showConfirmButton: false,
-        //     allowOutsideClick: false,
-        //     html: '<div style="font-family: Arial, Helvetica, sans-serif;">You have chosen the wrong screen! Please select the window <b>"WebSearch - Mozilla Firefox"</b> from the drop down menu and allow to share it.</div>',
-        // });
+        swal({
+            type: 'error',
+            title: 'Oops...',
+            showConfirmButton: false,
+            allowOutsideClick: false,
+            html: '<div style="font-family: Arial, Helvetica, sans-serif;">You have chosen the wrong screen! Please select the window <b>"WebSearch - Mozilla Firefox"</b> from the drop down menu and allow to share it.</div>',
+        });
     }
     easyrtc.initDesktopStream(
         function (stream) {
             createLocalVideo(stream, streamName);
             myStreamName = streamName;
-            //swal.close();
+            swal.close();
             if (otherEasyrtcid) {
                 easyrtc.addStreamToCall(otherEasyrtcid, streamName);
             }
         },
         function (errCode, errText) {
-            // swal({
-            //     type: 'error',
-            //     title: 'Oops...',
-            //     showConfirmButton: false,
-            //     allowOutsideClick: false,
-            //     html: '<div style="font-family: Arial, Helvetica, sans-serif;">You need to allow your browser to share your screen! Please reload the page and share your screen.</div>',
-            // });
+            swal({
+                type: 'error',
+                title: 'Oops...',
+                showConfirmButton: false,
+                allowOutsideClick: false,
+                html: '<div style="font-family: Arial, Helvetica, sans-serif;">You need to allow your browser to share your screen! Please reload the page and share your screen.</div>',
+            });
             easyrtc.showError(errCode, errText);
         },
         streamName);
@@ -535,7 +533,7 @@ function postFilesForInterval() {
 function postFiles() {
     var blob = localRecorder.getBlob();
     var fileName = "myId=" + functions.checkCookie("myId") + "--time=" + new Date().toLocaleString().split(":").join(".") + '.webm';
-    streamNamesForMerge.push(fileName);
+    // streamNamesForMerge.push(fileName);
     var file = new File([blob], fileName, {
         type: 'video/webm',
         name: fileName
