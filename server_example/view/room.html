@@ -126,17 +126,14 @@
     </div>
 </body>
 <script>
-    $("#rooms").click(() => {
-        functions.xhr("/room/:roomId/saveMessage", JSON.stringify({ user_id: functions.checkCookie("myId"), roomId: functions.checkCookie("roomName"), name: functions.checkCookie("username"), chat: functions.checkCookie("lastMessage") }));
-    });
-
-    document.onkeyup = function (e) {
-        e = e || window.event;
-        if (e.keyCode === 13) {
-            var pathname = window.location.pathname.split('/')[2];
-            $('#' + pathname + '').click();
-        }
-    }
+    // document.onkeyup = function (e) {
+    //     e = e || window.event;
+    //     if (e.keyCode === 13) {
+            
+    //         var pathname = window.location.pathname.split('/')[2];
+    //         $('#' + pathname + '').click();
+    //     }
+    // }
 
     // $(document).ready(function () {
     //     $('#localVideos').carousel({

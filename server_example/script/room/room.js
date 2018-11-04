@@ -30,14 +30,12 @@ function initApp() {
         //     navigator.sendBeacon('/room/:roomId/mergeVideo', blob);
         // }
     };
-    window.onbeforeunload = function () {
-        easyrtc.disconnect();
-    }
 }
 
 
 function addToConversation(who, msgType, content, targeting) {
     if (msgType === 'otherusername') {
+        console.log(content.username);
         otherusername = content.username;
     }
     if (!content) {
@@ -101,7 +99,14 @@ function addRoom(roomid, parmString, userAdded) {
         roomButton.setAttribute("class", "waves-effect waves-light btn btn-success");
         roomButton.onclick = function () {
             sendMessage(null, roomButton.id);
+
         };
+        document.onkeyup = function (e) {
+            e = e || window.event;
+            if (e.keyCode === 13) {
+                sendMessage(null, roomButton.id);
+            }
+        }
         var roomLabel = (document.createTextNode(roomName));
         roomButton.appendChild(roomLabel);
         roomdiv.appendChild(roomButton);
@@ -166,8 +171,8 @@ function connect() {
     easyrtc.setAutoInitUserMedia(false);
     easyrtc.setRoomEntryListener();
     easyrtc.setDataChannelCloseListener();
-    easyrtc.setRoomOccupantListener(RoomOccupantListener);
     easyrtc.setPeerListener(peerListener);
+    easyrtc.setRoomOccupantListener(RoomOccupantListener);
     easyrtc.setDisconnectListener(function () {
         easyrtc.closeLocalStream(myStreamName);
         jQuery('#rooms').empty();
@@ -243,6 +248,7 @@ function sendMessage(destTargetId, destRoom) {
     }
     addToConversation("Me", "message", text);
     document.getElementById('sendMessageText').value = "";
+    functions.xhr("/room/:roomId/saveMessage", JSON.stringify({ user_id: functions.checkCookie("myId"), roomId: functions.checkCookie("roomName"), name: functions.checkCookie("username"), chat: functions.checkCookie("lastMessage") }));
 }
 
 
@@ -268,14 +274,14 @@ function loginSuccess(easyrtcid) {
     enable('otherClients');
     updatePresence();
     if (firstCon) {
-    swal({
-        title: "Hello.",
-        allowOutsideClick: false,
-        html: '<div style="+"font-family: Arial, Helvetica, sans-serif;">Wait until the second user connects.</div>',
-        icon: "info",
-        showConfirmButton: false
-    })
-     firstCon = false;
+        swal({
+            title: "Hello.",
+            allowOutsideClick: false,
+            html: '<div style="+"font-family: Arial, Helvetica, sans-serif;">Wait until the second user connects.</div>',
+            icon: "info",
+            showConfirmButton: false
+        })
+        firstCon = false;
     }
 }
 
@@ -385,20 +391,18 @@ function createLocalVideo(stream, streamName) {
 
 function RoomOccupantListener(roomName, occupants) {
     for (var easyrtcid in occupants) {
-        if (firstCon) {
-            easyrtc.sendDataWS(easyrtcid, 'otherusername', { username: functions.checkCookie("username") }, function (ackMesg) {
-                if (ackMesg.msgType === 'error') {
-                    console.log(ackMesg.msgData.errorText);
-                }
-            });
-        }
-        if (needCall) {
-            startMyscreen(true);
-            needCall = false;
-        }
+        easyrtc.sendDataWS(easyrtcid, 'otherusername', { username: functions.checkCookie("username") }, function (ackMesg) {
+            if (ackMesg.msgType === 'error') {
+                console.log(ackMesg.msgData.errorText);
+            }
+        });
         setTimeout(() => {
+            if (needCall) {
+                startMyscreen(true);
+                needCall = false;
+            }
             performCall(easyrtcid);
-        }, 1000);
+        }, 2000);
     }
 }
 
@@ -480,6 +484,7 @@ function startMyscreen(pointOfStart) {
             position = 'top-end';
             imageUrl = '/materals/arrowLeft.gif'
         }
+        console.log(otherusername);
         swal({
             position: position,
             showConfirmButton: false,

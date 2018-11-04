@@ -40,12 +40,21 @@
 
 		function start() {
 			username = document.getElementById("userNameField").value;
-			if (username != undefined) {
-				functions.setCookie("username", username);
+			if (username == "") {
+				swal({
+					type: 'error',
+					title: 'Oops...',
+					showConfirmButton: true,
+					allowOutsideClick: false,
+					html: '<div style="font-family: Arial, Helvetica, sans-serif;"> You did not choose username! Please chose it!</div>',
+				});
 			}
-			var uid = functions.getUrlParam("uid");
-			functions.setCookie("uid", uid);
-			functions.windowOpen("/room", "room", 0, screen.height, screen.width / 2, screen.height);
+			else {
+				functions.setCookie("username", username);
+				var uid = functions.getUrlParam("uid");
+				functions.setCookie("uid", uid);
+				functions.windowOpen("/room", "room", 0, screen.height, screen.width / 2, screen.height);
+			}
 
 		}
 	</script>
