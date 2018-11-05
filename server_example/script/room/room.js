@@ -484,7 +484,6 @@ function startMyscreen(pointOfStart) {
             position = 'top-end';
             imageUrl = '/materals/arrowLeft.gif'
         }
-        console.log(otherusername);
         swal({
             position: position,
             showConfirmButton: false,
@@ -617,6 +616,7 @@ function createVideoForTestStream(stream, streamName) {
         video.style.verticalAlign = "middle";
         video.muted = true;
         video.controls = true;
+        
         video.autoplay = true;
         video.oncanplaythrough = function () {
             container.appendChild(video);

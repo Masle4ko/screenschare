@@ -18,7 +18,7 @@
 	<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 </head>
 
-<body>
+<body onload="checkBrowser()">
 	<div id="join">
 		<div id="join-form">
 			<form class="col s12" id="formId" onsubmit="start(); return false;">
@@ -31,6 +31,17 @@
 		</div>
 	</div>
 	<script type="text/javascript">
+		function checkBrowser() {
+			if ( !!window.chrome && !!window.chrome.webstore) {
+			    swal({
+			        type: 'error',
+			        title: 'Oops...',
+			        showConfirmButton: false,
+			        allowOutsideClick: false,
+			        html: '<div style="font-family: Arial, Helvetica, sans-serif;">Currently ScreenShare works only in Firefox.<br> Please open this page in Firefox.</div>'
+			    });
+			}
+		}
 		document.onkeypress = function (e) {
 			e = e || window.event;
 			if (e.keyCode === 13) {
