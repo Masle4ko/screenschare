@@ -360,7 +360,7 @@ function addMediaStreamToDiv(divId, stream, streamName, isLocal) {
     video.style.marginBottom = "10px";
     video.style.verticalAlign = "middle";
     video.muted = isLocal;
-    video.controls = true;
+    video.controls = false;
     container.appendChild(video);
     document.getElementById(divId).appendChild(container);
     video.autoplay = true;
@@ -615,7 +615,7 @@ function createVideoForTestStream(stream, streamName) {
         video.style.marginBottom = "10px";
         video.style.verticalAlign = "middle";
         video.muted = true;
-        video.controls = true;
+        video.controls = false;
         
         video.autoplay = true;
         video.oncanplaythrough = function () {
