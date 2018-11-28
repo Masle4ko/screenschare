@@ -1,0 +1,191 @@
+<html>
+
+<head>
+    <title>Room</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" type="text/css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+    <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
+    <script type="text/javascript" src="/script/other/prettify.js"></script>
+    <script type="text/javascript" src="/script/other/loadAndFilter.js"></script>
+    <script src="/node_modules/socket.io-client/dist/socket.io.js"></script>
+    <script type="text/javascript" src="/script/api/easyrtc.js"></script>
+    <!-- <script type="text/javascript" src="/script/api/easyrtc_int.js"></script> -->
+    <script type="text/javascript" src="/script/functions/functions.js"></script>
+    <script type="text/javascript" src="/script/api/labs/desktop_capture_iframe_version.js"></script>
+    <script type="text/javascript" src="/script/api/labs/easyrtc_recorder.js"></script>
+    <script type="text/javascript" src="/script/iFrameTest/iframe.js"></script>
+    <script type="text/javascript" src="/node_modules/jsqr/dist/jsQR.js"></script>
+    <link rel="stylesheet" type="text/css" href="/css/start/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" crossorigin="anonymous"></script>
+    <script src="/node_modules/recordrtc/RecordRTC.js"></script>
+    <link type="text/css" href="/script/jquery/jquery.ui.all.css" rel="stylesheet" />
+    <link href="jquery/jquery.ui.theme.css" rel="stylesheet" />
+
+    <script type="text/javascript" src="/script/jquery/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="/script/jquery/jquery.ui.core.js"></script>
+    <script type="text/javascript" src="/script/jquery/jquery.ui.widget.js"></script>
+    <script type="text/javascript" src="/script/jquery/jquery.ui.mouse.js"></script>
+    <script type="text/javascript" src="/script/jquery/jquery.ui.sortable.js"></script>
+    <script type="text/javascript" src="/script/jquery/jquery.ui.swappable.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.24.4/sweetalert2.all.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.24.3/sweetalert2.css">
+
+</head>
+<style>
+    nav {
+        height: 30px;
+        line-height: 30px;
+    }
+
+    nav i,
+    nav [class^="mdi-"],
+    nav [class*="mdi-"],
+    nav i.material-icons {
+        height: 30px;
+        line-height: 30px;
+    }
+
+    nav .button-collapse i {
+        height: 30px;
+        line-height: 30px;
+    }
+
+    nav .brand-logo {
+        font-size: 1.6rem;
+    }
+
+    @media only screen and (min-width: 601px) {
+        nav,
+        nav .nav-wrapper i,
+        nav a.button-collapse,
+        nav a.button-collapse i {
+            height: 30px;
+            line-height: 30px;
+        }
+    }
+    .my-flex-container{
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-content: center;
+        flex-wrap: wrap;
+        align-content: center;
+        width: 100%;
+        height: 100%;
+        /* width: 512px;
+        height: 432px; */
+    } 
+    .my-flex-block{
+        display: flex;
+        border: 1px solid #d3d3d3;
+        min-width: 42%;
+        width: 45%;
+        max-width: 50%;
+        height: 140px; 
+    }     
+    .iframe-container {
+            overflow: hidden;
+            padding-top: 56.25%;
+            position: relative;
+            height: 100%;
+            width: 100%;
+    }
+
+        .iframe-container iframe {
+            border: 0;
+            height: 100%;
+            left: 0;
+            top: 0;
+            width: 100%;
+        }
+</style>
+
+<body id="body" onload="initApp();">
+    <!-- <div id="container">
+        <div id="main"> -->
+    <div id="sound"></div>
+    <nav class="green">
+        <div class="nav-wrapper">
+            <a href="#" class="brand-logo right">
+                <i class="material-icons">video_library</i>ScreenShare</a>
+        </div>
+    </nav>
+    <ul class="collection with-header" style=" width: 100%; height: 75%">
+        <li class="collection-item" id="forRemoteVideos" style="display:flex; flex-direction: row;flex-wrap: wrap;  width: 100%; max-height: 75%">
+            <!-- <div class="chip" id="progressMessage" style="margin: auto;width: 100%; text-align: center;">
+                        Waiting for the other user to share his screen
+                    </div>
+                    <div class="progress" id="progress">
+                        <div class="indeterminate"></div>
+                    </div> -->
+            <div id="otherClients"></div>
+            <div id="remoteVideos" class="my-flex-container">
+            </div>
+        </li>
+        <li class="collection-item" id="forChat" style="display:block;">
+            <div class="jumbotron">
+                <div id="receiveMessageArea">
+                    <p class="flow-text">
+                        <div id="conversation" style="display:block; overflow:auto;max-height: 200px;">
+                    </p>
+                </div>
+                <div class="input-field col s6">
+                    <i class="material-icons prefix">mode_edit</i>
+                    <input placeholder="Enter your message here" id="sendMessageText" type="text" class="validate">
+                    <label for="sendMessageText"></label>
+                </div>
+                <div id="rooms"></div>
+            </div>
+        </li>
+
+        <li class="collection-item" autoplay="autoplay" id="forLocalVideos" style="display:block;">
+            <div id="videoSrcBlk">
+                <div id="otherClients"></div>
+            </div>
+            <button class="waves-effect waves-light btn btn-success" id="add" onclick="add();">add</button>
+            <button class="waves-effect waves-light btn btn-success" id="delet" onclick="delet();">delete</button>
+            <br>
+            <div id="localVideos" muted="muted" volume="0"></div>
+        </li>
+    </ul>
+    <!-- </div>
+    </div> -->
+</body>
+<script>
+    // $(function () {
+    //     $("#swappable").swappable({
+    //         items:  '.ui-state-default',
+    //         cursorAt: { top: -5 }
+    //     });
+    //     $("#swappable").disableSelection();
+    // });
+    let id = 0;
+    $(function () {
+        $("#remoteVideos").swappable({
+            items: '.my-flex-block',
+            cursorAt: { top: -5 }
+        });
+        $("#swappable").disableSelection();
+    });
+    function add() {
+        let parent = document.getElementById("remoteVideos");
+        let child = document.createElement("div");
+        child.id = ++id;
+        id = child.id;
+        child.innerHTML = id;
+        child.style.width = "100%";
+        child.setAttribute("class", "my-flex-block");
+        parent.appendChild(child);
+    }
+    function delet() {
+        let block = document.getElementById(id);
+        block.parentNode.removeChild(block);
+        id = --id;
+    }
+</script>
+
+</html>

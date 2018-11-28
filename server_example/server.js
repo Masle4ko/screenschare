@@ -60,6 +60,12 @@ var DB = mysql.createPool({
 app.get('/', function (req, res) {
     res.sendFile(__dirname + "/view/start.html");
 });
+app.get('/test', function (req, res) {
+    res.sendFile(__dirname + "/view/iFrameTest.html");
+});
+app.get('/iframe', function (req, res) {
+    res.sendFile(__dirname + "/view/roomForIframe.html");
+});
 app.get('/lobby', function (req, res) {
     res.sendFile(__dirname + "/view/lobby.html");
 });
@@ -89,6 +95,28 @@ app.post("/room/login", function (request, response) {
         });
     }
 });
+
+app.post("/room/getchat", function (request, response) {
+    if (request.body.room_id != null) {
+        DB.getConnection(function (err, connection) {
+            if (err) logger.error(err);
+            var sql = "SELECT chat.room_id, user.external_client_id, chat.timestamp, chat.text, user.username FROM `user` inner join `chat` on  user.user_id=chat.user_id WHERE chat.room_id="+DB.escape(Number(request.body.room_id));
+            connection.query(sql, function (error, result, fields) {
+                connection.release();
+                if (error) {
+                    logger.error(sql + '\n' + error.message);
+                } else {
+                    response.write(JSON.stringify({
+                        result: result
+                    }));
+                    response.end();
+                }
+            });
+
+        });
+    }
+});
+
 app.post('/event', function (req, res) {
     saveEvent(req.body.myId, req.body.eventId);
 });
@@ -141,7 +169,7 @@ easyrtc.events.on("msgTypeGetRoomList", function (connectionObj, socketCallback,
             }
             else {
                 for (var roomName in roomList) {
-                    if (roomList[roomName].numberClients < 2) {
+                    if (roomList[roomName].numberClients < 6) {
                         connectionObj.util.sendSocketCallbackMsg(easyrtcid, socketCallback, { "msgType": "roomList", "msgData": { "roomList": JSON.stringify(roomName) } }, appObj);
                         return;
                     }

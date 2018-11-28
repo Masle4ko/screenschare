@@ -53,9 +53,9 @@ var functions = {
             });
         }
     },
-    xhr: function (url, data,  callback = null) {
+    xhr: function (url, data, callback = null) {
         var request = new XMLHttpRequest();
-        if (callback !=null) {
+        if (callback != null) {
             request.onreadystatechange = function () {
                 if (request.readyState == 4 && request.status == 200) {
                     callback(request.responseText);
@@ -67,5 +67,4 @@ var functions = {
         request.send(data);
     }
 }
-
 

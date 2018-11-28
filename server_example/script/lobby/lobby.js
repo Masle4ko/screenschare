@@ -54,7 +54,7 @@ function loginSuccess(easyrtcid) {
     if (username != undefined) {
         functions.setCookie("username", username)
     }
-    var uid = getUrlParam("uid");
+    var uid = functions.getUrlParam("uid");
     if (uid != null) {
         xhr("/lobby/roomLog", JSON.stringify({ external_client_id: uid, room_id: functions.checkCookie("selfEasyrtcid"), name: username }), function (responseText) {
             if (Number.isInteger(Number(JSON.parse(responseText).result))) {
@@ -93,22 +93,6 @@ function windowOpen(url, title, top, left, width, height, location = "1", toolba
     }
 }
 
-function getUrlParam(id) {
-    var params = window
-        .location
-        .search
-        .replace('?', '')
-        .split('&')
-        .reduce(
-            function (p, e) {
-                var a = e.split('=');
-                p[decodeURIComponent(a[0])] = decodeURIComponent(a[1]);
-                return p;
-            },
-            {}
-        );
-    return (params[id]);
-}
 
 
 function xhr(url, data, callback) {
