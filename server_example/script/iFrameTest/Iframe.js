@@ -32,7 +32,7 @@ function addToConversation(who, msgType, content, time = null) {
             });
             toast({
                 type: 'success',
-                title: 'user  with uid=' + otherusername + ' has connected'
+                title: 'user  with uid=' + content.uid + ' has connected'
             })
             listforotheruid[content.uid] = true;
         }
