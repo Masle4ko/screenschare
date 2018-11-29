@@ -73,11 +73,8 @@
         justify-content: center;
         align-content: center;
         flex-wrap: wrap;
-        align-content: center;
         width: 100%;
         height: 100%;
-        /* width: 512px;
-        height: 432px; */
     } 
     .my-flex-block{
         display: flex;
@@ -107,26 +104,26 @@
 <body id="body" onload="initApp();">
     <!-- <div id="container">
         <div id="main"> -->
-    <div id="sound"></div>
-    <nav class="green">
+    <nav class="green" style=" width: 100%; height: 3%">
         <div class="nav-wrapper">
             <a href="#" class="brand-logo right">
                 <i class="material-icons">video_library</i>ScreenShare</a>
         </div>
     </nav>
-    <ul class="collection with-header" style=" width: 100%; height: 75%">
-        <li class="collection-item" id="forRemoteVideos" style="display:flex; flex-direction: row;flex-wrap: wrap;  width: 100%; max-height: 75%">
+    <ul class="collection with-header" style=" width: 100%; height: 97%">
+        <li class="collection-item" id="forRemoteVideos" style="display:flex;overflow:auto; flex-direction: row;flex-wrap: wrap;  width: 100%; max-height: 50%">
             <!-- <div class="chip" id="progressMessage" style="margin: auto;width: 100%; text-align: center;">
-                        Waiting for the other user to share his screen
-                    </div>
-                    <div class="progress" id="progress">
-                        <div class="indeterminate"></div>
-                    </div> -->
+                0 users in vodechat. Sign in to video chat?
+            </div>
+            <div style="text-align:center; width:100%; padding:0;">
+                <br>
+                <button class="waves-effect waves-light btn btn-success" id="add" onclick="add();">Sign in</button>
+            </div> -->
             <div id="otherClients"></div>
             <div id="remoteVideos" class="my-flex-container">
             </div>
         </li>
-        <li class="collection-item" id="forChat" style="display:block;">
+        <li class="collection-item" id="forChat" style="display:block;   width: 100%; max-height: 50%">
             <div class="jumbotron">
                 <div id="receiveMessageArea">
                     <p class="flow-text">
@@ -140,29 +137,22 @@
                 </div>
                 <div id="rooms"></div>
             </div>
+            <button class="waves-effect waves-light btn btn-success" id="add" onclick="add();">add</button>
+            <button class="waves-effect waves-light btn btn-success" id="delet" onclick="delet();">delete</button>
         </li>
-
+        <!-- 
         <li class="collection-item" autoplay="autoplay" id="forLocalVideos" style="display:block;">
             <div id="videoSrcBlk">
                 <div id="otherClients"></div>
             </div>
-            <button class="waves-effect waves-light btn btn-success" id="add" onclick="add();">add</button>
-            <button class="waves-effect waves-light btn btn-success" id="delet" onclick="delet();">delete</button>
             <br>
             <div id="localVideos" muted="muted" volume="0"></div>
-        </li>
+        </li> -->
     </ul>
     <!-- </div>
     </div> -->
 </body>
 <script>
-    // $(function () {
-    //     $("#swappable").swappable({
-    //         items:  '.ui-state-default',
-    //         cursorAt: { top: -5 }
-    //     });
-    //     $("#swappable").disableSelection();
-    // });
     let id = 0;
     $(function () {
         $("#remoteVideos").swappable({

@@ -25,67 +25,18 @@
 	<link type="text/css" href="jquery/jquery.ui.theme.css" rel="stylesheet" />
 	<link type="text/css" href="/script/jquery/demos.css" rel="stylesheet" />
 	<link type="text/css" href="/script/swappable.css" rel="stylesheet" />
-	<script type="text/javascript" src="/script/jquery/jquery-1.7.2.js"></script>
 	<script type="text/javascript" src="/script/jquery/jquery.ui.core.js"></script>
 	<script type="text/javascript" src="/script/jquery/jquery.ui.widget.js"></script>
 	<script type="text/javascript" src="/script/jquery/jquery.ui.mouse.js"></script>
 	<script type="text/javascript" src="/script/jquery/jquery.ui.sortable.js"></script>
 	<script type="text/javascript" src="/script/jquery/jquery.ui.swappable.js"></script>
 
-	<style type="text/css">
-		#swappable {
-			list-style-type: none;
-			margin: 3px 3px 3px 3px;
-			padding: 0;
-		}
-
-		#swappable li {
-			margin: 3px 3px 3px 3px;
-			padding: 2px;
-			float: left;
-			width: 50px;
-			height: 50px;
-			font-size: 2em;
-			text-align: center;
-		}
-
-		.ui-state-highlight {
-			height: 50px;
-			width: 50px;
-		}
-
-		.demo1 {
-			width: 180px;
-			height: 180px;
-			align-content: center;
-		}
-	</style>
 </head>
 
 <body id="body">
 	<button class="waves-effect waves-light btn btn-success" id="iFrameButton" onclick="iFrame();">iFrameTest</button>
-	<!-- <div class="demo1">
-		<ul id="swappable">
-			<li id="item1" class="ui-state-default">1</li>
-			<li id="item2" class="ui-state-default">2</li>
-			<li id="item3" class="ui-state-default">3</li>
-			<li id="item4" class="ui-state-default">4</li>
-			<li id="item5" class="ui-state-default">5</li>
-			<li id="item6" class="ui-state-default">6</li>
-			<li id="item7" class="ui-state-default">7</li>
-			<li id="item8" class="ui-state-default">8</li>
-			<li id="item9" class="ui-state-default">9</li>
-		</ul>
-	</div> -->
 </body>
 <script>
-	$(function () {
-		$("#swappable").swappable({
-			items: '.ui-state-default',
-			cursorAt: { top: -5 }
-		});
-		$("#swappable").disableSelection();
-	});
 </script>
 
 </html>

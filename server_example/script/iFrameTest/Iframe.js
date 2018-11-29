@@ -11,10 +11,8 @@ var currentPart = 0;
 var haveSelfVideo = false;
 var myStreamName;
 var firstCon = true;
-var OccupantListenerList = [];
-var userForCall;
 var streamsforupdate = [];
-
+var listforotheruid = [];
 function initApp() {
     connect();
     window.onunload = function () {
@@ -24,8 +22,21 @@ function initApp() {
 
 
 function addToConversation(who, msgType, content, time = null) {
-    if (msgType === 'otherusername') {
-        otherusername = content.username;
+    if (msgType === 'uid') {
+        if ( listforotheruid[content.uid] != true){
+            const toast = swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            });
+            toast({
+                type: 'success',
+                title: 'user  with uid=' + otherusername + ' has connected'
+            })
+            listforotheruid[content.uid] = true;
+        }
+
     }
     if (!content) {
         content = "**no body**";
@@ -47,7 +58,7 @@ function addToConversation(who, msgType, content, time = null) {
         // }
         // if (who != "Me")
         //     who = otherusername;
-        if (time != null) {
+        if (Object.prototype.toString.call(time) === '[object Date]') {
             document.getElementById('conversation').innerHTML +=
                 new Date(time).toLocaleDateString("en-US") + " " + new Date(time).toLocaleTimeString("en-US") + " <b>" + who + ":</b>&nbsp;" + content + "<br />";
 
@@ -183,21 +194,21 @@ function connect() {
     });
     updatePresence();
     easyrtc.connect("easyrtc.instantMessaging", loginSuccess, loginFailure);
-    var screenShareButton = createLabelledButton("Desktop capture/share");
-    screenShareButton.onclick = function () {
-        var streamName = "screen" + randomInteger(4, 99);
-        easyrtc.initDesktopStream(
-            function (stream) {
-                createLocalVideo(stream, streamName);
-                if (otherEasyrtcid) {
-                    easyrtc.addStreamToCall(otherEasyrtcid, streamName);
-                }
-            },
-            function (errCode, errText) {
-                easyrtc.showError(errCode, errText);
-            },
-            streamName);
-    };
+    //var screenShareButton = createLabelledButton("Desktop capture/share");
+    // screenShareButton.onclick = function () {
+    //     var streamName = "screen" + randomInteger(4, 99);
+    //     easyrtc.initDesktopStream(
+    //         function (stream) {
+    //             createLocalVideo(stream, streamName);
+    //             if (otherEasyrtcid) {
+    //                 easyrtc.addStreamToCall(otherEasyrtcid, streamName);
+    //             }
+    //         },
+    //         function (errCode, errText) {
+    //             easyrtc.showError(errCode, errText);
+    //         },
+    //         streamName);
+    // };
 };
 
 function getGroupId() {
@@ -375,22 +386,20 @@ function createLocalVideo(stream, streamName) {
     addMediaStreamToDiv("localVideos", stream, streamName, true);
 };
 
-var usersTocall= [];
 function RoomOccupantListener(roomName, occupants) {
     for (var easyrtcid in occupants) {
-        easyrtc.sendDataWS(easyrtcid, 'otherusername', { username: functions.checkCookie("username") }, function (ackMesg) {
+        easyrtc.sendDataWS(easyrtcid, 'uid', { uid: functions.checkCookie("uid") }, function (ackMesg) {
             if (ackMesg.msgType === 'error') {
                 console.log(ackMesg.msgData.errorText);
             }
         });
-        usersTocall.push(easyrtcid);
-        // setTimeout(() => {
-        //     if (needCall) {
-        //         startMyscreen(true);
-        //         needCall = false;
-        //     }
-        //     performCall(easyrtcid);
-        // }, 2000);
+        setTimeout(() => {
+            if (needCall) {
+                startMyscreen(true);
+                needCall = false;
+            }
+            performCall(easyrtcid);
+        }, 2000);
     }
 }
 
