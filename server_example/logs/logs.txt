@@ -710,6 +710,7 @@ ER_BAD_FIELD_ERROR: Unknown column 'NaN' in 'where clause' (C:\Users\PC\Document
 [2018-11-29T20:28:46.015] [INFO] default - success user login with uid=6 his user_id=2208 (C:\Users\PC\Documents\GitHub\screenschare\server_example\server.js:83:32)
 [2018-11-29T22:04:33.877] [INFO] default - success user login with uid=6 his user_id=2209 (C:\Users\PC\Documents\GitHub\screenschare\server_example\server.js:83:32)
 [2018-11-29T22:05:17.743] [INFO] default - success user login with uid=6 his user_id=2210 (C:\Users\PC\Documents\GitHub\screenschare\server_example\server.js:83:32)
+<<<<<<< HEAD
 [2018-12-03T10:32:57.978] [INFO] default - success user login with uid=6 his user_id=2228 (C:\Users\PC\Documents\GitHub\screenschare\server_example\server.js:83:32)
 [2018-12-03T10:37:42.416] [INFO] default - success user login with uid=6 his user_id=2229 (C:\Users\PC\Documents\GitHub\screenschare\server_example\server.js:83:32)
 [2018-12-03T10:37:47.565] [INFO] default - success user login with uid=6 his user_id=2230 (C:\Users\PC\Documents\GitHub\screenschare\server_example\server.js:83:32)
@@ -1799,3 +1800,13 @@ ER_BAD_FIELD_ERROR: Unknown column 'NaN' in 'where clause' (C:\Users\PC\Document
 [2018-12-11T00:13:10.543] [INFO] default - success user login with uid=6 his user_id=3116 (C:\Users\PC\Documents\GitHub\screenschare\server_example\server.js:83:32)
 [2018-12-11T00:13:24.668] [INFO] default - success user login with uid=6 his user_id=3117 (C:\Users\PC\Documents\GitHub\screenschare\server_example\server.js:83:32)
 [2018-12-11T00:14:03.001] [INFO] default - success user login with uid=6 his user_id=3118 (C:\Users\PC\Documents\GitHub\screenschare\server_example\server.js:83:32)
+=======
+[2018-11-29T21:09:12.825] [INFO] default - success user login with uid=8 his user_id=2211 (C:\Users\Masloy\Desktop\easyrtc\server_example\server.js:83:32)
+[2018-11-29T21:10:29.113] [INFO] default - success user login with uid=8 his user_id=2212 (C:\Users\Masloy\Desktop\easyrtc\server_example\server.js:83:32)
+[2018-11-29T21:10:41.048] [INFO] default - success user login with uid=8 his user_id=2213 (C:\Users\Masloy\Desktop\easyrtc\server_example\server.js:83:32)
+[2018-11-29T21:10:52.348] [INFO] default - Successfully saved message from user_id=2213 (C:\Users\Masloy\Desktop\easyrtc\server_example\server.js:202:28)
+[2018-11-29T21:11:07.805] [INFO] default - success user login with uid=8 his user_id=2214 (C:\Users\Masloy\Desktop\easyrtc\server_example\server.js:83:32)
+[2018-11-29T21:11:14.538] [INFO] default - success user login with uid=9 his user_id=2215 (C:\Users\Masloy\Desktop\easyrtc\server_example\server.js:83:32)
+[2018-11-29T21:12:08.325] [INFO] default - success user login with uid=8 his user_id=2216 (C:\Users\Masloy\Desktop\easyrtc\server_example\server.js:83:32)
+[2018-11-29T21:12:10.145] [INFO] default - success user login with uid=9 his user_id=2217 (C:\Users\Masloy\Desktop\easyrtc\server_example\server.js:83:32)
+>>>>>>> 585aee11f9307b2c9235fbf59bddb80039812147
