@@ -155,10 +155,10 @@ function randomInteger(min, max) {
     return rand;
 }
 function connect() {
-    easyrtc.enableDataChannels(true);
+    // easyrtc.enableDataChannels(true);
     easyrtc.setAutoInitUserMedia(false);
     easyrtc.setRoomEntryListener();
-    easyrtc.setDataChannelCloseListener();
+    // easyrtc.setDataChannelCloseListener();
     easyrtc.setPeerListener(peerListener);
     easyrtc.setRoomOccupantListener(RoomOccupantListener);
     easyrtc.setDisconnectListener(function () {

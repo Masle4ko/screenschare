@@ -23,20 +23,7 @@ function initApp() {
 
 function addToConversation(who, msgType, content, time = null) {
     if (msgType === 'uid') {
-        if ( listforotheruid[content.uid] != true){
-            const toast = swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000
-            });
-            toast({
-                type: 'success',
-                title: 'user  with uid=' + otherusername + ' has connected'
-            })
-            listforotheruid[content.uid] = true;
-        }
-
+        listforotheruid[content.uid] = true;
     }
     if (!content) {
         content = "**no body**";
@@ -58,7 +45,7 @@ function addToConversation(who, msgType, content, time = null) {
         // }
         // if (who != "Me")
         //     who = otherusername;
-        if (Object.prototype.toString.call(time) === '[object Date]') {
+        if (Object.prototype.toString.call(time) === '[object String]') {
             document.getElementById('conversation').innerHTML +=
                 new Date(time).toLocaleDateString("en-US") + " " + new Date(time).toLocaleTimeString("en-US") + " <b>" + who + ":</b>&nbsp;" + content + "<br />";
 
@@ -174,41 +161,36 @@ function randomInteger(min, max) {
     return rand;
 }
 function connect() {
-    easyrtc.enableDataChannels(true);
+    audioConstraints = true;
+    videoConstraints = false;
     easyrtc.setAutoInitUserMedia(false);
     easyrtc.setRoomEntryListener();
-    easyrtc.setDataChannelCloseListener();
     easyrtc.setPeerListener(peerListener);
-    easyrtc.setRoomOccupantListener(RoomOccupantListener);
+    easyrtc.setRoomOccupantListener(RoomOccupantListenerBeforeInsert);
     easyrtc.setDisconnectListener(function () {
         easyrtc.closeLocalStream(myStreamName);
+        easyrtc.hangupAll();
         jQuery('#rooms').empty();
-        document.getElementById("main").className = "notconnected";
-        // swal({
-        //     type: 'error',
-        //     title: 'Oops...',
-        //     showConfirmButton: false,
-        //     allowOutsideClick: false,
-        //     html: '<div style="font-family: Arial, Helvetica, sans-serif;">Something went wrong. Please reload the page.</div>'
-        // });
     });
     updatePresence();
     easyrtc.connect("easyrtc.instantMessaging", loginSuccess, loginFailure);
-    //var screenShareButton = createLabelledButton("Desktop capture/share");
-    // screenShareButton.onclick = function () {
-    //     var streamName = "screen" + randomInteger(4, 99);
-    //     easyrtc.initDesktopStream(
-    //         function (stream) {
-    //             createLocalVideo(stream, streamName);
-    //             if (otherEasyrtcid) {
-    //                 easyrtc.addStreamToCall(otherEasyrtcid, streamName);
-    //             }
-    //         },
-    //         function (errCode, errText) {
-    //             easyrtc.showError(errCode, errText);
-    //         },
-    //         streamName);
-    // };
+    var screenShareButton = createLabelledButton("Desktop capture/share");
+    screenShareButton.onclick = function () {
+        if (videoConstraints != false) {
+            var streamName = "video";
+        }
+        easyrtc.initDesktopStream(
+            function (stream) {
+                createLocalVideo(stream, streamName);
+                if (otherEasyrtcid) {
+                    easyrtc.addStreamToCall(otherEasyrtcid, streamName);
+                }
+            },
+            function (errCode, errText) {
+                easyrtc.showError(errCode, errText);
+            },
+            streamName);
+    };
 };
 
 function getGroupId() {
@@ -283,7 +265,7 @@ function loginSuccess(easyrtcid) {
     });
     isConnected = true;
     // document.getElementById("main").className = "connected";
-    enable('otherClients');
+    //enable('otherClients');
     updatePresence();
     if (firstCon) {
         // swal({
@@ -322,8 +304,6 @@ function updatePresence() {
 }
 
 
-
-//STREAM PART
 var needCall = true;
 
 Array.prototype.deleteEach = function (value) {
@@ -354,7 +334,7 @@ function createLabelledButton(buttonLabel) {
 }
 
 
-function addMediaStreamToDiv(divId, stream, streamName, isLocal) {
+function addMediaStreamToLocalDiv(divId, stream, streamName, isLocal) {
     var container = document.createElement("div");
     var formattedName = streamName.replace("(", "<br>").replace(")", "");
     var labelBlock = document.createElement("div");
@@ -368,24 +348,123 @@ function addMediaStreamToDiv(divId, stream, streamName, isLocal) {
     video.type = "video/webm";
     video.id = "myVideo";
     video.preload = "none";
-    video.style.width = "100%";
-    video.style.height = "100%";
+    video.style.width = "0%";
+    video.style.height = "0%";
     video.style.marginBottom = "10px";
     video.style.verticalAlign = "middle";
-    video.muted = isLocal;
+    video.muted = true;
     video.controls = false;
+    video.autoplay = true;
     container.appendChild(video);
     container.setAttribute("class", "my-flex-block");
     document.getElementById(divId).appendChild(container);
-    video.autoplay = true;
     easyrtc.setVideoObjectSrc(video, stream);
     return labelBlock;
 }
 
-function createLocalVideo(stream, streamName) {
-    addMediaStreamToDiv("localVideos", stream, streamName, true);
-};
+function addMediaStreamToRemotelDiv(divId, stream, streamName, easyrtcid) {
+    let parent = document.getElementById(divId);
+    let child = createelem("div", "my-flex-block1", streamName + easyrtcid);
+    let indicators = createelem("div", "indicators", "indicators" + easyrtcid);
+    let audio = createelem("div", "micro-btn", "audio" + easyrtcid);
+    let iformicro = createelem("i", "material-icons small", "audioicon" + easyrtcid, { position: "absolute", width: "28px", height: "28px" }, "volume_up");
+    audio.appendChild(iformicro);
+    let video;
+    if (streamName == "video")
+        video = createelem("div", "micro-btn", "videobtn" + easyrtcid, { width: "100%", height: "100%" });
+    else
+        video = createelem("div", "micro-btn-disabled", "videobtn" + easyrtcid);
+    let iforvideo = createelem("i", "material-icons small", "videoicon" + easyrtcid, { position: "absolute", width: "28px", height: "28px" }, "video_label");
+    video.appendChild(iforvideo);
+    indicators.appendChild(video);
+    indicators.appendChild(audio);
+    child.appendChild(indicators);
+    let userinfo = createelem("div", "user-info", "userinfo" + easyrtcid, undefined, easyrtcid);
+    child.appendChild(userinfo);
+    let audioBlock = createelem("video", "", "mediablock" + easyrtcid);
+    easyrtc.setVideoObjectSrc(audioBlock, stream);
+    audioBlock.style.width = "100%";
+    audioBlock.style.height = "100%";
+    child.appendChild(audioBlock);
+    parent.appendChild(child);
+    appendeffect(audio.id, () => switcmicro(audioBlock.id, iformicro.id));
+    appendeffect(video.id, () => streamtomain(video.id, stream));
+}
 
+function createelem(name, classname, id, style, innerHTML, disabled) {
+    let elem = document.createElement(name);
+    elem.setAttribute("class", classname);
+    elem.id = id;
+    if (style != undefined)
+        elem.style = style;
+    if (innerHTML != undefined)
+        elem.innerHTML = innerHTML;
+    if (disabled != undefined) {
+        elem.disabled = disabled;
+    }
+    return elem;
+
+}
+function streamtomain(id, stream) {
+    easyrtc.setVideoObjectSrc(document.getElementById("meinMedia"), stream);
+}
+
+function switcmicro(audioBlockid, iid) {
+    var audioBlock = document.getElementById(audioBlockid);
+    var i = document.getElementById(iid);
+    if (audioBlock.muted === false) {
+        audioBlock.muted = true;
+        i.innerHTML = "volume_off";
+
+    }
+    else {
+        if (audioBlock.muted == true) {
+            audioBlock.muted = false;
+            i.innerHTML = "volume_up";
+        }
+    }
+}
+
+function appendeffect(id, func) {
+    $("#" + id + "").click(function (e) {
+        func();
+        // Remove any old one
+        $(".ripple").remove();
+
+        // Setup
+        var posX = $(this).offset().left,
+            posY = $(this).offset().top,
+            buttonWidth = $(this).width(),
+            buttonHeight = $(this).height();
+
+        // Add the element
+        $(this).prepend("<span class='ripple'></span>");
+
+
+        // Make it round!
+        if (buttonWidth >= buttonHeight) {
+            buttonHeight = buttonWidth;
+        } else {
+            buttonWidth = buttonHeight;
+        }
+
+        // Get the center of the element
+        var x = e.pageX - posX - buttonWidth / 2;
+        var y = e.pageY - posY - buttonHeight / 2;
+
+        // Add the ripples CSS and start the animation
+        $(".ripple").css({
+            width: buttonWidth,
+            height: buttonHeight,
+            top: y + 'px',
+            left: x + 'px'
+        }).addClass("rippleEffect");
+    });
+}
+
+function createLocalVideo(stream, streamName) {
+    addMediaStreamToLocalDiv("localVideos", stream, streamName, true);
+};
 function RoomOccupantListener(roomName, occupants) {
     for (var easyrtcid in occupants) {
         easyrtc.sendDataWS(easyrtcid, 'uid', { uid: functions.checkCookie("uid") }, function (ackMesg) {
@@ -393,6 +472,8 @@ function RoomOccupantListener(roomName, occupants) {
                 console.log(ackMesg.msgData.errorText);
             }
         });
+        if (listtocall.has(easyrtcid) != true)
+            listtocall.set(easyrtcid, true);
         setTimeout(() => {
             if (needCall) {
                 startMyscreen(true);
@@ -401,6 +482,19 @@ function RoomOccupantListener(roomName, occupants) {
             performCall(easyrtcid);
         }, 2000);
     }
+}
+var listtocall = new Map();
+function RoomOccupantListenerBeforeInsert(roomName, occupants) {
+    for (var easyrtcid in occupants) {
+        easyrtc.sendDataWS(easyrtcid, 'uid', { uid: functions.checkCookie("uid") }, function (ackMesg) {
+            if (ackMesg.msgType === 'error') {
+                console.log(ackMesg.msgData.errorText);
+            }
+        });
+        if (listtocall.has(easyrtcid) != true)
+            listtocall.set(easyrtcid, true);
+    }
+
 }
 
 function performCall(targetEasyrtcId) {
@@ -421,34 +515,25 @@ function performCall(targetEasyrtcId) {
 }
 
 
+var forem = [];
 easyrtc.setStreamAcceptor(function (easyrtcid, stream, streamName) {
-    //  if (document.getElementById("remoteBlock" + easyrtcid + streamName) == null && streamName != "default") {
-    //  document.getElementById("progress").style.display = "none";
-    //  document.getElementById("progressMessage").style.display = "none";
-    //   document.getElementById("remoteVideos").style.height = "" + ((screen.height / 2) - 75) + "px";
-    if (streamsforupdate["remoteBlock" + easyrtcid + streamName] != true) {
-        if (document.getElementById("remoteBlock" + easyrtcid + streamName) != null) {
-            var item = document.getElementById("remoteBlock" + easyrtcid + streamName);
-            item.parentNode.removeChild(item);
-            streamsforupdate["remoteBlock" + easyrtcid + streamName] = true;
+    if (streamName == "video") {
+        if (document.getElementById("video" + easyrtcid) == null) {
+            addMediaStreamToRemotelDiv("remoteVideos", stream, streamName, easyrtcid);
+            forem[easyrtcid] = streamName + easyrtcid;
         }
     }
-    if (document.getElementById("remoteBlock" + easyrtcid + streamName) == null && streamName != "default") {
-        var labelBlock = addMediaStreamToDiv("remoteVideos", stream, streamName, false);
-        labelBlock.parentNode.id = "remoteBlock" + easyrtcid + streamName;
-        labelBlock.parentNode.setAttribute("class", "my-flex-block");
-        labelBlock.parentNode.height = "100%";
-        labelBlock.parentNode.width = "100%";
+    else {
+        if (document.getElementById(streamName + easyrtcid) == null && streamName != "default") {
+            addMediaStreamToRemotelDiv("remoteVideos", stream, streamName, easyrtcid);
+            forem[easyrtcid] = streamName + easyrtcid;
+        }
     }
 
 });
 easyrtc.setOnStreamClosed(function (easyrtcid, stream, streamName) {
-    var item = document.getElementById("remoteBlock" + easyrtcid + streamName);
+    var item = document.getElementById(streamName + easyrtcid);
     item.parentNode.removeChild(item);
-    // document.getElementById("progress").style.display = "block";
-    // document.getElementById("progressMessage").style.display = "block";
-    // document.getElementById("remoteVideos").style.height = "0px";
-
 });
 
 
@@ -464,205 +549,27 @@ easyrtc.setAcceptChecker(function (easyrtcid, callback) {
     callback(true, easyrtc.getLocalMediaIds());
 });
 
-function initializeCarousel(divId) {
-    var slider = $('#' + divId + '');
-    slider.carousel({
-        full_width: true,
-        indicators: false
-    });
-    if (slider.hasClass('initialized')) {
-        slider.removeClass('initialized')
-    }
-    slider.carousel({
-        full_width: true,
-        indicators: false
-    });
-}
-
-function playSound() {
-    var snd = '<audio autoplay=true> <source src="/materals/ping.mp3"</audio>';
-    $('body').append(snd);
-}
-
 function startMyscreen(pointOfStart) {
-    var streamName = "screen" + randomInteger(4, 99);
-    if (pointOfStart) {
-        var position = null;
-        var imageUrl = '/materals/arrowTop.gif'
-        if (window.screen.width >= 1920 && window.screen.height >= 1080) {
-            position = 'top-end';
-            imageUrl = '/materals/arrowLeft.gif'
-        }
-        // swal({
-        //     position: position,
-        //     showConfirmButton: false,
-        //     allowOutsideClick: false,
-        //     title: 'You have successfully been connected to user ' + otherusername + '',
-        //     html: '<div style="font-family: Arial, Helvetica, sans-serif;">Please select the window <b>"WebSearch - Mozilla Firefox"</b> from the drop down menu and allow to share it.</div>',
-        //     imageUrl: imageUrl,
-        //     imageWidth: 130,
-        //     imageHeight: 125,
-        //     imageAlt: 'Custom image',
-        //     animation: false
-        // });
-    }
-    else {
-        // swal({
-        //     type: 'error',
-        //     title: 'Oops...',
-        //     showConfirmButton: false,
-        //     allowOutsideClick: false,
-        //     html: '<div style="font-family: Arial, Helvetica, sans-serif;">You have chosen the wrong screen! Please select the window <b>"WebSearch - Mozilla Firefox"</b> from the drop down menu and allow to share it.</div>',
-        // });
-    }
+    var streamName;
+    if (audioConstraints != false && videoConstraints == false)
+        streamName = "onlyaudio";
+    if (audioConstraints != false && videoConstraints != false)
+        streamName = "video";
     easyrtc.initDesktopStream(
         function (stream) {
             createLocalVideo(stream, streamName);
             myStreamName = streamName;
-            // swal.close();
             if (otherEasyrtcid) {
                 easyrtc.addStreamToCall(otherEasyrtcid, streamName);
             }
         },
         function (errCode, errText) {
-            // swal({
-            //     type: 'error',
-            //     title: 'Oops...',
-            //     showConfirmButton: false,
-            //     allowOutsideClick: false,
-            //     html: '<div style="font-family: Arial, Helvetica, sans-serif;">You need to allow your browser to share your screen! Please reload the page and share your screen.</div>',
-            // });
             easyrtc.showError(errCode, errText);
         },
         streamName);
 };
 
-function postFilesForInterval() {
-    postFiles();
-    localRecorder.startRecording();
-}
 
-
-function postFiles() {
-    var blob = localRecorder.getBlob();
-    var fileName = "myId=" + functions.checkCookie("myId") + "--time=" + new Date().toLocaleString().split(":").join(".") + '.webm';
-    // streamNamesForMerge.push(fileName);
-    var file = new File([blob], fileName, {
-        type: 'video/webm',
-        name: fileName
-    });
-    var formData = new FormData();
-    formData.append('file', file);
-    functions.xhr("/room/:roomId/saveRecord", formData, false);
-}
-
-function startRecord(stream) {
-    localRecorder = RecordRTC(stream, {
-        disableLogs: true
-    });
-    localRecorder.startRecording();
-};
-
-(function (root, factory) {
-    if (typeof define === 'function' && define.amd) {
-        define([], factory);
-    } else {
-        root.captureVideoFrame = factory();
-    }
-}(this, function () {
-    return function captureVideoFrame(video, format, quality) {
-        if (typeof video === 'string') {
-            video = document.getElementById(video);
-        }
-
-        format = format || 'jpeg';
-        quality = quality || 0.92;
-
-        if (!video || (format !== 'png' && format !== 'jpeg')) {
-            return false;
-        }
-
-        var canvas = document.createElement("CANVAS");
-
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-
-        canvas.getContext('2d').drawImage(video, 0, 0);
-
-        var dataUri = canvas.toDataURL('image/' + format, quality);
-        var data = dataUri.split(',')[1];
-        var mimeType = dataUri.split(';')[0].slice(5)
-
-        var bytes = window.atob(data);
-        var buf = new ArrayBuffer(bytes.length);
-        var arr = new Uint8Array(buf);
-
-        for (var i = 0; i < bytes.length; i++) {
-            arr[i] = bytes.charCodeAt(i);
-        }
-
-        var blob = new Blob([arr], { type: mimeType });
-        return { blob: blob, dataUri: dataUri, format: format };
-    };
-}));
-
-// function createVideoForTestStream(stream, streamName) {
-//     return new Promise((resolve, reject) => {
-//         var container = document.createElement("div");
-//         var formattedName = streamName.replace("(", "<br>").replace(")", "");
-//         var labelBlock = document.createElement("div");
-//         labelBlock.style.width = "100px";
-//         labelBlock.style.color = "white";
-//         labelBlock.innerHTML = formattedName;
-//         container.appendChild(labelBlock);
-//         var video = document.createElement("video");
-//         video.setAttribute("class", "responsive-video");
-//         video.type = "video/webm";
-//         video.id = "myVideo";
-//         video.style.width = screen.width - 100;
-//         video.style.height = (screen.height / 2) - 100;
-//         video.style.marginBottom = "10px";
-//         video.style.verticalAlign = "middle";
-//         video.muted = true;
-//         video.controls = false;
-
-//         video.autoplay = true;
-//         video.oncanplaythrough = function () {
-//             container.appendChild(video);
-//             document.getElementById("localVideos").appendChild(container);
-//             resolve();
-
-//         }
-//         easyrtc.setVideoObjectSrc(video, stream);
-
-//     });
-// }
-// function checkVideo() {
-//     return new Promise((resolve, reject) => {
-//         var frame = captureVideoFrame('myVideo', 'png');
-//         var img = new Image();
-//         var cvs = document.createElement('canvas');
-//         var ctx = cvs.getContext("2d");
-//         var idt;
-//         var pix;
-//         img.onload = function () {
-//             cvs.width = img.width; cvs.height = img.height;
-//             ctx.drawImage(img, 0, 0, cvs.width, cvs.height);
-//             idt = ctx.getImageData(0, 0, cvs.width, cvs.height);
-//             pix = idt.data;
-//             const code = jsQR(pix, cvs.width, cvs.height);
-//             if (code != null) {
-//                 if (code.data == "pairSearch" + functions.checkCookie("uid")) {
-//                     resolve();
-//                 }
-//             }
-//             else {
-//                 reject();
-//             }
-//         };
-//         img.setAttribute('src', frame.dataUri);
-//     });
-// }
 function iFrame() {
     let body = document.getElementById("body");
     let frame = document.createElement("iframe");
@@ -678,4 +585,28 @@ function iFrame() {
     frame.style.overflow = "auto";
     body.appendChild(frame);
 
+}
+
+function hangupAll() {
+    easyrtc.hangupAll();
+    document.getElementById("hangupAll").disabled = true;
+    document.getElementById("insertmediachat").disabled = false;
+    document.getElementById("forremoteVideos").style.display = "none";
+    document.getElementById("111").style.height = "5%";
+    document.getElementById("mediachatcontrols").style.height = "100%";
+
+    easyrtc.setRoomOccupantListener(RoomOccupantListenerBeforeInsert);
+
+}
+
+function insertmediachat() {
+    document.getElementById("forremoteVideos").style.display = "block";
+    document.getElementById("111").style.height = "50%";
+    document.getElementById("mediachatcontrols").style.height = "5%";
+    document.getElementById("hangupAll").disabled = false;
+    document.getElementById("insertmediachat").disabled = true;
+    easyrtc.setRoomOccupantListener(RoomOccupantListener);
+    for (let easyrtcid of listtocall.keys()) {
+        performCall(easyrtcid);
+    }
 }
