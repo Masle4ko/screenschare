@@ -1810,3 +1810,4 @@ ER_BAD_FIELD_ERROR: Unknown column 'NaN' in 'where clause' (C:\Users\PC\Document
 [2018-11-29T21:12:08.325] [INFO] default - success user login with uid=8 his user_id=2216 (C:\Users\Masloy\Desktop\easyrtc\server_example\server.js:83:32)
 [2018-11-29T21:12:10.145] [INFO] default - success user login with uid=9 his user_id=2217 (C:\Users\Masloy\Desktop\easyrtc\server_example\server.js:83:32)
 >>>>>>> 585aee11f9307b2c9235fbf59bddb80039812147
+[2018-12-11T01:03:50.170] [INFO] default - success user login with uid=6 his user_id=3119 (C:\Users\PC\Documents\GitHub\screenschare\server_example\server.js:83:32)
