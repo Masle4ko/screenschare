@@ -367,19 +367,30 @@ function addMediaStreamToRemotelDiv(divId, stream, streamName, easyrtcid) {
     let child = createelem("div", "my-flex-block1", streamName + easyrtcid);
     let indicators = createelem("div", "indicators", "indicators" + easyrtcid);
     let audio = createelem("div", "micro-btn", "audio" + easyrtcid);
-    let iformicro = createelem("i", "material-icons small", "audioicon" + easyrtcid, { position: "absolute", width: "28px", height: "28px" }, "volume_up");
+    let iformicro = createelem("i", "material-icons small", "audioicon" + easyrtcid, { position: "absolute", width: "28px", height: "28px", }, "volume_up");
+    console.log(window.screen.availHeight < 1080 && window.screen.availWidth < 1920);
+    if (window.screen.availHeight < 1080 && window.screen.availWidth < 1920) {
+        iformicro.style.fontSize = "12px";
+
+    }
     audio.appendChild(iformicro);
     let video;
+    let fontsize;
     if (streamName == "video")
-        video = createelem("div", "micro-btn", "videobtn" + easyrtcid, { width: "100%", height: "100%" });
+        video = createelem("div", "micro-btn", "videobtn" + easyrtcid);
     else
         video = createelem("div", "micro-btn-disabled", "videobtn" + easyrtcid);
+
     let iforvideo = createelem("i", "material-icons small", "videoicon" + easyrtcid, { position: "absolute", width: "28px", height: "28px" }, "video_label");
+    if (window.screen.availHeight < 1080 && window.screen.availWidth < 1920)
+        iforvideo.style.fontSize = "12px";
     video.appendChild(iforvideo);
     indicators.appendChild(video);
     indicators.appendChild(audio);
     child.appendChild(indicators);
     let userinfo = createelem("div", "user-info", "userinfo" + easyrtcid, undefined, easyrtcid);
+    if (window.screen.availHeight < 1080 && window.screen.availWidth < 1920)
+        userinfo.style.fontSize = "10px";
     child.appendChild(userinfo);
     let audioBlock = createelem("video", "", "mediablock" + easyrtcid);
     easyrtc.setVideoObjectSrc(audioBlock, stream);
