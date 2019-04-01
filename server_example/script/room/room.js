@@ -174,7 +174,7 @@ function connect() {
         });
     });
     updatePresence();
-    easyrtc.connect("easyrtc.instantMessaging", loginSuccess, loginFailure);
+    easyrtc.connect("easyrtc", loginSuccess, loginFailure);
     var screenShareButton = createLabelledButton("Desktop capture/share");
     screenShareButton.onclick = function () {
         var streamName = "screen" + randomInteger(4, 99);

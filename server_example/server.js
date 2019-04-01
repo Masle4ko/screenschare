@@ -29,8 +29,8 @@ app.use(express.static(__dirname + '/view'));
 app.use(express.static(__dirname + '/uploads'));
 app.use(express.static(__dirname + '/script'));
 app.use(express.static(__dirname + '/logs'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json({limit: '30mb', extended: true}));
+app.use(bodyParser.urlencoded({limit: '30mb', extended: true}));
 var timers = new Array();
 var streamNamesForMerge = new Array();
 
@@ -144,7 +144,7 @@ var myIceServers = [
 ];
 
 easyrtc.setOption("appIceServers", myIceServers);
-var socketServer = socketIo.listen(webServer, { "log level": 1 });
+var socketServer = socketIo.listen(webServer, { "log level": "debug"});
 //easyrtc.setOption("logLevel", "debug");
 easyrtc.events.on("easyrtcAuth", function (socket, easyrtcid, msg, socketCallback, callback) {
     easyrtc.events.defaultListeners.easyrtcAuth(socket, easyrtcid, msg, socketCallback, function (err, connectionObj) {
