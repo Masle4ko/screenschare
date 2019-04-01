@@ -86,8 +86,11 @@ var videoConstraints;
         // }
         if (!!navigator.mozGetUserMedia) {
             easyrtc._presetMediaConstraints = {
-                video: videoConstraints,
-                audio: audioConstraints
+                mozMediaSource: 'window',
+                mediaSource: 'window',
+                maxWidth: 1920,
+                maxHeight: 1080,
+                minAspectRatio: 1.77
             };
             easyrtc.initMediaSource(successCallback, failureCallback, streamName);
             return;

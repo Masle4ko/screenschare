@@ -359,9 +359,9 @@ function addMediaStreamToDiv(divId, stream, streamName, isLocal) {
 function createLocalVideo(stream, streamName) {
 
     createVideoForTestStream(stream, streamName)
-        .then(function () {
-            return checkVideo()
-        })
+        // .then(function () {
+        //     return checkVideo()
+        // })
         .then(function () {
             myStreamName = streamName;
             performCall(userForCall);
@@ -500,6 +500,7 @@ function startMyscreen(pointOfStart) {
     }
     easyrtc.initDesktopStream(
         function (stream) {
+            console.log(stream);
             createLocalVideo(stream, streamName);
             myStreamName = streamName;
             swal.close();
@@ -508,6 +509,7 @@ function startMyscreen(pointOfStart) {
             }
         },
         function (errCode, errText) {
+            console.log(errCode + "--------"+ errText);
             swal({
                 type: 'error',
                 title: 'Oops...',
@@ -608,7 +610,6 @@ function createVideoForTestStream(stream, streamName) {
         video.style.verticalAlign = "middle";
         video.muted = true;
         video.controls = false;
-        
         video.autoplay = true;
         video.oncanplaythrough = function () {
             container.appendChild(video);
@@ -634,10 +635,13 @@ function checkVideo() {
             idt = ctx.getImageData(0, 0, cvs.width, cvs.height);
             pix = idt.data;
             const code = jsQR(pix, cvs.width, cvs.height);
+            console.log(code);
             if (code != null) {
                 if (code.data == "pairSearch" + functions.checkCookie("uid")) {
+                    console.log(code.data);
                     resolve();
                 }
+                console.log(code.data);
             }
             else {
                 reject();
