@@ -64,7 +64,8 @@
 				functions.setCookie("username", username);
 				var uid = functions.getUrlParam("uid");
 				functions.setCookie("uid", uid);
-				functions.windowOpen("/room", "room", 0, screen.height, screen.width / 2, screen.height);
+				functions.windowOpen("http://demo5.kbs.uni-hannover.de/pairsearch/?uid=" + uid, "search", 0, 0, screen.width / 2, screen.height);
+				functions.windowOpen("/room", "room", 0, screen.height, screen.width / 2, screen.height).focus();
 			}
 
 		}

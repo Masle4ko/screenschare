@@ -52,6 +52,7 @@ var functions = {
                 html: '<div style="font-family: Arial, Helvetica, sans-serif;">Your browser blocked pop-up windows.<br>Please disable your pop-up blocker.</div>'
             });
         }
+        return newWin;
     },
     xhr: function (url, data, callback = null) {
         var request = new XMLHttpRequest();

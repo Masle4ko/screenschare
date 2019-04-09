@@ -169,7 +169,7 @@ easyrtc.events.on("msgTypeGetRoomList", function (connectionObj, socketCallback,
             }
             else {
                 for (var roomName in roomList) {
-                    if (roomList[roomName].numberClients < 6) {
+                    if (roomList[roomName].numberClients < 2) {
                         connectionObj.util.sendSocketCallbackMsg(easyrtcid, socketCallback, { "msgType": "roomList", "msgData": { "roomList": JSON.stringify(roomName) } }, appObj);
                         return;
                     }
