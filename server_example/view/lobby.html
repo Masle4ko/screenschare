@@ -32,15 +32,26 @@
 	</div>
 	<script type="text/javascript">
 		function checkBrowser() {
-			// if ( !!window.chrome && !!window.chrome.webstore) {
-			//     swal({
-			//         type: 'error',
-			//         title: 'Oops...',
-			//         showConfirmButton: false,
-			//         allowOutsideClick: false,
-			//         html: '<div style="font-family: Arial, Helvetica, sans-serif;">Currently ScreenShare works only in Firefox.<br> Please open this page in Firefox.</div>'
-			//     });
-			// }
+			console.log(navigator.appVersion.indexOf("Win"));
+			if ( !!window.chrome && !!window.chrome.webstore) {
+			    swal({
+			        type: 'error',
+			        title: 'Oops...',
+			        showConfirmButton: false,
+			        allowOutsideClick: false,
+			        html: '<div style="font-family: Arial, Helvetica, sans-serif;">Currently ScreenShare works only in <a href="https://www.mozilla.org">Firefox</a>.<br> Please open this page in <a href="https://www.mozilla.org">Firefox</a>.</div>'
+			    });
+			}
+			if (navigator.appVersion.indexOf("Win")==-1){
+				swal({
+			        type: 'error',
+			        title: 'Oops...',
+			        showConfirmButton: false,
+			        allowOutsideClick: false,
+					html: '<div style="font-family: Arial, Helvetica, sans-serif;">This task requires Firefox for Windows.</div>'
+			    });
+				
+			}
 		}
 		document.onkeypress = function (e) {
 			e = e || window.event;

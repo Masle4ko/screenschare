@@ -1,13 +1,12 @@
-
-var isConnected = false;
 var otherEasyrtcid = null;
-var needToCallOtherUsers;
 var otherusername;
 var localRecorder;
 var streamNamesForMerge = [];
 var myStreamName;
 var myusername;
 var myroomname;
+var mysessionid;
+var myuid;
 function initApp() {
     connect();
     window.onbeforeunload = function () {
@@ -20,10 +19,6 @@ function initApp() {
 
 
 function addToConversation(who, msgType, content, targeting) {
-    if (msgType === 'otherusername') {
-        otherusername = content.username;
-        return;
-    }
     if (!content) {
         content = "**no body**";
     }
@@ -85,7 +80,7 @@ function addRoom(roomid, parmString, userAdded) {
         roomdiv.id = roomid;
         roomdiv.className = "roomDiv";
         var roomButton = document.createElement("button");
-        roomButton.id = functions.checkCookie("roomName");
+        roomButton.id =myroomname;
         roomButton.setAttribute("class", "waves-effect waves-light btn btn-success");
         roomButton.onclick = function () {
             sendMessageToChat(null, roomButton.id);
@@ -167,22 +162,25 @@ function connect() {
         });
     });
     updatePresence();
+    myusername = functions.checkCookie("username");
+    myuid = functions.checkCookie("uid");
+    easyrtc.setUsername(myusername);
     easyrtc.connect("easyrtc", loginSuccess, loginFailure);
-    var screenShareButton = createLabelledButton("Desktop capture/share");
-    screenShareButton.onclick = function () {
-        var streamName = "screen" + randomInteger(4, 99);
-        easyrtc.initDesktopStream(
-            function (stream) {
-                createLocalVideo(stream, streamName);
-                if (otherEasyrtcid) {
-                    easyrtc.addStreamToCall(otherEasyrtcid, streamName);
-                }
-            },
-            function (errCode, errText) {
-                easyrtc.showError(errCode, errText);
-            },
-            streamName);
-    };
+    // var screenShareButton = createLabelledButton("Desktop capture/share");
+    // screenShareButton.onclick = function () {
+    //     var streamName = "screen" + randomInteger(4, 99);
+    //     easyrtc.initDesktopStream(
+    //         function (stream) {
+    //             createLocalVideo(stream, streamName);
+    //             if (otherEasyrtcid) {
+    //                 easyrtc.addStreamToCall(otherEasyrtcid, streamName);
+    //             }
+    //         },
+    //         function (errCode, errText) {
+    //             easyrtc.showError(errCode, errText);
+    //         },
+    //         streamName);
+    // };
 };
 
 function getGroupId() {
@@ -229,26 +227,23 @@ function sendMessageToChat(destTargetId, destRoom) {
     }
     addToConversation("Me", "messageToChat", { text: text, senderName: myusername });
     document.getElementById('sendMessageText').value = "";
-    functions.xhr("/room/:roomId/saveMessage", JSON.stringify({ user_id: functions.checkCookie("myId"), roomId: functions.checkCookie("roomName"), name: myusername, chat: functions.checkCookie("lastMessage") }));
+    functions.xhr("/room/:roomId/saveMessage", JSON.stringify({ user_id: mysessionid, roomId: myroomname, name: myusername, chat: functions.checkCookie("lastMessage") }));
 }
 
 
 function loginSuccess(easyrtcid) {
-    myusername = functions.checkCookie("username");
-    myroomname = functions.checkCookie("roomName");
-    console.log(myusername);
-    easyrtc.getRoomList(function (roomList) {
-        functions.setCookie("roomName", JSON.parse(roomList));
-        addRoom(JSON.parse(roomList), null, true);
-        functions.xhr("/room/login", JSON.stringify({ external_client_id: functions.checkCookie("uid"), room_id: myroomname, name: myusername }), function (responseText) {
+    easyrtc.getRoomList(function (roomName) {
+        myroomname = JSON.parse(roomName);
+        addRoom(myroomname, null, true);
+        functions.xhr("/room/login", JSON.stringify({ external_client_id: myuid, room_id: myroomname, name: myusername, myeasyrtcid: easyrtcid }), function (responseText) {
             if (Number.isInteger(Number(JSON.parse(responseText).result))) {
                 functions.setCookie("myId", JSON.parse(responseText).result);
+                mysessionid=JSON.parse(responseText).result;
             }
         });
     }, function (errorCode, errorText) {
         console.log(errorCode + errorText);
     });
-    isConnected = true;
     document.getElementById("main").className = "connected";
     enable('otherClients');
     updatePresence();
@@ -355,7 +350,7 @@ function createLocalVideo(stream, streamName) {
             myStreamName = streamName;
             //performCall(userForCall);
             // startRecord(stream);
-            // $.post("/event", { myId: parseInt(functions.checkCookie("myId")), eventId: 3 });
+             functions.xhr("/event", JSON.stringify({ myId: mysessionid, eventId: 3 }));
             // var recordInterval = setInterval(function () {
             //     localRecorder.stopRecording(postFilesForInterval);
             // }, 10000);
@@ -368,11 +363,7 @@ function createLocalVideo(stream, streamName) {
 
 function RoomOccupantListener(roomName, occupants) {
     for (var easyrtcid in occupants) {
-        easyrtc.sendDataWS(easyrtcid, 'otherusername', { username: myusername }, function (ackMesg) {
-            if (ackMesg.msgType === 'error') {
-                console.log(ackMesg.msgData.errorText);
-            }
-        });
+        otherusername = easyrtc.idToName(easyrtcid);
         setTimeout(() => {
             if (needCall) {
                 startMyscreen(true);
@@ -399,7 +390,6 @@ function performCall(targetEasyrtcId) {
     var keys = easyrtc.getLocalMediaIds();
     easyrtc.call(targetEasyrtcId, successCB, failureCB, acceptedCB, keys);
 }
-
 
 easyrtc.setStreamAcceptor(function (easyrtcid, stream, streamName) {
     if (document.getElementById("remoteBlock" + easyrtcid + streamName) != null) {
@@ -491,7 +481,6 @@ function startMyscreen(pointOfStart) {
     }
     easyrtc.initDesktopStream(
         function (stream) {
-            console.log(stream);
             createLocalVideo(stream, streamName);
             myStreamName = streamName;
             swal.close();
@@ -520,7 +509,7 @@ function postFilesForInterval() {
 
 function postFiles() {
     var blob = localRecorder.getBlob();
-    var fileName = "myId=" + functions.checkCookie("myId") + "--time=" + new Date().toLocaleString().split(":").join(".") + '.webm';
+    var fileName = "myId=" + mysessionid + "--time=" + new Date().toLocaleString().split(":").join(".") + '.webm';
     // streamNamesForMerge.push(fileName);
     var file = new File([blob], fileName, {
         type: 'video/webm',
@@ -626,7 +615,7 @@ function checkVideo() {
             pix = idt.data;
             const code = jsQR(pix, cvs.width, cvs.height);
             if (code != null) {
-                if (code.data == "pairSearch" + functions.checkCookie("uid")) {
+                if (code.data == "pairSearch" + myuid) {
                     document.getElementById("myVideo").parentNode.removeChild(document.getElementById("myVideo"));
                     resolve();
                 }

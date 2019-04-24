@@ -29,10 +29,11 @@ app.use(express.static(__dirname + '/view'));
 app.use(express.static(__dirname + '/uploads'));
 app.use(express.static(__dirname + '/script'));
 app.use(express.static(__dirname + '/logs'));
-app.use(bodyParser.json({limit: '30mb', extended: true}));
-app.use(bodyParser.urlencoded({limit: '30mb', extended: true}));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 var timers = new Array();
 var streamNamesForMerge = new Array();
+var usersSessionIds={};
 
 log4js.configure({
     appenders: {
@@ -80,7 +81,10 @@ app.post("/room/login", function (request, response) {
                     logger.error(sql + '\n' + error.message);
                 } else {
                     if (Number.isInteger(Number(result.insertId))) {
+                        usersSessionIds[request.body.myeasyrtcid]=result.insertId;
                         logger.info('success user login with uid=' + request.body.external_client_id + ' his user_id=' + result.insertId);
+                        saveEvent(result.insertId,1);
+                        response.setHeader('content-type', "application/json; charset=utf-8");
                         response.write(JSON.stringify({
                             result: result.insertId
                         }));
@@ -100,12 +104,13 @@ app.post("/room/getchat", function (request, response) {
     if (request.body.room_id != null) {
         DB.getConnection(function (err, connection) {
             if (err) logger.error(err);
-            var sql = "SELECT chat.room_id, user.external_client_id, chat.timestamp, chat.text, user.username FROM `user` inner join `chat` on  user.user_id=chat.user_id WHERE chat.room_id="+DB.escape(Number(request.body.room_id));
+            var sql = "SELECT chat.room_id, user.external_client_id, chat.timestamp, chat.text, user.username FROM `user` inner join `chat` on  user.user_id=chat.user_id WHERE chat.room_id=" + DB.escape(Number(request.body.room_id));
             connection.query(sql, function (error, result, fields) {
                 connection.release();
                 if (error) {
                     logger.error(sql + '\n' + error.message);
                 } else {
+                    response.setHeader('content-type', "application/json; charset=utf-8");
                     response.write(JSON.stringify({
                         result: result
                     }));
@@ -118,6 +123,7 @@ app.post("/room/getchat", function (request, response) {
 });
 
 app.post('/event', function (req, res) {
+    console.log(req.body.eventId);
     saveEvent(req.body.myId, req.body.eventId);
 });
 app.get('/room', function (req, res) {
@@ -144,7 +150,7 @@ var myIceServers = [
 ];
 
 easyrtc.setOption("appIceServers", myIceServers);
-var socketServer = socketIo.listen(webServer, { "log level": "debug"});
+var socketServer = socketIo.listen(webServer, { "log level": 1 });
 //easyrtc.setOption("logLevel", "debug");
 easyrtc.events.on("easyrtcAuth", function (socket, easyrtcid, msg, socketCallback, callback) {
     easyrtc.events.defaultListeners.easyrtcAuth(socket, easyrtcid, msg, socketCallback, function (err, connectionObj) {
@@ -179,7 +185,6 @@ easyrtc.events.on("msgTypeGetRoomList", function (connectionObj, socketCallback,
         }
     );
 });
-
 // Start EasyRTC server
 var rtc = easyrtc.listen(app, socketServer, function (err, rtcRef) {
     console.log("Initiated");
@@ -188,6 +193,12 @@ var rtc = easyrtc.listen(app, socketServer, function (err, rtcRef) {
         appObj.events.defaultListeners.roomCreate(appObj, creatorConnectionObj, roomName, roomOptions, callback);
     });
 });
+easyrtc.events.on('disconnect', function(connectionObj, next) {
+    saveEvent(usersSessionIds[connectionObj.getEasyrtcid()], 4);
+    delete usersSessionIds[connectionObj.getEasyrtcid()];
+    connectionObj.events.defaultListeners.disconnect(connectionObj, next);
+});
+
 
 app.post("/room/:roomId/saveMessage", function (req, res) {
     if (Number.isInteger(Number(req.body.user_id)) && Number(req.body.user_id) > 1) {
