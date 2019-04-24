@@ -16,6 +16,7 @@
 	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
 	<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Detect.js/2.2.2/detect.min.js"></script>
 </head>
 
 <body onload="checkBrowser()">
@@ -32,8 +33,9 @@
 	</div>
 	<script type="text/javascript">
 		function checkBrowser() {
-			console.log(navigator.appVersion.indexOf("Win"));
-			if ( !!window.chrome && !!window.chrome.webstore) {
+			var ua = detect.parse(navigator.userAgent);
+			console.log(ua.os.family);
+			if ( ua.browser.family!="Firefox") {
 			    swal({
 			        type: 'error',
 			        title: 'Oops...',
@@ -42,7 +44,7 @@
 			        html: '<div style="font-family: Arial, Helvetica, sans-serif;">Currently ScreenShare works only in <a href="https://www.mozilla.org">Firefox</a>.<br> Please open this page in <a href="https://www.mozilla.org">Firefox</a>.</div>'
 			    });
 			}
-			if (navigator.appVersion.indexOf("Win")==-1){
+			if (!ua.os.family.includes("Windows")){
 				swal({
 			        type: 'error',
 			        title: 'Oops...',

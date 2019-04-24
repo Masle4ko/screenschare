@@ -2460,3 +2460,6 @@ ER_BAD_FIELD_ERROR: Unknown column 'NaN' in 'where clause' (C:\Users\PC\Document
 [2019-04-24T14:16:23.212] [INFO] default - Successfully saved event with id=3 from client id=3601 (C:\Users\Masloy\Desktop\easyrtc\server_example\server.js:262:28)
 [2019-04-24T14:16:38.611] [INFO] default - Successfully saved event with id=4 from client id=3601 (C:\Users\Masloy\Desktop\easyrtc\server_example\server.js:262:28)
 [2019-04-24T14:16:45.561] [INFO] default - Successfully saved event with id=4 from client id=3600 (C:\Users\Masloy\Desktop\easyrtc\server_example\server.js:262:28)
+[2019-04-24T15:04:38.560] [INFO] default - success user login with uid=fgh his user_id=3602 (C:\Users\Masloy\Desktop\easyrtc\server_example\server.js:85:32)
+[2019-04-24T15:04:38.678] [INFO] default - Successfully saved event with id=1 from client id=3602 (C:\Users\Masloy\Desktop\easyrtc\server_example\server.js:262:28)
+[2019-04-24T15:09:00.174] [INFO] default - Successfully saved event with id=4 from client id=3602 (C:\Users\Masloy\Desktop\easyrtc\server_example\server.js:262:28)

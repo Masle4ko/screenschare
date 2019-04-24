@@ -59,17 +59,20 @@ var DB = mysql.createPool({
 });
 
 app.get('/', function (req, res) {
-    res.sendFile(__dirname + "/view/start.html");
-});
-app.get('/test', function (req, res) {
-    res.sendFile(__dirname + "/view/iFrameTest.html");
-});
-app.get('/iframe', function (req, res) {
-    res.sendFile(__dirname + "/view/roomForIframe.html");
-});
-app.get('/lobby', function (req, res) {
     res.sendFile(__dirname + "/view/lobby.html");
 });
+app.get('/room', function (req, res) {
+    res.sendFile(__dirname + "/view/room.html");
+});
+// app.get('/test', function (req, res) {
+//     res.sendFile(__dirname + "/view/iFrameTest.html");
+// });
+// app.get('/iframe', function (req, res) {
+//     res.sendFile(__dirname + "/view/roomForIframe.html");
+// });
+// app.get('/lobby', function (req, res) {
+//     res.sendFile(__dirname + "/view/lobby.html");
+// });
 app.post("/room/login", function (request, response) {
     if (request.body.external_client_id != null) {
         DB.getConnection(function (err, connection) {
@@ -125,9 +128,6 @@ app.post("/room/getchat", function (request, response) {
 app.post('/event', function (req, res) {
     console.log(req.body.eventId);
     saveEvent(req.body.myId, req.body.eventId);
-});
-app.get('/room', function (req, res) {
-    res.sendFile(__dirname + "/view/room.html");
 });
 
 var webServer = http.createServer(app).listen(8000);
