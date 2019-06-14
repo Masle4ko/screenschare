@@ -107,11 +107,9 @@
 				functions.setCookie("uid", uid);
 				var searchWindow = functions.windowOpen("http://demo5.kbs.uni-hannover.de/pairsearch/?uid=" + uid, "search", 0, 0, screen.width / 2, screen.height);
 				var room = functions.windowOpen("/room", "room", 0, screen.height, screen.width / 2, screen.height);
-				// room.document.onreadystatechange = function () {
-				// 	if (room.document.readyState === "complete") {
-				// 		room.focus();
-				// 	}
-				// }
+				if (!room || room.closed || typeof room.closed == 'undefined') {
+					searchWindow.close();
+				}
 				return false;
 			}
 		}
