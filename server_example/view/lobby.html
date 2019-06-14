@@ -11,7 +11,8 @@
 	<link rel="stylesheet" href="/css/start/style.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
-	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.24.4/sweetalert2.all.js"></script>
+	<script type="text/javascript"
+		src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.24.4/sweetalert2.all.js"></script>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.24.3/sweetalert2.css">
 	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
@@ -19,10 +20,10 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/Detect.js/2.2.2/detect.min.js"></script>
 </head>
 
-<body onload="checkBrowser()">
+<body onload="onPageLoad()">
 	<div id="join">
 		<div id="join-form">
-			<form class="col s12" id="formId" onsubmit="start(); return false;">
+			<form class="col s12" id="formId" onsubmit="return start();">
 				<div class="input-field col s12">
 					<input id="userNameField" type="text">
 					<label for="userNameField">Username</label>
@@ -32,27 +33,52 @@
 		</div>
 	</div>
 	<script type="text/javascript">
+		function onPageLoad() {
+			checkBrowser();
+			checkuid(functions.getUrlParam("uid"));
+			checkNickName(functions.checkCookie("username"));
+		}
+
+		function checkuid(uid) {
+			if (uid === undefined || uid === null)
+				swal({
+					type: 'error',
+					title: 'Oops...',
+					showConfirmButton: false,
+					allowOutsideClick: false,
+					html: '<div style="font-family: Arial, Helvetica, sans-serif;">We can not identify you. Please return to <a href="https://www.mturk.com/">Amazon Mechanical Turk.</div>'
+				});
+			else {
+				functions.setCookie("uid", uid);
+			}
+		}
+
+		function checkNickName(name) {
+			if (name)
+				document.getElementById("userNameField").value = name;
+		}
+
 		function checkBrowser() {
 			var ua = detect.parse(navigator.userAgent);
 			console.log(ua.os.family);
-			if ( ua.browser.family!="Firefox") {
-			    swal({
-			        type: 'error',
-			        title: 'Oops...',
-			        showConfirmButton: false,
-			        allowOutsideClick: false,
-			        html: '<div style="font-family: Arial, Helvetica, sans-serif;">Currently ScreenShare works only in <a href="https://www.mozilla.org">Firefox</a>.<br> Please open this page in <a href="https://www.mozilla.org">Firefox</a>.</div>'
-			    });
-			}
-			if (!ua.os.family.includes("Windows")){
+			if (ua.browser.family != "Firefox") {
 				swal({
-			        type: 'error',
-			        title: 'Oops...',
-			        showConfirmButton: false,
-			        allowOutsideClick: false,
+					type: 'error',
+					title: 'Oops...',
+					showConfirmButton: false,
+					allowOutsideClick: false,
+					html: '<div style="font-family: Arial, Helvetica, sans-serif;">Currently ScreenShare works only in <a href="https://www.mozilla.org">Firefox</a>.<br> Please open this page in <a href="https://www.mozilla.org">Firefox</a>.</div>'
+				});
+			}
+			if (!ua.os.family.includes("Windows")) {
+				swal({
+					type: 'error',
+					title: 'Oops...',
+					showConfirmButton: false,
+					allowOutsideClick: false,
 					html: '<div style="font-family: Arial, Helvetica, sans-serif;">This task requires Firefox for Windows.</div>'
-			    });
-				
+				});
+
 			}
 		}
 		document.onkeypress = function (e) {
@@ -77,10 +103,15 @@
 				functions.setCookie("username", username);
 				var uid = functions.getUrlParam("uid");
 				functions.setCookie("uid", uid);
-				functions.windowOpen("http://demo5.kbs.uni-hannover.de/pairsearch/?uid=" + uid, "search", 0, 0, screen.width / 2, screen.height);
-				functions.windowOpen("/room", "room", 0, screen.height, screen.width / 2, screen.height).focus();
+				var searchWindow = functions.windowOpen("http://demo5.kbs.uni-hannover.de/pairsearch/?uid=" + uid, "search", 0, 0, screen.width / 2, screen.height);
+				var room = functions.windowOpen("/room", "room", 0, screen.height, screen.width / 2, screen.height);
+				// room.document.onreadystatechange = function () {
+				// 	if (room.document.readyState === "complete") {
+				// 		room.focus();
+				// 	}
+				// }
+				return false;
 			}
-
 		}
 	</script>
 </body>
