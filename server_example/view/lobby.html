@@ -34,8 +34,8 @@
 	</div>
 	<script type="text/javascript">
 		function onPageLoad() {
-			checkBrowser();
-			checkuid(functions.getUrlParam("uid"));
+			if (checkBrowser())
+				checkuid(functions.getUrlParam("uid"));
 			checkNickName(functions.checkCookie("username"));
 		}
 
@@ -61,15 +61,6 @@
 		function checkBrowser() {
 			var ua = detect.parse(navigator.userAgent);
 			console.log(ua.os.family);
-			if (ua.browser.family != "Firefox") {
-				swal({
-					type: 'error',
-					title: 'Oops...',
-					showConfirmButton: false,
-					allowOutsideClick: false,
-					html: '<div style="font-family: Arial, Helvetica, sans-serif;">Currently ScreenShare works only in <a href="https://www.mozilla.org">Firefox</a>.<br> Please open this page in <a href="https://www.mozilla.org">Firefox</a>.</div>'
-				});
-			}
 			if (!ua.os.family.includes("Windows")) {
 				swal({
 					type: 'error',
@@ -78,8 +69,19 @@
 					allowOutsideClick: false,
 					html: '<div style="font-family: Arial, Helvetica, sans-serif;">This task requires Firefox for Windows.</div>'
 				});
-
+				return false;
 			}
+			if (ua.browser.family != "Firefox") {
+				swal({
+					type: 'error',
+					title: 'Oops...',
+					showConfirmButton: false,
+					allowOutsideClick: false,
+					html: '<div style="font-family: Arial, Helvetica, sans-serif;">Currently ScreenShare works only in <a href="https://www.mozilla.org">Firefox</a>.<br> Please open this page in <a href="https://www.mozilla.org">Firefox</a>.</div>'
+				});
+				return false;
+			}
+			return true;
 		}
 		document.onkeypress = function (e) {
 			e = e || window.event;
