@@ -232,6 +232,7 @@ function sendMessageToChat(destTargetId, destRoom) {
 
 
 function loginSuccess(easyrtcid) {
+    window.opener.postMessage("windows checking", window.opener.location.href);
     easyrtc.getRoomList(function (roomName) {
         myroomname = JSON.parse(roomName);
         addRoom(myroomname, null, true);

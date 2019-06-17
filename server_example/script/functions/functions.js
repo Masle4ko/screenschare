@@ -42,9 +42,10 @@ var functions = {
         return (params[id]);
     },
     windowOpen: function (url, title, top, left, width, height, location = "1", toolbar = "1", menubar = "1", scrollbars = "1", resizable = "0") {
-        var newWin = window.open(url, title, "top=" + 0 + ", left=" + left + ", width=" + width + ",height=" + height + ", location=" + location + ", toolbar=" + toolbar + ", menubar=" + menubar + ",scrollbars=" + scrollbars + ",resizable=" + resizable + "");
+        var newWin;
+        newWin = window.open(url, title, "top=" + 0 + ", left=" + left + ", width=" + width + ",height=" + height + ", location=" + location + ", toolbar=" + toolbar + ", menubar=" + menubar + ",scrollbars=" + scrollbars + ",resizable=" + resizable + "");
         if (!newWin || newWin.closed || typeof newWin.closed == 'undefined') {
-            var empty = {};
+            newWin = {};
             swal({
                 type: 'error',
                 title: 'Oops...',
@@ -52,7 +53,6 @@ var functions = {
                 allowOutsideClick: false,
                 html: '<div style="font-family: Arial, Helvetica, sans-serif;">Your browser blocked pop-up windows.<br>Please disable your pop-up blocker.</div>'
             });
-            return empty;
         }
         return newWin;
     },

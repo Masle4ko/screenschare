@@ -12,7 +12,7 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
 	<script type="text/javascript"
-	src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.24.4/sweetalert2.all.js"></script>
+		src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.24.4/sweetalert2.all.js"></script>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.24.3/sweetalert2.css">
 	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
@@ -33,7 +33,10 @@
 		</div>
 	</div>
 	<script type="text/javascript">
+		var searchWindow;
+		var roomWindow;
 		function onPageLoad() {
+			window.addEventListener("message", receiveMessage, false);
 			if (checkBrowser())
 				checkuid(functions.getUrlParam("uid"));
 			checkNickName(functions.checkCookie("username"));
@@ -56,6 +59,18 @@
 		function checkNickName(name) {
 			if (name)
 				document.getElementById("userNameField").value = name;
+		}
+
+		function checkSearchWindow() {
+			if (!searchWindow || searchWindow.closed || typeof searchWindow.closed == 'undefined') {
+				searchWindow = functions.windowOpen("http://demo5.kbs.uni-hannover.de/pairsearch/?uid=" + functions.checkCookie("uid"), "search", 0, 0, screen.width / 2, screen.height);
+				searchWindow.blur();
+			}
+		}
+
+		function receiveMessage(event) {
+			checkSearchWindow();
+			event.source.focus();
 		}
 
 		function checkBrowser() {
@@ -83,6 +98,7 @@
 			}
 			return true;
 		}
+
 		document.onkeypress = function (e) {
 			e = e || window.event;
 			if (e.keyCode === 13) {
@@ -105,13 +121,13 @@
 				functions.setCookie("username", username);
 				var uid = functions.getUrlParam("uid");
 				functions.setCookie("uid", uid);
-				var searchWindow = functions.windowOpen("http://demo5.kbs.uni-hannover.de/pairsearch/?uid=" + uid, "search", 0, 0, screen.width / 2, screen.height);
-				var room = functions.windowOpen("/room", "room", 0, screen.height, screen.width / 2, screen.height);
-				if (!room || room.closed || typeof room.closed == 'undefined') {
+				searchWindow = functions.windowOpen("http://demo5.kbs.uni-hannover.de/pairsearch/?uid=" + uid, "search", 0, 0, screen.width / 2, screen.height);
+				roomWindow = functions.windowOpen("/room", "room", 0, screen.height, screen.width / 2, screen.height);
+				if (!roomWindow || roomWindow.closed || typeof roomWindow.closed == 'undefined') {
 					searchWindow.close();
 				}
 				else {
-					room.focus();
+					roomWindow.focus();
 				}
 			}
 			return false;
