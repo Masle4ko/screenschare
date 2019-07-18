@@ -93,7 +93,7 @@ var videoConstraints;
                         maxHeight: 1080,
                         minAspectRatio: 1.77
                     },
-                audio: true
+                audio: audioConstraints
             };
             easyrtc.initMediaSource(successCallback, failureCallback, streamName);
             return;

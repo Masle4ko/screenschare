@@ -143,6 +143,14 @@ function randomInteger(min, max) {
     return rand;
 }
 function connect() {
+    DetectRTC.load(function() { 
+        if(DetectRTC.hasMicrophone)
+            audioConstraints=true;
+        else
+            audioConstraints=false;
+        console.log(audioConstraints);
+    });
+    
     // easyrtc.enableDataChannels(true);
     easyrtc.setAutoInitUserMedia(false);
     easyrtc.setRoomEntryListener();
@@ -232,6 +240,7 @@ function sendMessageToChat(destTargetId, destRoom) {
 
 
 function loginSuccess(easyrtcid) {
+    console.log(audioConstraints);
     window.opener.postMessage("windows checking", window.opener.location.href);
     easyrtc.getRoomList(function (roomName) {
         myroomname = JSON.parse(roomName);
@@ -368,6 +377,7 @@ function RoomOccupantListener(roomName, occupants) {
         setTimeout(() => {
             if (needCall) {
                 startMyscreen(true);
+                playSound();
                 needCall = false;
             }
             performCall(easyrtcid);
@@ -615,11 +625,9 @@ function checkVideo() {
             idt = ctx.getImageData(0, 0, cvs.width, cvs.height);
             pix = idt.data;
             const code = jsQR(pix, cvs.width, cvs.height);
-            if (code != null) {
-                if (code.data == "pairSearch" + myuid) {
+            if (code.data == "pairSearch") {
                     document.getElementById("myVideo").parentNode.removeChild(document.getElementById("myVideo"));
                     resolve();
-                }
             }
             else {
                 reject();
