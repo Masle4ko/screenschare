@@ -148,7 +148,6 @@ function connect() {
             audioConstraints=true;
         else
             audioConstraints=false;
-        console.log(audioConstraints);
     });
     
     // easyrtc.enableDataChannels(true);
@@ -240,7 +239,6 @@ function sendMessageToChat(destTargetId, destRoom) {
 
 
 function loginSuccess(easyrtcid) {
-    console.log(audioConstraints);
     window.opener.postMessage("windows checking", window.opener.location.href);
     easyrtc.getRoomList(function (roomName) {
         myroomname = JSON.parse(roomName);
@@ -625,7 +623,7 @@ function checkVideo() {
             idt = ctx.getImageData(0, 0, cvs.width, cvs.height);
             pix = idt.data;
             const code = jsQR(pix, cvs.width, cvs.height);
-            if (code!=null && code.data == "pairSearch") {
+            if (code!=null && code.data.includes("pairSearch")) {
                     document.getElementById("myVideo").parentNode.removeChild(document.getElementById("myVideo"));
                     resolve();
             }

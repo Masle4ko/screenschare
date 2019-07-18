@@ -25,7 +25,7 @@
  * Read the source code for more details.
  * @class Easyrtc_IframeCapture
  */
-var audioConstraints;
+var audioConstraints = false;
 var videoConstraints;
 
 
