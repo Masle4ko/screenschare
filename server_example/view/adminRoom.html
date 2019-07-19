@@ -1,0 +1,164 @@
+<html>
+
+<head>
+    <title>Room</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
+    <script type="text/javascript" src="/script/other/prettify.js"></script>
+    <script type="text/javascript" src="/script/other/loadAndFilter.js"></script>
+    <script src="/node_modules/socket.io-client/dist/socket.io.js"></script>
+    <script type="text/javascript" src="/script/api/easyrtc.js"></script>
+    <!-- <script type="text/javascript" src="/script/api/easyrtc_int.js"></script> -->
+    <script type="text/javascript" src="/script/functions/functions.js"></script>
+    <script type="text/javascript" src="/script/api/labs/desktop_capture_iframe_version.js"></script>
+    <script type="text/javascript" src="/script/api/labs/easyrtc_recorder.js"></script>
+    <script type="text/javascript" src="/script/room/adminRoom.js"></script>
+    <script type="text/javascript" src="/node_modules/jsqr/dist/jsQR.js"></script>
+    <link rel="stylesheet" href="/css/start/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" crossorigin="anonymous"></script>
+    <script src="/node_modules/recordrtc/RecordRTC.js"></script>
+    <script type="text/javascript" src="https://cdn.rawgit.com/muaz-khan/DetectRTC/master/DetectRTC.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.24.4/sweetalert2.all.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.24.3/sweetalert2.css">
+</head>
+<style>
+    nav {
+        height: 30px;
+        line-height: 30px;
+    }
+
+    nav i,
+    nav [class^="mdi-"],
+    nav [class*="mdi-"],
+    nav i.material-icons {
+        height: 30px;
+        line-height: 30px;
+    }
+
+    nav .button-collapse i {
+        height: 30px;
+        line-height: 30px;
+    }
+
+    nav .brand-logo {
+        font-size: 1.6rem;
+    }
+
+    @media only screen and (min-width: 601px) {
+        nav,
+        nav .nav-wrapper i,
+        nav a.button-collapse,
+        nav a.button-collapse i {
+            height: 30px;
+            line-height: 30px;
+        }
+    }
+</style>
+
+<body id="body" onload="initApp();">
+    <div id="container">
+        <div id="main">
+            <div id="sound"></div>
+            <nav class="green">
+                <div class="nav-wrapper">
+                    <a href="#" class="brand-logo right">
+                        <i class="material-icons">video_library</i>ScreenShare</a>
+                    <!-- <ul id="nav-mobile" class="left">
+                        <li>
+                            <a onclick="showMe('forRemoteVideos')">Remote Videos</a>
+                        </li>
+                        <li>
+                            <a onclick="showMe('forChat')">Chat</a>
+                        </li>
+                        <li>
+                            <a onclick="showMe('forLocalVideos')">Local Videos</a>
+                        </li>
+                    </ul> -->
+                </div>
+            </nav>
+            <ul class="collection with-header">
+                <li class="collection-item" id="forRemoteVideos" style="display:none;">
+                    <div class="chip" id="progressMessage" style="margin: auto;width: 100%; text-align: center;">
+                        Waiting for the other user to share his screen
+                    </div>
+                    <div class="progress" id="progress">
+                        <div class="indeterminate"></div>
+                    </div>
+                    <div id="otherClients"></div>
+                    <div id="remoteVideos"></div>
+                    <!-- <div class="carousel carousel-slider center" autoplay="autoplay" id="remoteVideos">
+                        <div class="carousel-fixed-item center" style="display:none;" id="remoteVideosControlButtons">
+                            <a class="btn waves-effect white grey-text darken-text-2" style="float:left" id="nextBtn" onclick="carouselMove('next')">next</a>
+                            <a class="btn waves-effect white grey-text darken-text-2" style="float:right" id="prevBtn" onclick="carouselMove('prev')">prev</a>
+                        </div>
+                    </div> -->
+                </li>
+                <li class="collection-item" id="forChat" style="display:block;">
+                    <div class="jumbotron">
+                        <div id="receiveMessageArea">
+                            <p class="flow-text">
+                                <div id="conversation" style="display:block; overflow:auto;max-height: 200px;">
+                            </p>
+                            </div>
+                            <div class="input-field col s6">
+                                <i class="material-icons prefix">mode_edit</i>
+                                <input placeholder="Enter your message here" id="sendMessageText" type="text" class="validate">
+                                <label for="sendMessageText"></label>
+                            </div>
+                            <div id="rooms"></div>
+                        </div>
+                </li>
+
+                <li class="collection-item" autoplay="autoplay" id="forLocalVideos" style="display:none;">
+                    <div id="videoSrcBlk">
+                        <div id="otherClients"></div>
+                    </div>
+                    <br>
+                    <div id="localVideos" muted="muted" volume="0"></div>
+                    <!-- <div class="carousel carousel-slider center" autoplay="autoplay" id="localVideos" muted="muted" volume="0"> -->
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</body>
+<script>
+    // document.onkeyup = function (e) {
+    //     e = e || window.event;
+    //     if (e.keyCode === 13) {
+
+    //         var pathname = window.location.pathname.split('/')[2];
+    //         $('#' + pathname + '').click();
+    //     }
+    // }
+
+    // $(document).ready(function () {
+    //     $('#localVideos').carousel({
+    //         fullWidth: true,
+    //         indicators: false
+    //     });
+    //     $('#remoteVideos').carousel({
+    //         fullWidth: true,
+    //         indicators: false
+    //     });
+    //     $('.sidenav').sidenav();
+    // });
+
+    // function carouselMove(id) {
+    //     $('#remoteVideos').carousel(id);
+    // }
+
+    // function showMe(divId) {
+    //     if (document.getElementById(divId).style.display == "block")
+    //         var vis = "none";
+    //     if (document.getElementById(divId).style.display == "none")
+    //         var vis = "block";
+    //     document.getElementById(divId).style.display = vis;
+    // }
+</script>
+
+</html>

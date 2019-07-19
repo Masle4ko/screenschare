@@ -1,26 +1,23 @@
 <!DOCTYPE html>
 <html>
 
-	<head>
-		<meta charset="utf-8">
-		<title>Start</title>
-		<script type="text/javascript" src="/script/other/prettify.js"></script>
-		<script type="text/javascript" src="/script/other/loadAndFilter.js"></script>
-		<script src="/node_modules/socket.io-client/dist/socket.io.js"></script>
-		<script type="text/javascript" src="/script/api/easyrtc.js"></script>
-		<script type="text/javascript" src="/script/functions/functions.js"></script>
-		<script type="text/javascript" src="/script/lobby/lobby.js"></script>
-		<link rel="stylesheet" href="/css/start/style.css">
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
-		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.24.4/sweetalert2.all.js"></script>
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.24.3/sweetalert2.css">
-		<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
-		<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
-	</head>
+<head>
+	<meta charset="utf-8">
+	<title>Start</title>
+	<script type="text/javascript" src="/script/functions/functions.js"></script>
+	<link rel="stylesheet" href="/css/start/style.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+	<script type="text/javascript"
+		src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.24.4/sweetalert2.all.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.24.3/sweetalert2.css">
+	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
+	<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Detect.js/2.2.2/detect.min.js"></script>
+</head>
 
-<body onload="initApp();">
+<body onload="onPageLoad();">
 	<div id="join">
 		<div id="join-form">
 			<form class="col s12">
@@ -31,14 +28,14 @@
 					</div>
 				</div>
 				<div class="input-field col s12">
-					<p>
-						<input type="checkbox" id="roomBox" onclick="showMe(this, 'roomName')" />
+					<!-- <p>
+						<input type="checkbox" id="roomBox" onclick="showMe(this, 'roomName')"/>
 						<label for="roomBox">Connect to created room?</label>
 					</p>
-					<br />
-					<div id="roomName" type="text" style="display:none;">
+					<br /> -->
+					<div id="roomName" type="text" style="display:block;">
 						<div class="input-field col s12">
-							<label for="roomNameField">
+							<label for="roomNameField" disabled="disabled">
 								<span aria-hidden="true"></span>Room name
 							</label>
 							<input type="text" id="roomNameField">
@@ -47,7 +44,8 @@
 				</div>
 			</form>
 			<div class="input-field col s12">
-				<button class="waves-effect waves-light btn btn-success" id="connectButton" onclick="connect();">Connect</button>
+				<button class="waves-effect waves-light btn btn-success" id="connectButton"
+					onclick="connect();">Connect</button>
 			</div>
 		</div>
 	</div>
@@ -55,6 +53,28 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
 	<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 	<script type="text/javascript">
+		function onPageLoad() {
+			functions.setCookie("roomid", functions.getUrlParam("roomid"));
+			document.getElementById("roomNameField").value=functions.getUrlParam("roomid");
+			document.getElementById("roomNameField").disabled=true;
+		}
+		function connect() {
+			username = document.getElementById("userNameField").value;
+			if (username == "") {
+				swal({
+					type: 'error',
+					title: 'Oops...',
+					showConfirmButton: true,
+					allowOutsideClick: false,
+					html: '<div style="font-family: Arial, Helvetica, sans-serif;"> You did not choose username! Please chose it!</div>',
+				});
+			}
+			else {
+				functions.setCookie("username", username);
+				roomWindow = functions.windowOpen("/adminRoom", "adminRoom", 0, screen.height, screen.width, screen.height);
+			}
+			return false;
+		}
 		function showMe(box, divId) {
 			if (box.checked) {
 				var vis = "block";

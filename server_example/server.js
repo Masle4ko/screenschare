@@ -31,9 +31,18 @@ app.use(express.static(__dirname + '/script'));
 app.use(express.static(__dirname + '/logs'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+var nodemailer = require('nodemailer');
 var timers = new Array();
 var streamNamesForMerge = new Array();
-var usersSessionIds={};
+var usersSessionIds = {};
+
+var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'ascreenshare@gmail.com',
+      pass: 'dimalox312loc'
+    }
+  });
 
 log4js.configure({
     appenders: {
@@ -57,7 +66,12 @@ var DB = mysql.createPool({
     password: "Ywe9EOH9lxk6dIWk",
     database: "pairsearch"
 });
-
+app.get('/admin', function (req, res) {
+    res.sendFile(__dirname + "/view/start.html");
+});
+app.get('/adminRoom', function (req, res) {
+    res.sendFile(__dirname + "/view/adminRoom.html");
+});
 app.get('/', function (req, res) {
     res.sendFile(__dirname + "/view/lobby.html");
 });
@@ -77,27 +91,29 @@ app.post("/room/login", function (request, response) {
     if (request.body.external_client_id != null) {
         DB.getConnection(function (err, connection) {
             if (err) logger.error(err);
-            var sql = "INSERT INTO  `user` (`external_client_id`, `usecase_id`, `room_id`, `username`) VALUES (" + DB.escape(request.body.external_client_id) + ",1, " + DB.escape(request.body.room_id) + ", " + DB.escape(request.body.name) + ")";
-            connection.query(sql, function (error, result, fields) {
-                connection.release();
-                if (error) {
-                    logger.error(sql + '\n' + error.message);
-                } else {
-                    if (Number.isInteger(Number(result.insertId))) {
-                        usersSessionIds[request.body.myeasyrtcid]=result.insertId;
-                        logger.info('success user login with uid=' + request.body.external_client_id + ' his user_id=' + result.insertId);
-                        saveEvent(result.insertId,1);
-                        response.setHeader('content-type', "application/json; charset=utf-8");
-                        response.write(JSON.stringify({
-                            result: result.insertId
-                        }));
-                        response.end();
+            else {
+                var sql = "INSERT INTO  `user` (`external_client_id`, `usecase_id`, `room_id`, `username`) VALUES (" + DB.escape(request.body.external_client_id) + ",1, " + DB.escape(request.body.room_id) + ", " + DB.escape(request.body.name) + ")";
+                connection.query(sql, function (error, result, fields) {
+                    connection.release();
+                    if (error) {
+                        logger.error(sql + '\n' + error.message);
+                    } else {
+                        if (Number.isInteger(Number(result.insertId))) {
+                            usersSessionIds[request.body.myeasyrtcid] = result.insertId;
+                            logger.info('success user login with uid=' + request.body.external_client_id + ' his user_id=' + result.insertId);
+                            saveEvent(result.insertId, 1);
+                            response.setHeader('content-type', "application/json; charset=utf-8");
+                            response.write(JSON.stringify({
+                                result: result.insertId
+                            }));
+                            response.end();
+                        }
+                        else {
+                            logger.error('problem with insertId');
+                        }
                     }
-                    else {
-                        logger.error('problem with insertId');
-                    }
-                }
-            });
+                });
+            }
 
         });
     }
@@ -107,29 +123,51 @@ app.post("/room/getchat", function (request, response) {
     if (request.body.room_id != null) {
         DB.getConnection(function (err, connection) {
             if (err) logger.error(err);
-            var sql = "SELECT chat.room_id, user.external_client_id, chat.timestamp, chat.text, user.username FROM `user` inner join `chat` on  user.user_id=chat.user_id WHERE chat.room_id=" + DB.escape(Number(request.body.room_id));
-            connection.query(sql, function (error, result, fields) {
-                connection.release();
-                if (error) {
-                    logger.error(sql + '\n' + error.message);
-                } else {
-                    response.setHeader('content-type', "application/json; charset=utf-8");
-                    response.write(JSON.stringify({
-                        result: result
-                    }));
-                    response.end();
-                }
-            });
+            else {
+                var sql = "SELECT chat.room_id, user.external_client_id, chat.timestamp, chat.text, user.username FROM `user` inner join `chat` on  user.user_id=chat.user_id WHERE chat.room_id=" + DB.escape(Number(request.body.room_id));
+                connection.query(sql, function (error, result, fields) {
+                    connection.release();
+                    if (error) {
+                        logger.error(sql + '\n' + error.message);
+                    } else {
+                        response.setHeader('content-type', "application/json; charset=utf-8");
+                        response.write(JSON.stringify({
+                            result: result
+                        }));
+                        response.end();
+                    }
+                });
+            }
 
         });
     }
 });
 
 app.post('/event', function (req, res) {
-    console.log(req.body.eventId);
     saveEvent(req.body.myId, req.body.eventId);
 });
 
+app.post('/error', function (req, res) {
+    saveError(req.body.myId, req.body.errorCode, req.body.errorText);
+});
+
+app.post('/userHelp', function (req, res) {
+    console.log(req.body.myId + "===" + req.body.myroomname);
+    var mailOptions = {
+        from: '"Screenshare" <ascreenshare@gmail.com>', 
+        to: "hulyi@l3s.de", 
+        subject: "Pairsearch  user need your help!", 
+        text: "\n userid:"+ req.body.myId+"\n roomid:"+req.body.myroomname+"\n link to the room:"+req.protocol + "://" + req.headers.host + req.baseUrl+"/admin/?roomid="+req.body.myroomname
+    };
+    transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+            logger.error(error);
+        } else {
+            logger.info('Email sent: ' + info.response);
+            saveEvent(req.body.myId, 5);
+        }
+    });
+});
 var webServer = http.createServer(app).listen(8000);
 easyrtc.setOption("roomDefaultEnable", false);
 
@@ -193,7 +231,7 @@ var rtc = easyrtc.listen(app, socketServer, function (err, rtcRef) {
         appObj.events.defaultListeners.roomCreate(appObj, creatorConnectionObj, roomName, roomOptions, callback);
     });
 });
-easyrtc.events.on('disconnect', function(connectionObj, next) {
+easyrtc.events.on('disconnect', function (connectionObj, next) {
     saveEvent(usersSessionIds[connectionObj.getEasyrtcid()], 4);
     delete usersSessionIds[connectionObj.getEasyrtcid()];
     connectionObj.events.defaultListeners.disconnect(connectionObj, next);
@@ -204,15 +242,17 @@ app.post("/room/:roomId/saveMessage", function (req, res) {
     if (Number.isInteger(Number(req.body.user_id)) && Number(req.body.user_id) > 1) {
         DB.getConnection(function (err, connection) {
             if (err) throw err;
-            var sql = "INSERT INTO  `chat` (`user_id` ,  `text` ,  `room_id`) VALUES (" + DB.escape(req.body.user_id) + ", " + DB.escape(req.body.chat) + ", " + DB.escape(req.body.roomId) + ")";
-            connection.query(sql, function (error) {
-                connection.release();
-                if (error) {
-                    logger.error(sql + '\n' + error.message);
-                } else {
-                    logger.info('Successfully saved message from user_id=' + req.body.user_id);
-                }
-            });
+            else {
+                var sql = "INSERT INTO  `chat` (`user_id` ,  `text` ,  `room_id`) VALUES (" + DB.escape(req.body.user_id) + ", " + DB.escape(req.body.chat) + ", " + DB.escape(req.body.roomId) + ")";
+                connection.query(sql, function (error) {
+                    connection.release();
+                    if (error) {
+                        logger.error(sql + '\n' + error.message);
+                    } else {
+                        logger.info('Successfully saved message from user_id=' + req.body.user_id);
+                    }
+                });
+            }
         });
     }
 });
@@ -253,15 +293,35 @@ function saveEvent(myId, actionId) {
     if (Number.isInteger(Number(myId)) && Number(myId) > 1 && Number.isInteger(Number(actionId)) && Number(actionId) >= 0) {
         DB.getConnection(function (err, connection) {
             if (err) logger.error(err);
-            var sql = "INSERT INTO  `event` (  `user_id` ,  `action_id` ) VALUES (" + DB.escape(myId) + "," + DB.escape(actionId) + ")"
-            connection.query(sql, function (error) {
-                connection.release();
-                if (error) {
-                    logger.error(sql + '\n' + error.message)
-                } else {
-                    logger.info('Successfully saved event with id=' + actionId + ' from client id=' + myId);
-                }
-            });
+            else {
+                var sql = "INSERT INTO  `event` (  `user_id` ,  `action_id` ) VALUES (" + DB.escape(myId) + "," + DB.escape(actionId) + ")"
+                connection.query(sql, function (error) {
+                    connection.release();
+                    if (error) {
+                        logger.error(sql + '\n' + error.message)
+                    } else {
+                        logger.info('Successfully saved event with id=' + actionId + ' from client id=' + myId);
+                    }
+                });
+            }
+        });
+    }
+}
+function saveError(myId, errorCode, errorText) {
+    if (Number.isInteger(Number(myId)) && Number(myId) > 1 && errorCode && errorText) {
+        DB.getConnection(function (err, connection) {
+            if (err) logger.error(err);
+            else {
+                var sql = "INSERT INTO  `userErrors` (  `user_id` ,  `errorCode`,  `errorText` ) VALUES (" + DB.escape(myId) + "," + DB.escape(errorCode) + "," + DB.escape(errorText) + ")"
+                connection.query(sql, function (error) {
+                    connection.release();
+                    if (error) {
+                        logger.error(sql + '\n' + error.message)
+                    } else {
+                        logger.info('Successfully saved error from client id=' + myId);
+                    }
+                });
+            }
         });
     }
 }

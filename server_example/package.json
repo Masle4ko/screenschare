@@ -27,6 +27,7 @@
     "mongoose": "^5.0.17",
     "mysql": "^2.15.0",
     "node-mariadb": "^0.1.1",
+    "nodemailer": "^6.3.0",
     "openssl-wrapper": "^0.3.4",
     "recordrtc": "^5.4.6",
     "request": "^2.87.0",
