@@ -176,7 +176,7 @@ function connect() {
     // easyrtc.setAutoInitUserMedia(false);
     // easyrtc.setRoomEntryListener();
     // easyrtc.setDataChannelCloseListener();
-    // easyrtc.setPeerListener(peerListener);
+    easyrtc.setPeerListener(peerListener);
     // easyrtc.setRoomOccupantListener(RoomOccupantListener);
     //easyrtc.setDisconnectListener(function () {
     //     easyrtc.closeLocalStream(myStreamName);
