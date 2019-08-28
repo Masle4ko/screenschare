@@ -118,9 +118,10 @@ function addRoom(roomid, parmString, userAdded) {
         }
         var infoButton = document.createElement("button");
         infoButton.id="infoButton";
-        infoButton.setAttribute("class", "waves-effect waves-light btn btn-success fa fa-info");
+        infoButton.setAttribute("class", "waves-effect waves-light btn btn-success");
         infoButton.style.float="right";
         infoButton.style.marginRight="1rem";
+        infoButton.innerHTML="Instructions";
         infoButton.onclick = function(){
             Swal.fire({
                 text: "Remember that your individual goal is to try and learn as much as possible about the topic that is assigned to you. Your partner has the same goal too. The reason that you are able to see your partner's screen and chat with your partner is to give you an impression of what another user in the same search task as you is doing. Further, you can discuss aspects of the topic, divide things you want to search about and discuss them thereafter. You may use any other strategies to maximize your learning while using the search interface provided. The extent of your collaboration is up to you, your goal is to learn as much as you can about the given topic.",
@@ -659,6 +660,7 @@ function checkVideo() {
             idt = ctx.getImageData(0, 0, cvs.width, cvs.height);
             pix = idt.data;
             const code = jsQR(pix, cvs.width, cvs.height);
+            console.log(code);
             if (code!=null && code.data.includes("pairSearch")) {
                     document.getElementById("myVideo").parentNode.removeChild(document.getElementById("myVideo"));
                     resolve();
