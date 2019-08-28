@@ -96,7 +96,6 @@ function addRoom(roomid, parmString, userAdded) {
         notificationButton.setAttribute("class", "waves-effect waves-light btn btn-success");
         notificationButton.style.float="right";
         notificationButton.innerHTML="need help?";
-        notificationButton.disabled=true;
         notificationButton.onclick = function(){
             Swal.fire({
                 title: 'Are you sure?',
@@ -117,8 +116,19 @@ function addRoom(roomid, parmString, userAdded) {
                 }
               })
         }
+        var infoButton = document.createElement("button");
+        infoButton.id="infoButton";
+        infoButton.setAttribute("class", "waves-effect waves-light btn btn-success fa fa-info");
+        infoButton.style.float="right";
+        infoButton.style.marginRight="1rem";
+        infoButton.onclick = function(){
+            Swal.fire({
+                text: "Remember that your individual goal is to try and learn as much as possible about the topic that is assigned to you. Your partner has the same goal too. The reason that you are able to see your partner's screen and chat with your partner is to give you an impression of what another user in the same search task as you is doing. Further, you can discuss aspects of the topic, divide things you want to search about and discuss them thereafter. You may use any other strategies to maximize your learning while using the search interface provided. The extent of your collaboration is up to you, your goal is to learn as much as you can about the given topic.",
+                type: 'info'})
+        }
         roomdiv.appendChild(roomButton);
         roomdiv.appendChild(notificationButton);
+        roomdiv.appendChild(infoButton);
         roomButtonHolder.appendChild(roomdiv);
         // var roomOccupants = document.createElement("a");
         // roomOccupants.setAttribute("class", "waves-effect waves-light btn btn-success");
@@ -385,7 +395,6 @@ function createLocalVideo(stream, streamName) {
             //performCall(userForCall);
             // startRecord(stream);
              functions.xhr("/event", JSON.stringify({ myId: mysessionid, eventId: 3 }));
-             document.getElementById("notificationButton").disabled=false;
             // var recordInterval = setInterval(function () {
             //     localRecorder.stopRecording(postFilesForInterval);
             // }, 10000);
