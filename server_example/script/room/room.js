@@ -290,13 +290,13 @@ function loginSuccess(easyrtcid) {
     document.getElementById("main").className = "connected";
     enable('otherClients');
     updatePresence();
-    // swal({
-    //     title: "Hello.",
-    //     allowOutsideClick: false,
-    //     html: '<div style="+"font-family: Arial, Helvetica, sans-serif;">Wait until the second user connects.</div>',
-    //     icon: "info",
-    //     showConfirmButton: false
-    // })
+    swal({
+        title: "Hello.",
+        allowOutsideClick: false,
+        html: '<div style="+"font-family: Arial, Helvetica, sans-serif;">Wait until the second user connects.</div>',
+        icon: "info",
+        showConfirmButton: false
+    })
 }
 
 
@@ -660,13 +660,13 @@ function checkVideo() {
             idt = ctx.getImageData(0, 0, cvs.width, cvs.height);
             pix = idt.data;
             const code = jsQR(pix, cvs.width, cvs.height);
-           // if (code!=null && code.data.includes("pairSearch")) {
+            if (code!=null && code.data.includes("pairSearch")) {
                     document.getElementById("myVideo").parentNode.removeChild(document.getElementById("myVideo"));
                     resolve();
-            // }
-            // else {
-            //     reject();
-            // }
+             }
+             else {
+                 reject();
+            }
         };
         img.setAttribute('src', frame.dataUri);
     });
