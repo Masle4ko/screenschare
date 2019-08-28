@@ -49,28 +49,28 @@ var videoConstraints;
       *          });
       *
       */
-    var iframeUrl = 'https://www.webrtc-experiment.com/getSourceId/';
+    // var iframeUrl = 'https://www.webrtc-experiment.com/getSourceId/';
 
-    var iframe = document.createElement('iframe');
+    // var iframe = document.createElement('iframe');
 
-    iframe.onload = function () {
-        iframe.isLoaded = true;
-    };
+    // iframe.onload = function () {
+    //     iframe.isLoaded = true;
+    // };
 
-    iframe.src = iframeUrl;
+    // iframe.src = iframeUrl;
 
-    iframe.style.display = 'none';
+    // iframe.style.display = 'none';
 
-    function postMessage() {
-        if (!iframe.isLoaded) {
-            setTimeout(postMessage, 100);
-            return;
-        }
+    // function postMessage() {
+    //     if (!iframe.isLoaded) {
+    //         setTimeout(postMessage, 100);
+    //         return;
+    //     }
 
-        iframe.contentWindow.postMessage({
-            captureSourceId: true
-        }, '*');
-    }
+    //     iframe.contentWindow.postMessage({
+    //         captureSourceId: true
+    //     }, '*');
+    // }
 
     easyrtc.initDesktopStream = function (successCallback, failureCallback, streamName) {
         // for Firefox:
@@ -136,5 +136,5 @@ var videoConstraints;
         window.addEventListener('message', cb);
     };
 
-    (document.body || document.documentElement).appendChild(iframe);
+    // (document.body || document.documentElement).appendChild(iframe);
 })();
