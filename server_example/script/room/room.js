@@ -304,7 +304,6 @@ function loginSuccess(easyrtcid) {
 function loginFailure(errorCode, message) {
     easyrtc.showError("LOGIN-FAILURE", message);
     functions.xhr("/error", JSON.stringify({ myId: mysessionid, errorCode: "LOGIN-FAILURE", errorText:message }));
-    document.getElementById('connectButton').disabled = false;
     jQuery('#rooms').empty();
 }
 
