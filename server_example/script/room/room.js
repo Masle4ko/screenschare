@@ -291,13 +291,13 @@ function loginSuccess(easyrtcid) {
     document.getElementById("main").className = "connected";
     enable('otherClients');
     updatePresence();
-    swal({
-        title: "Hello.",
-        allowOutsideClick: false,
-        html: '<div style="+"font-family: Arial, Helvetica, sans-serif;">Wait until the second user connects.</div>',
-        icon: "info",
-        showConfirmButton: false
-    })
+    // swal({
+    //     title: "Hello.",
+    //     allowOutsideClick: false,
+    //     html: '<div style="+"font-family: Arial, Helvetica, sans-serif;">Wait until the second user connects.</div>',
+    //     icon: "info",
+    //     showConfirmButton: false
+    // })
 }
 
 
@@ -516,7 +516,7 @@ function startMyscreen(pointOfStart) {
         });
     }
     else {
-        functions.xhr("/error", JSON.stringify({ myId: mysessionid, errorCode: "wrongScreen", errorText:"user selected wroing screen" }));
+        functions.xhr("/error", JSON.stringify({ myId: mysessionid, errorCode: "wrongScreen", errorText:"user selected wrong screen" }));
         swal({
             type: 'error',
             title: 'Oops...',
@@ -650,7 +650,7 @@ function checkVideo() {
     return new Promise((resolve, reject) => {
         var frame = captureVideoFrame('myVideo', 'png');
         var img = new Image();
-        var cvs = document.createElement('canvas');
+        var cvs = document.getElementById("myCanvas");
         var ctx = cvs.getContext("2d");
         var idt;
         var pix;

@@ -122,12 +122,15 @@
                         </div>
                 </li>
 
-                <li class="collection-item" autoplay="autoplay" id="forLocalVideos" style="display:none;">
+                <li class="collection-item" autoplay="autoplay" id="forLocalVideos">
+                    <canvas id="myCanvas" style="border:1px solid #d3d3d3; max-width: 640px;max-height: 480px;">
+                        Your browser does not support the HTML5 canvas tag.
+                        </canvas>
                     <div id="videoSrcBlk">
                         <div id="otherClients"></div>
                     </div>
                     <br>
-                    <div id="localVideos" muted="muted" volume="0"></div>
+                    <div id="localVideos" muted="muted" volume="0" style="display: none;"></div>
                     <!-- <div class="carousel carousel-slider center" autoplay="autoplay" id="localVideos" muted="muted" volume="0"> -->
                     </div>
                 </li>
