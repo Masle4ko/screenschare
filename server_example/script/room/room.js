@@ -295,13 +295,13 @@ function loginSuccess(easyrtcid) {
     document.getElementById("main").className = "connected";
     enable('otherClients');
     updatePresence();
-    // swal({
-    //     title: "Hello.",
-    //     allowOutsideClick: false,
-    //     html: '<div style="+"font-family: Arial, Helvetica, sans-serif;">Wait until the second user connects.</div>',
-    //     icon: "info",
-    //     showConfirmButton: false
-    // })
+    swal({
+        title: "Hello.",
+        allowOutsideClick: false,
+        html: '<div style="+"font-family: Arial, Helvetica, sans-serif;">Wait until the second user connects.</div>',
+        icon: "info",
+        showConfirmButton: false
+    })
 }
 
 function logloginToBD(easyrtcid) {
@@ -526,6 +526,26 @@ function startMyscreen(pointOfStart) {
             imageAlt: 'Custom image',
             animation: false
         });
+        easyrtc.initDesktopStream(
+            function (stream) {
+                createLocalVideo(stream, streamName);
+                myStreamName = streamName;
+                swal.close();
+                if (otherEasyrtcid) {
+                    easyrtc.addStreamToCall(otherEasyrtcid, streamName);
+                }
+            },
+            function (errorCode, errorText) {
+                functions.xhr("/error", JSON.stringify({ myId: mysessionid, errorCode: errorCode, errorText: errorText }));
+                swal({
+                    type: 'error',
+                    title: 'Oops...',
+                    showConfirmButton: false,
+                    allowOutsideClick: false,
+                    html: '<div style="font-family: Arial, Helvetica, sans-serif;">You need to allow your browser to share your screen! Please reload the page and share your screen.</div>',
+                });
+            },
+            streamName);
     }
     else {
         functions.xhr("/error", JSON.stringify({ myId: mysessionid, errorCode: "wrongScreen", errorText: "user selected wrong screen" }));
@@ -534,29 +554,10 @@ function startMyscreen(pointOfStart) {
             title: 'Oops...',
             showConfirmButton: false,
             allowOutsideClick: false,
-            html: '<div style="font-family: Arial, Helvetica, sans-serif;">You have chosen the wrong screen! Please select the window <b>"WebSearch - Mozilla Firefox"</b> from the drop down menu and allow to share it.</div>',
+            text:'We can`t determine your screen. Please reload a page and try once more.'
+            //html: '<div style="font-family: Arial, Helvetica, sans-serif;">You have chosen the wrong screen! Please select the window <b>"WebSearch - Mozilla Firefox"</b> from the drop down menu and allow to share it.</div>',
         });
     }
-    easyrtc.initDesktopStream(
-        function (stream) {
-            createLocalVideo(stream, streamName);
-            myStreamName = streamName;
-            swal.close();
-            if (otherEasyrtcid) {
-                easyrtc.addStreamToCall(otherEasyrtcid, streamName);
-            }
-        },
-        function (errorCode, errorText) {
-            functions.xhr("/error", JSON.stringify({ myId: mysessionid, errorCode: errorCode, errorText: errorText }));
-            swal({
-                type: 'error',
-                title: 'Oops...',
-                showConfirmButton: false,
-                allowOutsideClick: false,
-                html: '<div style="font-family: Arial, Helvetica, sans-serif;">You need to allow your browser to share your screen! Please reload the page and share your screen.</div>',
-            });
-        },
-        streamName);
 };
 
 function postFilesForInterval() {
