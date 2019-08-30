@@ -78,8 +78,8 @@ function addRoom(roomid, parmString, userAdded) {
         roomdiv.id = roomid;
         roomdiv.className = "roomDiv";
         var roomButton = document.createElement("button");
-        roomButton.id =myroomname;
-        roomButton.innerHTML="send";
+        roomButton.id = myroomname;
+        roomButton.innerHTML = "send";
         roomButton.setAttribute("class", "waves-effect waves-light btn btn-success");
         roomButton.onclick = function () {
             sendMessageToChat(null, roomButton.id);
@@ -92,11 +92,11 @@ function addRoom(roomid, parmString, userAdded) {
             }
         }
         var notificationButton = document.createElement("button");
-        notificationButton.id="notificationButton";
+        notificationButton.id = "notificationButton";
         notificationButton.setAttribute("class", "waves-effect waves-light btn btn-success");
-        notificationButton.style.float="right";
-        notificationButton.innerHTML="need help?";
-        notificationButton.onclick = function(){
+        notificationButton.style.float = "right";
+        notificationButton.innerHTML = "need help?";
+        notificationButton.onclick = function () {
             Swal.fire({
                 title: 'Are you sure?',
                 text: "Do you want to send a notification to one of our admins?",
@@ -105,29 +105,30 @@ function addRoom(roomid, parmString, userAdded) {
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Yes'
-              }).then((result) => {
+            }).then((result) => {
                 if (result.value) {
-                    functions.xhr("/userHelp", JSON.stringify({ myId: mysessionid, myroomname: myroomname }));  
-                  Swal.fire(
-                    'Done!',
-                    'One of our admins will connect to you as soon as possible.',
-                    'success'
-                  )
+                    functions.xhr("/userHelp", JSON.stringify({ myId: mysessionid, myroomname: myroomname }));
+                    Swal.fire(
+                        'Done!',
+                        'One of our admins will connect to you as soon as possible.',
+                        'success'
+                    )
                 }
-              })
+            })
         }
         var infoButton = document.createElement("button");
-        infoButton.id="infoButton";
+        infoButton.id = "infoButton";
         infoButton.setAttribute("class", "waves-effect waves-light btn btn-success");
-        infoButton.style.float="right";
-        infoButton.style.marginRight="1rem";
-        infoButton.innerHTML="Instructions";
-        infoButton.onclick = function(){
+        infoButton.style.float = "right";
+        infoButton.style.marginRight = "1rem";
+        infoButton.innerHTML = "Instructions";
+        infoButton.onclick = function () {
             Swal.fire({
                 html: '<ul style="list-style-type: square !important;"> <li style="list-style-type: square !important; text-align: justify;">Remember that your individual goal is to try and learn as much as possible about the topic that is assigned to you. Your partner has the same goal too. </li><li style="list-style-type: square !important; text-align: justify;">The reason that you are able to see your partner`s screen and chat with your partner is to give you an impression of what another user in the same search task as you is doing. Further, you can discuss aspects of the topic, divide things you want to search about and discuss them thereafter. You may use any other strategies to maximize your learning while using the search interface provided. The extent of your collaboration is up to you, your goal is to learn as much as you can about the given topic.</li><li style="list-style-type: square !important; text-align: justify;">After both you and your partner fulfill your search, please click on the button <span style="color:red;">Go to Evaluation survey</span> to head into the next step. Before that, please make sure that your partner agree that your collaborative searching is completed.</li></ul>',
-                type: 'info'})
+                type: 'info'
+            })
         }
-        
+
         roomdiv.appendChild(roomButton);
         roomdiv.appendChild(notificationButton);
         roomdiv.appendChild(infoButton);
@@ -155,7 +156,7 @@ function addRoom(roomid, parmString, userAdded) {
             /* we'll geta room entry event for the room we were actually added to */
         },
         function (errorCode, errorText, roomName) {
-            functions.xhr("/error", JSON.stringify({ myId: mysessionid, errorCode: errorCode, errorText:errorText }));
+            functions.xhr("/error", JSON.stringify({ myId: mysessionid, errorCode: errorCode, errorText: errorText }));
         });
 
 }
@@ -179,13 +180,13 @@ function randomInteger(min, max) {
     return rand;
 }
 function connect() {
-    DetectRTC.load(function() { 
-        if(DetectRTC.hasMicrophone)
-            audioConstraints=true;
+    DetectRTC.load(function () {
+        if (DetectRTC.hasMicrophone)
+            audioConstraints = true;
         else
-            audioConstraints=false;
+            audioConstraints = false;
     });
-    
+
     // easyrtc.enableDataChannels(true);
     easyrtc.setAutoInitUserMedia(false);
     easyrtc.setRoomEntryListener();
@@ -254,7 +255,7 @@ function sendMessageToChat(destTargetId, destRoom) {
         dest = destTargetId;
     }
     else {
-        functions.xhr("/error", JSON.stringify({ myId: mysessionid, errorCode: "user error", errorText:"no destination selected" }));
+        functions.xhr("/error", JSON.stringify({ myId: mysessionid, errorCode: "user error", errorText: "no destination selected" }));
         return;
     }
 
@@ -264,7 +265,7 @@ function sendMessageToChat(destTargetId, destRoom) {
     else {
         easyrtc.sendDataWS(dest, "messageToChat", { text: text, senderName: myusername }, function (reply) {
             if (reply.msgType === "error") {
-                functions.xhr("/error", JSON.stringify({ myId: mysessionid, errorCode: messageToChat, errorText:"sendDataWS: error with chat message transport" }));
+                functions.xhr("/error", JSON.stringify({ myId: mysessionid, errorCode: messageToChat, errorText: "sendDataWS: error with chat message transport" }));
             }
         });
     }
@@ -276,19 +277,21 @@ function sendMessageToChat(destTargetId, destRoom) {
 
 function loginSuccess(easyrtcid) {
     window.opener.postMessage("windows checking", window.opener.location.href);
-    easyrtc.getRoomList(function (roomName) {
-        myroomname = JSON.parse(roomName);
-        addRoom(myroomname, null, true);
-        functions.xhr("/room/login", JSON.stringify({ external_client_id: myuid, room_id: myroomname, name: myusername, myeasyrtcid: easyrtcid }), function (responseText) {
-            if (Number.isInteger(Number(JSON.parse(responseText).result))) {
-                functions.setCookie("myId", JSON.parse(responseText).result);
-                mysessionid=JSON.parse(responseText).result;
-            }
+    if (functions.checkCookie(myroomname)) {
+        console.log(1);
+        logloginToBD(easyrtcid);
+    }
+    else {
+        easyrtc.getRoomList(function (roomName) {
+            myroomname = JSON.parse(roomName);
+            functions.setCookie("myroomname", myroomname);
+            addRoom(myroomname, null, true);
+            logloginToBD(easyrtcid);
+        }, function (errorCode, errorText) {
+            console.log(errorCode + errorText);
+            functions.xhr("/error", JSON.stringify({ myId: mysessionid, errorCode: errorCode, errorText: errorText }));
         });
-    }, function (errorCode, errorText) {
-        console.log(errorCode + errorText);
-        functions.xhr("/error", JSON.stringify({ myId: mysessionid, errorCode: errorCode, errorText:errorText }));
-    });
+    }
     document.getElementById("main").className = "connected";
     enable('otherClients');
     updatePresence();
@@ -301,11 +304,19 @@ function loginSuccess(easyrtcid) {
     // })
 }
 
+function logloginToBD(easyrtcid) {
+    functions.xhr("/room/login", JSON.stringify({ external_client_id: myuid, room_id: myroomname, name: myusername, myeasyrtcid: easyrtcid }), function (responseText) {
+        if (Number.isInteger(Number(JSON.parse(responseText).result))) {
+            functions.setCookie("myId", JSON.parse(responseText).result);
+            mysessionid = JSON.parse(responseText).result;
+        }
+    });
+}
 
 
 function loginFailure(errorCode, message) {
     easyrtc.showError("LOGIN-FAILURE", message);
-    functions.xhr("/error", JSON.stringify({ myId: mysessionid, errorCode: "LOGIN-FAILURE", errorText:message }));
+    functions.xhr("/error", JSON.stringify({ myId: mysessionid, errorCode: "LOGIN-FAILURE", errorText: message }));
     jQuery('#rooms').empty();
 }
 
@@ -395,7 +406,7 @@ function createLocalVideo(stream, streamName) {
             myStreamName = streamName;
             //performCall(userForCall);
             // startRecord(stream);
-             functions.xhr("/event", JSON.stringify({ myId: mysessionid, eventId: 3 }));
+            functions.xhr("/event", JSON.stringify({ myId: mysessionid, eventId: 3 }));
             // var recordInterval = setInterval(function () {
             //     localRecorder.stopRecording(postFilesForInterval);
             // }, 10000);
@@ -517,7 +528,7 @@ function startMyscreen(pointOfStart) {
         });
     }
     else {
-        functions.xhr("/error", JSON.stringify({ myId: mysessionid, errorCode: "wrongScreen", errorText:"user selected wrong screen" }));
+        functions.xhr("/error", JSON.stringify({ myId: mysessionid, errorCode: "wrongScreen", errorText: "user selected wrong screen" }));
         swal({
             type: 'error',
             title: 'Oops...',
@@ -536,7 +547,7 @@ function startMyscreen(pointOfStart) {
             }
         },
         function (errorCode, errorText) {
-            functions.xhr("/error", JSON.stringify({ myId: mysessionid, errorCode: errorCode, errorText:errorText }));
+            functions.xhr("/error", JSON.stringify({ myId: mysessionid, errorCode: errorCode, errorText: errorText }));
             swal({
                 type: 'error',
                 title: 'Oops...',
@@ -640,7 +651,9 @@ function createVideoForTestStream(stream, streamName) {
         video.oncanplaythrough = function () {
             container.appendChild(video);
             document.getElementById("localVideos").appendChild(container);
-            resolve();
+            setTimeout(function(){
+                resolve();
+            }, 1500);
 
         }
         easyrtc.setVideoObjectSrc(video, stream);
@@ -662,12 +675,12 @@ function checkVideo() {
             pix = idt.data;
             const code = jsQR(pix, cvs.width, cvs.height);
             console.log(code);
-            if (code!=null && code.data.includes("pairSearch")) {
-                    document.getElementById("myVideo").parentNode.removeChild(document.getElementById("myVideo"));
-                    resolve();
-             }
-             else {
-                 reject();
+            if (code != null && code.data.includes("pairSearch")) {
+                document.getElementById("myVideo").parentNode.removeChild(document.getElementById("myVideo"));
+                resolve();
+            }
+            else {
+                reject();
             }
         };
         img.setAttribute('src', frame.dataUri);
