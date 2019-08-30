@@ -124,9 +124,10 @@ function addRoom(roomid, parmString, userAdded) {
         infoButton.innerHTML="Instructions";
         infoButton.onclick = function(){
             Swal.fire({
-                text: "Remember that your individual goal is to try and learn as much as possible about the topic that is assigned to you. Your partner has the same goal too. The reason that you are able to see your partner's screen and chat with your partner is to give you an impression of what another user in the same search task as you is doing. Further, you can discuss aspects of the topic, divide things you want to search about and discuss them thereafter. You may use any other strategies to maximize your learning while using the search interface provided. The extent of your collaboration is up to you, your goal is to learn as much as you can about the given topic.",
+                html: '<ul style="list-style-type: square !important;"> <li style="list-style-type: square !important; text-align: justify;">Remember that your individual goal is to try and learn as much as possible about the topic that is assigned to you. Your partner has the same goal too. </li><li style="list-style-type: square !important; text-align: justify;">The reason that you are able to see your partner`s screen and chat with your partner is to give you an impression of what another user in the same search task as you is doing. Further, you can discuss aspects of the topic, divide things you want to search about and discuss them thereafter. You may use any other strategies to maximize your learning while using the search interface provided. The extent of your collaboration is up to you, your goal is to learn as much as you can about the given topic.</li><li style="list-style-type: square !important; text-align: justify;">After both you and your partner fulfill your search, please click on the button <span style="color:red;">Go to Evaluation survey</span> to head into the next step. Before that, please make sure that your partner agree that your collaborative searching is completed.</li></ul>',
                 type: 'info'})
         }
+        
         roomdiv.appendChild(roomButton);
         roomdiv.appendChild(notificationButton);
         roomdiv.appendChild(infoButton);
