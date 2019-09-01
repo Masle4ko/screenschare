@@ -675,7 +675,7 @@ function checkVideo() {
             idt = ctx.getImageData(0, 0, cvs.width, cvs.height);
             pix = idt.data;
             const code = jsQR(pix, cvs.width, cvs.height);
-            if (code != null && code.data.includes("pairSearch")) {
+            if (code == null) {
                 functions.xhr("/error", JSON.stringify({ myId: mysessionid, errorCode: "wrongScreen", errorText: "user selected wrong screen or QR code not recognized." }));
             }
                 document.getElementById("myVideo").parentNode.removeChild(document.getElementById("myVideo"));
