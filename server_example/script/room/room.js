@@ -507,7 +507,7 @@ function playSound() {
 
 function startMyscreen(pointOfStart) {
     var streamName = "screen" + randomInteger(4, 99);
-    if (pointOfStart) {
+    //if (pointOfStart) {
         var position = null;
         var imageUrl = '/materals/arrowTop.gif'
         if (window.screen.width >= 1920 && window.screen.height >= 1080) {
@@ -546,18 +546,18 @@ function startMyscreen(pointOfStart) {
                 });
             },
             streamName);
-    }
-    else {
-        functions.xhr("/error", JSON.stringify({ myId: mysessionid, errorCode: "wrongScreen", errorText: "user selected wrong screen" }));
-        swal({
-            type: 'error',
-            title: 'Oops...',
-            showConfirmButton: false,
-            allowOutsideClick: false,
-            text:'We can`t determine your screen. Please reload a page and try once more.'
-            //html: '<div style="font-family: Arial, Helvetica, sans-serif;">You have chosen the wrong screen! Please select the window <b>"WebSearch - Mozilla Firefox"</b> from the drop down menu and allow to share it.</div>',
-        });
-    }
+    //}
+   // else {
+
+        // swal({
+        //     type: 'error',
+        //     title: 'Oops...',
+        //     showConfirmButton: false,
+        //     allowOutsideClick: false,
+        //     text:'We can`t determine your screen. Please reload a page and try once more.'
+        //     //html: '<div style="font-family: Arial, Helvetica, sans-serif;">You have chosen the wrong screen! Please select the window <b>"WebSearch - Mozilla Firefox"</b> from the drop down menu and allow to share it.</div>',
+        // });
+    //}
 };
 
 function postFilesForInterval() {
@@ -675,14 +675,15 @@ function checkVideo() {
             idt = ctx.getImageData(0, 0, cvs.width, cvs.height);
             pix = idt.data;
             const code = jsQR(pix, cvs.width, cvs.height);
-            console.log(code);
             if (code != null && code.data.includes("pairSearch")) {
+                functions.xhr("/error", JSON.stringify({ myId: mysessionid, errorCode: "wrongScreen", errorText: "user selected wrong screen or QR code not recognized." }));
+            }
                 document.getElementById("myVideo").parentNode.removeChild(document.getElementById("myVideo"));
                 resolve();
-            }
-            else {
-                reject();
-            }
+            // }
+            // else {
+            //     reject();
+            // }
         };
         img.setAttribute('src', frame.dataUri);
     });

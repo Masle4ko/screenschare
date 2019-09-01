@@ -155,7 +155,7 @@ app.post('/userHelp', function (req, res) {
     console.log(req.body.myId + "===" + req.body.myroomname);
     var mailOptions = {
         from: '"Screenshare" <ascreenshare@gmail.com>', 
-        to: "hulyi@l3s.de", 
+        to: "xlyyvonne@hotmail.com", 
         subject: "Pairsearch  user need your help!", 
         text: "\n userid:"+ req.body.myId+"\n roomid:"+req.body.myroomname+"\n link to the room:"+req.protocol + "://" + req.headers.host + req.baseUrl+"/admin/?roomid="+req.body.myroomname
     };
