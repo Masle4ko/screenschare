@@ -24,7 +24,7 @@
     "materialize-css": "^1.0.0-rc.1",
     "mime": "^2.3.1",
     "moment": "^2.22.2",
-    "mongoose": "^5.0.17",
+    "mongoose": "^5.7.5",
     "mysql": "^2.15.0",
     "node-mariadb": "^0.1.1",
     "nodemailer": "^6.3.0",
