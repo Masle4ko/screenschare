@@ -35,7 +35,7 @@
     "nodemailer": "^6.3.0",
     "rtcpeerconnection": "^8.4.0",
     "stunturncheck": "^1.0.2",
-    "underscore": "1.5.x",
+    "underscore": "1.12.x",
     "webrtc": "^1.14.1",
     "woveon-logger": "0.0.6-c"
   },
